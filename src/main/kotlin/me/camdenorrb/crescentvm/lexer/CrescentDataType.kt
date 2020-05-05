@@ -26,7 +26,7 @@ enum class CrescentDataType {
     MAP,
     MUTABLE_MAP,
     SET,
-    SORTEDSET,
+    SORTED_SET,
     REFERENCE,
     TEXT,
     FUN
