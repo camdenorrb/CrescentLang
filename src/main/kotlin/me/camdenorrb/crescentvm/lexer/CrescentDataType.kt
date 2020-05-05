@@ -3,22 +3,32 @@ package me.camdenorrb.crescentvm.lexer
 enum class CrescentDataType {
 
     // Numbers
-    SHO,
-    INT,
-    LON,
-    DOU,
+    I8,
+    I16,
+    I32,
+    I64,
+    //I128,
+
+    NUMBER,
 
     // Unsigned Numbers
-    UNB,
-    UNS,
-    UNI,
-    UNL,
-    UNF,
-    UND,
+    U8,
+    U16,
+    U32,
+    U64,
 
     // Other
-    CHR,
-    FUN,
-    STR
+    CHAR, // U8
+    ARRAY,
+    TENSOR,
+    MUTABLE_LIST,
+    LIST,
+    MAP,
+    MUTABLE_MAP,
+    SET,
+    SORTEDSET,
+    REFERENCE,
+    TEXT,
+    FUN
 
 }
