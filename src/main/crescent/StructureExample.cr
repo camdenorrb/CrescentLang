@@ -1,7 +1,15 @@
 StructureExample(
-    val Int aNumber         // New lines makes commas redundant
-    val Int aValue1 aValue2 // Multi declaration of same type
+    val Int aNumber              // New lines makes commas redundant
+    val String aValue1 aValue2   // Multi declaration of same type
 ) {
+
+    // _ represents the same as default constructor
+    // Then we can use that in order to fill in the other params
+    constructor(_, “$aNumber”, “$aNumber”)
+
+    init {
+        //do things
+    }
 
     // Utility isn’t binded to Structure instance
 
@@ -19,19 +27,16 @@ StructureExample(
 
     // Self are binded to StructureExample instance
 
-    self sub(Int value2) Int {
+    // Public by default
+    sub(Int value2) Int {
         return self.aNumber - value2
     }
 
-}
+    prot doThing1() {
+    }
 
-
-StructureExample(
-    val Int aNumber
-    val Int aValue1, aValue2
-) {
-
-    static {
+    // () redundant
+    priv doThing2 {
 
     }
 
