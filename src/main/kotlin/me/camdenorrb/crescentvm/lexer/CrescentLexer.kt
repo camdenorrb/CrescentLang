@@ -4,7 +4,7 @@ import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 
 class CrescentLexer(private val input: String) {
 
-    operator fun invoke(): List<CrescentTokenType> {
+    operator fun invoke(): List<CrescentOpCode> {
 
         val tokens   = mutableListOf<CrescentToken>()
         val iterator = PeekingCharIterator(input.trimStart())
@@ -26,8 +26,8 @@ class CrescentLexer(private val input: String) {
 
             val identifier = when (val value = iterator.nextUntil(' ')) {
 
-                "val" -> CrescentTokenType.VAL
-                "var" -> CrescentTokenType.VAR
+                "val" -> CrescentOpCode.VAL
+                "var" -> CrescentOpCode.VAR
 
                 else -> error("Unknown Crescent Type Token: $value")
             }

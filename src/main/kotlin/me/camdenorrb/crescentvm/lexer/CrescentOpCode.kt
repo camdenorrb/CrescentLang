@@ -1,6 +1,6 @@
 package me.camdenorrb.crescentvm.lexer
 
-enum class CrescentTokenType {
+enum class CrescentOpCode {
     IF,
     ELSE,
     WHEN,
@@ -11,6 +11,10 @@ enum class CrescentTokenType {
     FUN,
     VAR,
     VAL,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
     STRUCTURE,
     END_BLOCK
 }
