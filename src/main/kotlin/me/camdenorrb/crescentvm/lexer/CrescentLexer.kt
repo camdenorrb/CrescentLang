@@ -53,20 +53,7 @@ class CrescentLexer(private val input: String) {
 
         println(structureName)
 
-        iterator.nextUntil {
-            it.isLetter() || it == '/'
-        }
-
-        //iterator.next()
-
-        if (iterator.peekNext() == '/') {
-
-            iterator.nextUntil(',', '\n')
-
-            iterator.nextUntil {
-                it.isLetter()
-            }
-        }
+        skipToMethod(iterator)
 
         // Read functions until end
         while (true) {
@@ -76,13 +63,12 @@ class CrescentLexer(private val input: String) {
             iterator.next()
             val name = iterator.nextUntil(' ', '(', '{').trimStart()
 
-            val parameters = iterator.nextUntil(')', '{')
+            val parameters = iterator.nextUntil(')', '{').removePrefix("(")
 
             iterator.nextUntil('}')
-
             println("Identifier: $identifier, Name: $name, Parameters: $parameters")
+            skipToMethod(iterator)
 
-            break
         }
 
         return emptyList()
@@ -92,5 +78,22 @@ class CrescentLexer(private val input: String) {
 
     }
 
+    fun skipToMethod(iterator: PeekingCharIterator) {
+        iterator.nextUntil {
+            it.isLetter() || it.isDigit() || it == '/'
+        }
+        while (iterator.peekNext() == '/') {
+            iterator.nextUntil(',', '\n')
+
+            iterator.nextUntil {
+                it.isLetter()
+            }
+
+            iterator.nextUntil {
+                it.isLetter() || it.isDigit() || it == '/'
+            }
+        }
+
+    }
 
 }
