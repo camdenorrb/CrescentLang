@@ -11,6 +11,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.capnproto:runtime:0.1.4")
 }
 
 tasks {

@@ -1,4 +1,4 @@
-package me.camdenorrb.crescentvm.lexer
+package me.camdenorrb.crescentvm.lexerold
 
 enum class CrescentDataType {
 

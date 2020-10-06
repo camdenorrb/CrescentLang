@@ -22,11 +22,15 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
     }
 
     fun nextUntil(vararg chars: Char): String {
-        return nextUntil { nextChar ->
-            chars.any {
-                nextChar == it
-            }
-        }
+
+        val minIndex = (chars.map {
+            input.indexOf(it, nextIndex)
+        }.min()?.takeIf { it != -1 } ?: input.length) - 1
+
+        nextIndex = minIndex - 1
+
+        println(input[nextIndex])
+        return input.substring(nextIndex, minIndex)
     }
 
     fun nextUntil(predicate: (Char) -> Boolean): String {

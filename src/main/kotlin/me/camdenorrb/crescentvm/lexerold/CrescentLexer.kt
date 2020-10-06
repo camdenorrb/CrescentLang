@@ -1,4 +1,4 @@
-package me.camdenorrb.crescentvm.lexer
+package me.camdenorrb.crescentvm.lexerold
 
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 
@@ -6,7 +6,7 @@ class CrescentLexer(private val input: String) {
 
     operator fun invoke(): List<CrescentTokenType> {
 
-        val tokens   = mutableListOf<CrescentToken>()
+        val tokens   = mutableListOf<CrescentValue>()
         val iterator = PeekingCharIterator(input.trimStart())
 
         iterator.nextUntil {
@@ -64,7 +64,6 @@ class CrescentLexer(private val input: String) {
             val name = iterator.nextUntil(' ', '(', '{').trimStart()
 
             val parameters = iterator.nextUntil(')', '{').removePrefix("(")
-
             iterator.nextUntil('}')
             println("Identifier: $identifier, Name: $name, Parameters: $parameters")
             skipToMethod(iterator)
