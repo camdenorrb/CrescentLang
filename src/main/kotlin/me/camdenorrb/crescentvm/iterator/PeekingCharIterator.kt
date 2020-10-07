@@ -4,49 +4,50 @@ import java.lang.StringBuilder
 
 class PeekingCharIterator(val input: String): Iterator<Char> {
 
-    private var nextIndex = 0
+    private var index = 0
 
 
     override fun hasNext(): Boolean {
-        return nextIndex < input.length
+        return index < input.length
     }
 
     override fun next(): Char {
-        return input[nextIndex++]
+        return input[index++]
     }
 
     fun next(size: Int): String {
-        return input.substring(nextIndex, nextIndex + size).also {
-            nextIndex += 5
+        return input.substring(index, index + size).also {
+            index += 5
         }
     }
 
     fun nextUntil(vararg chars: Char): String {
 
-        val minIndex = (chars.map {
-            input.indexOf(it, nextIndex)
-        }.min()?.takeIf { it != -1 } ?: input.length) - 1
+        val minIndex = chars
+            .map { input.indexOf(it, index) }
+            .filter { it != -1 }
+            .min()
+            ?: input.length - 1
 
-        nextIndex = minIndex - 1
+        index = minIndex - 1
 
-        println(input[nextIndex])
-        return input.substring(nextIndex, minIndex)
+        return input.substring(index, minIndex)
     }
 
     fun nextUntil(predicate: (Char) -> Boolean): String {
 
         val outputBuilder = StringBuilder()
 
-        while (nextIndex < input.length) {
+        while (index < input.length) {
 
-            val nextChar = input[nextIndex]
+            val nextChar = input[index]
 
             if (predicate(nextChar)) {
                 break
             }
 
             outputBuilder.append(nextChar)
-            nextIndex++
+            index++
         }
 
         return outputBuilder.toString()
@@ -65,12 +66,12 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
     */
 
     fun peekNext(): Char {
-        return input[nextIndex]
+        return input[index]
     }
 
     fun peekNextUntil(predicate: (Char) -> Boolean): String {
 
-        var nextPeekIndex = nextIndex
+        var nextPeekIndex = index
         val outputBuilder = StringBuilder()
 
         while (nextPeekIndex < input.length) {

@@ -1,0 +1,1 @@
+# Should share a type that has stream like operations

@@ -1,0 +1,3 @@
+struct Random {
+    val seed:
+}

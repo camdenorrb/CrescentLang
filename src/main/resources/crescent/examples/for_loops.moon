@@ -1,0 +1,14 @@
+fun main {
+
+    val x, y, z = 0
+    println("$x$y$z")
+
+    for x, y, z in 0..10 {
+        println("$x$y$z")
+    }
+
+    for x, y, z in 0..10, 0..10, 0..10 {
+        println("$x$y$z")
+    }
+
+}
