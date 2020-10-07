@@ -27,7 +27,7 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
             .map { input.indexOf(it, index) }
             .filter { it != -1 }
             .min()
-            ?: input.length - 1
+            ?: input.length
 
         index = minIndex - 1
 
@@ -51,6 +51,23 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         }
 
         return outputBuilder.toString()
+    }
+
+
+    fun nextUntilAndSkip(vararg chars: Char): String {
+
+        val read = nextUntil(*chars)
+        index = (index + 1).coerceAtMost(input.length)
+
+        return read
+    }
+
+    fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {
+
+        val read = nextUntil(predicate)
+        index = (index + 1).coerceAtMost(input.length)
+
+        return read
     }
 
 

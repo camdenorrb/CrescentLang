@@ -3,7 +3,7 @@ struct Example {
     val aValue1, aValue2 = "" # Multi declaration of same type, can all be set to one or multiple default values
 }
 
-main impl Example {
+impl Example {
 
     # All implementation methods
 
@@ -18,6 +18,6 @@ main impl Example {
 }
 
 
-static impl Example {
+impl static Example {
 
 }

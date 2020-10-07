@@ -1,6 +1,6 @@
 package me.camdenorrb.crescentvm.vm
 
-enum class CrescentDataType {
+enum class CrescentPrimitive {
 
     I8,
     I16,

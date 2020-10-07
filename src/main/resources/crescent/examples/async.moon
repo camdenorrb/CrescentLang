@@ -1,17 +1,17 @@
 # Declaring an async function makes it return a future
-async fun do_task -> String {
+async fun doTask -> String {
     -> "Things"
 }
 
 fun main {
 
     // Do blocking
-    do_task()
+    doTask()
 
     // Do async via reference
-    launch(::do_task)
+    launch(::doTask)
 
     // Do async expanded
-    launch { do_task() }
+    launch { doTask() }
 
 }

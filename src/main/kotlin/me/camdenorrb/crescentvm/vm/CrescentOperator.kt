@@ -17,5 +17,7 @@ enum class CrescentOperator(val literal: String) {
     EQUALS_COMPARE("=="),
     EQUALS_REFERENCE_COMPARE("==="),
     NOT_EQUALS_COMPARE("!="),
-    NOT_EQUALS_REFERENCE_COMPARE("!==")
+    NOT_EQUALS_REFERENCE_COMPARE("!=="),
+    CONTAINS("in"),
+    RANGE("..")
 }
