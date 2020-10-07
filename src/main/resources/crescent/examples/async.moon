@@ -6,12 +6,12 @@ async fun do_task -> String {
 fun main {
 
     // Do blocking
-    do_task().await
+    do_task()
 
-    // Do async simplified
-    async(::do_task)
+    // Do async via reference
+    launch(::do_task)
 
     // Do async expanded
-    async { do_task().await }
+    launch { do_task() }
 
 }

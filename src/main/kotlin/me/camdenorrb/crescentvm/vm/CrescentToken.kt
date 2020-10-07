@@ -1,14 +1,14 @@
 package me.camdenorrb.crescentvm.vm
 
-import me.camdenorrb.crescentvm.iterator.SyntaxIterator
-
 // TODO: Make a way to reconstruct the code through .toString
 sealed class CrescentToken {
 
+    data class Import(
+        val path: String
+    ) : CrescentToken()
+
     data class Struct(
-        val name: String,
-        //val imports: List<Import>,
-        val annotations: List<Annotation>
+        val name: String
     ) : CrescentToken()
 
     data class Object(

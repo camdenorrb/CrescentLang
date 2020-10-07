@@ -15,14 +15,14 @@ enum class CrescentDataType {
     F32,
     F64,
 
-    Array,
-    List,
-    Map,
-    Tensor,
-    Char,
-    Text,
-    Fun,
-    Time,
-    Struct
+    //Array,
+    //List,
+    //Map,
+    //Tensor,
+    //Char,
+    //Text,
+    //Fun,
+    //Time,
+    //Struct
 
 }

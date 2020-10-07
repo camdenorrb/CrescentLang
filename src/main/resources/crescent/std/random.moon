@@ -1,3 +1,3 @@
 struct Random {
-    val seed:
+    val seed: u64
 }
