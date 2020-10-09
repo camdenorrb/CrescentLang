@@ -8,7 +8,7 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
 
 
     override fun hasNext(): Boolean {
-        return index < input.length
+        return index < input.length - 1
     }
 
     override fun next(): Char {
@@ -21,38 +21,37 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         }
     }
 
+
     fun nextUntil(vararg chars: Char): String {
 
-        val minIndex = chars
-            .map { input.indexOf(it, index) }
-            .filter { it != -1 }
-            .min()
+        val minIndex = input.indexOfAny(chars, index).takeUnless { it == -1 }
             ?: input.length
 
-        index = minIndex - 1
+        val output = input.substring(index, minIndex)
 
-        return input.substring(index, minIndex)
+        index = minIndex
+
+        return output
     }
+
 
     fun nextUntil(predicate: (Char) -> Boolean): String {
+        return buildString {
+            while (index < input.length) {
 
-        val outputBuilder = StringBuilder()
+                val nextChar = input[index]
+                println(nextChar)
+                if (predicate(nextChar)) {
+                    break
+                }
 
-        while (index < input.length) {
-
-            val nextChar = input[index]
-
-            if (predicate(nextChar)) {
-                break
+                index++
+                append(nextChar)
             }
-
-            outputBuilder.append(nextChar)
-            index++
         }
-
-        return outputBuilder.toString()
     }
 
+    /*
 
     fun nextUntilAndSkip(vararg chars: Char): String {
 
@@ -98,7 +97,7 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         }
 
         return outputBuilder.toString()
-    }
+    }*/
 
 
     /*

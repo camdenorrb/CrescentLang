@@ -7,7 +7,11 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        println(CrescentLexer.invoke(this::class.java.getResourceAsStream("crescent/examples/hello_world.moon").readBytes().contentToString()))
+        val code = this::class.java.getResourceAsStream("/crescent/examples/hello_world.moon").readBytes().decodeToString()
+
+        CrescentLexer.invoke(code).forEach {
+            println(it)
+        }
         //CrescentLexer(File("src/main/crescent/StructureExample.cr").readText()).invoke()
 
         /*

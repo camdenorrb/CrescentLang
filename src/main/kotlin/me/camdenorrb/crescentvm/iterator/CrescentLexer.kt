@@ -16,9 +16,29 @@ object CrescentLexer {
                 !it.isWhitespace()
             }
 
-            val key = charIterator.nextUntil(' ', '\n')
+            when (val first = charIterator.peekNext()) {
+                first.isDigit() -> {
+
+                }
+
+            }
+
+            val isLetter     = first.isLetter()
+            val isDigit      = first.isDigit()
+            val isWhiteSpace = first.isWhitespace()
+            val isSymbol     = !isLetter && !isDigit && !isWhiteSpace
+
+            val key = charIterator.nextUntil { !it.isLetterOrDigit() }
 
             tokens += when (key) {
+
+                // Parenthesis
+                "(" -> CrescentToken.Parenthesis.OPEN
+                ")" -> CrescentToken.Parenthesis.CLOSE
+
+                // Bracket
+                "{" -> CrescentToken.Bracket.OPEN
+                "}" -> CrescentToken.Bracket.CLOSE
 
                 // Infix Operators
                 "in" -> CrescentToken.Operator.CONTAINS
@@ -39,6 +59,7 @@ object CrescentLexer {
                 "when"   -> CrescentToken.Statement.WHEN
                 "while"  -> CrescentToken.Statement.WHILE
                 "for"    -> CrescentToken.Statement.FOR
+                "fun"    -> CrescentToken.Statement.FUN
 
                 // Arithmetic
                 "!" -> CrescentToken.Operator.NOT
@@ -71,6 +92,7 @@ object CrescentLexer {
                 else -> CrescentToken.Name(key)
             }
         }
+
 
         return tokens
     }

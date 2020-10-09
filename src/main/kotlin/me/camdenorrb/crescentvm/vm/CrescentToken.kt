@@ -12,7 +12,18 @@ interface CrescentToken {
         WHILE,
         WHEN,
         FOR,
-        IF
+        IF,
+        FUN,
+    }
+
+    enum class Parenthesis : CrescentToken {
+        OPEN,
+        CLOSE
+    }
+
+    enum class Bracket : CrescentToken {
+        OPEN,
+        CLOSE
     }
 
     enum class Type : CrescentToken {
@@ -50,8 +61,6 @@ interface CrescentToken {
         CONTAINS("in"),
         RANGE("..")
     }
-
-    enum class Brackets : CrescentToken
 
     enum class Primitive : CrescentToken {
 
