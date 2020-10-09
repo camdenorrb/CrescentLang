@@ -1,5 +1,5 @@
 plugins {
-    kotlin("jvm") version "1.3.72"
+    kotlin("jvm") version "1.4.10"
 }
 
 group = "me.camdenorrb"
@@ -11,7 +11,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.capnproto:runtime:0.1.4")
+    implementation("org.capnproto:runtime:0.1.5")
 }
 
 tasks {

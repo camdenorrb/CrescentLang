@@ -1,16 +1,14 @@
 package me.camdenorrb.crescentvm
 
-import me.camdenorrb.crescentvm.lexerold.CrescentLexer
-import java.io.File
-import kotlin.random.Random
+import me.camdenorrb.crescentvm.iterator.CrescentLexer
 
 object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
 
-        Random
-        CrescentLexer(File("src/main/crescent/StructureExample.cr").readText()).invoke()
+        println(CrescentLexer.invoke(this::class.java.getResourceAsStream("crescent/examples/hello_world.moon").readBytes().contentToString()))
+        //CrescentLexer(File("src/main/crescent/StructureExample.cr").readText()).invoke()
 
         /*
         CrescentExpression()

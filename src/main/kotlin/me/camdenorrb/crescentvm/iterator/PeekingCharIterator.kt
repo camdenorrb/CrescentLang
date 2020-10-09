@@ -70,6 +70,36 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         return read
     }
 
+    fun nextUntilAndKeep(vararg chars: Char): String {
+
+        val minIndex = chars
+            .map { input.indexOf(it, index) }
+            .filter { it != -1 }
+            .min()
+            ?: input.length
+
+        index = minIndex - 1
+
+        return input.substring(index, minIndex)
+    }
+
+    fun nextUntilAndKeep(predicate: (Char) -> Boolean): String {
+
+        val outputBuilder = StringBuilder()
+
+        while (index < input.length) {
+
+            val nextChar = input[index++]
+            outputBuilder.append(nextChar)
+
+            if (predicate(nextChar)) {
+                break
+            }
+        }
+
+        return outputBuilder.toString()
+    }
+
 
     /*
     fun hasPrev(): Boolean {
