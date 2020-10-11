@@ -15,18 +15,26 @@ object CrescentLexer {
             charIterator.nextUntil {
                 !it.isWhitespace()
             }
+            
+            val first = charIterator.peekNext()
 
-            when (val first = charIterator.peekNext()) {
+            when {
+
                 first.isDigit() -> {
+                    charIterator.nextUntil { it.isDigit() || it == '.' }
+                }
 
+                first.isLetter() -> {
+                    charIterator.nextUntil { !it.isLetter() }
+                }
+
+                first == '(', first == ')'
+                // Is symbol
+                else -> {
                 }
 
             }
 
-            val isLetter     = first.isLetter()
-            val isDigit      = first.isDigit()
-            val isWhiteSpace = first.isWhitespace()
-            val isSymbol     = !isLetter && !isDigit && !isWhiteSpace
 
             val key = charIterator.nextUntil { !it.isLetterOrDigit() }
 
@@ -97,5 +105,9 @@ object CrescentLexer {
         return tokens
     }
 
+
+    private fun Char.equalsAny(vararg chars: Char): Boolean {
+        return chars.any { this == it }
+    }
 
 }
