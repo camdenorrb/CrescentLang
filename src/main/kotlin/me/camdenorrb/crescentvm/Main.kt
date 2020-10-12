@@ -7,7 +7,7 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val code = this::class.java.getResourceAsStream("/crescent/examples/hello_world.moon").readBytes().decodeToString()
+        val code = this::class.java.getResourceAsStream("/crescent/builtin/function.moon").readBytes().decodeToString()
 
         CrescentLexer.invoke(code).forEach {
             println(it)

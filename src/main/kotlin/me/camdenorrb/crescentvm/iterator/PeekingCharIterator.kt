@@ -8,7 +8,7 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
 
 
     override fun hasNext(): Boolean {
-        return index < input.length - 1
+        return index < input.length
     }
 
     override fun next(): Char {

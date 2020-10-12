@@ -11,6 +11,10 @@ interface CrescentToken {
         val string: String
     ) : CrescentToken
 
+    data class Comment(
+        val string: String
+    ) : CrescentToken
+
     enum class Statement : CrescentToken {
         IMPORT,
         WHILE,
@@ -18,6 +22,7 @@ interface CrescentToken {
         FOR,
         IF,
         FUN,
+        OVERRIDE
     }
 
     enum class Parenthesis : CrescentToken {
@@ -25,7 +30,13 @@ interface CrescentToken {
         CLOSE
     }
 
+
     enum class Bracket : CrescentToken {
+        OPEN,
+        CLOSE
+    }
+
+    enum class ArrayDeclaration : CrescentToken {
         OPEN,
         CLOSE
     }
@@ -63,7 +74,10 @@ interface CrescentToken {
         NOT_EQUALS_COMPARE("!="),
         NOT_EQUALS_REFERENCE_COMPARE("!=="),
         CONTAINS("in"),
-        RANGE("..")
+        RANGE(".."),
+        TYPE_PREFIX(":"),
+        RETURN("->"),
+        OPTIONAL("?")
     }
 
     enum class Primitive : CrescentToken {

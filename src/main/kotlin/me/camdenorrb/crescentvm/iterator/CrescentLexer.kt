@@ -15,7 +15,11 @@ object CrescentLexer {
             charIterator.nextUntil {
                 !it.isWhitespace()
             }
-            
+
+            if (!charIterator.hasNext()) {
+                break
+            }
+
             val peekNext = charIterator.peekNext()
 
             val key = when {
@@ -34,22 +38,11 @@ object CrescentLexer {
 
                 // TODO: Add char support ''
 
-                peekNext == '"' -> {
-                    // TODO: Add support for \"
-                    charIterator.next() // Skip first '"'
-                    "\"${charIterator.nextUntilAndSkip('"')}\""
-                }
-
                 // Is symbol
                 else -> {
                     charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
                 }
 
-            }
-
-            if (key.startsWith('"')) {
-                tokens += CrescentToken.Text(key.removeSurrounding("\""))
-                continue
             }
 
             tokens += when (key) {
@@ -61,6 +54,10 @@ object CrescentLexer {
                 // Bracket
                 "{" -> CrescentToken.Bracket.OPEN
                 "}" -> CrescentToken.Bracket.CLOSE
+
+                // Array declaration
+                "[" -> CrescentToken.ArrayDeclaration.OPEN
+                "]" -> CrescentToken.ArrayDeclaration.CLOSE
 
                 // Infix Operators
                 "in" -> CrescentToken.Operator.CONTAINS
@@ -76,12 +73,13 @@ object CrescentLexer {
                 "object" -> CrescentToken.Type.OBJECT
 
                 // Statements
-                "import" -> CrescentToken.Statement.IMPORT
-                "if"     -> CrescentToken.Statement.IF
-                "when"   -> CrescentToken.Statement.WHEN
-                "while"  -> CrescentToken.Statement.WHILE
-                "for"    -> CrescentToken.Statement.FOR
-                "fun"    -> CrescentToken.Statement.FUN
+                "import"   -> CrescentToken.Statement.IMPORT
+                "if"       -> CrescentToken.Statement.IF
+                "when"     -> CrescentToken.Statement.WHEN
+                "while"    -> CrescentToken.Statement.WHILE
+                "for"      -> CrescentToken.Statement.FOR
+                "fun"      -> CrescentToken.Statement.FUN
+                "override" -> CrescentToken.Statement.OVERRIDE
 
                 // Arithmetic
                 "!" -> CrescentToken.Operator.NOT
@@ -111,6 +109,20 @@ object CrescentLexer {
                 "===" -> CrescentToken.Operator.EQUALS_REFERENCE_COMPARE
                 "!==" -> CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE
 
+                // Type prefix
+                ":" -> CrescentToken.Operator.TYPE_PREFIX
+
+                // String
+                // TODO: Add support for \"
+                // TODO: Add support for ${}
+                "\"" -> CrescentToken.Text(charIterator.nextUntilAndSkip('"'))
+
+                // Comment
+                "#" -> CrescentToken.Comment(charIterator.nextUntil('\n').trim())
+
+                "->" -> CrescentToken.Operator.RETURN
+                "?"  -> CrescentToken.Operator.OPTIONAL
+                
                 else -> CrescentToken.Name(key)
             }
         }

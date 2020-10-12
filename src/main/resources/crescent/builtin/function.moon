@@ -11,7 +11,7 @@ struct Parameter {
 
 impl Function {
 
-    override fun to_string -> String {
+    override fun toString -> String {
         -> "fun $name(${parameters})"
     }
 
@@ -19,7 +19,7 @@ impl Function {
 
 impl [Parameter] {
 
-    override fun to_string -> String {
+    override fun toString -> String {
         -> "(${self.mapToString(", ")})"
     }
 
