@@ -1,6 +1,6 @@
-package me.camdenorrb.crescentvm.iterator
+package me.camdenorrb.crescentvm.vm
 
-import me.camdenorrb.crescentvm.vm.CrescentToken
+import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 
 object CrescentLexer {
 
@@ -123,7 +123,16 @@ object CrescentLexer {
                 "->" -> CrescentToken.Operator.RETURN
                 "?"  -> CrescentToken.Operator.OPTIONAL
                 
-                else -> CrescentToken.Name(key)
+                else -> {
+
+                    // Skip comma
+                    // TODO: Consider removing comma support
+                    if (charIterator.hasNext() && charIterator.peekNext() == ',') {
+                        charIterator.next()
+                    }
+
+                    CrescentToken.Name(key)
+                }
             }
         }
 
