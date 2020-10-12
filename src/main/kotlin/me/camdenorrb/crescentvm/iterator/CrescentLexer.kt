@@ -16,27 +16,41 @@ object CrescentLexer {
                 !it.isWhitespace()
             }
             
-            val first = charIterator.peekNext()
+            val peekNext = charIterator.peekNext()
 
-            when {
+            val key = when {
 
-                first.isDigit() -> {
+                peekNext.isDigit() -> {
                     charIterator.nextUntil { it.isDigit() || it == '.' }
                 }
 
-                first.isLetter() -> {
+                peekNext.isLetter() -> {
                     charIterator.nextUntil { !it.isLetter() }
                 }
 
-                first == '(', first == ')'
+                peekNext.equalsAny('(', ')', '{', '}') -> {
+                    charIterator.next().toString()
+                }
+
+                // TODO: Add char support ''
+
+                peekNext == '"' -> {
+                    // TODO: Add support for \"
+                    charIterator.next() // Skip first '"'
+                    "\"${charIterator.nextUntilAndSkip('"')}\""
+                }
+
                 // Is symbol
                 else -> {
+                    charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
                 }
 
             }
 
-
-            val key = charIterator.nextUntil { !it.isLetterOrDigit() }
+            if (key.startsWith('"')) {
+                tokens += CrescentToken.Text(key.removeSurrounding("\""))
+                continue
+            }
 
             tokens += when (key) {
 

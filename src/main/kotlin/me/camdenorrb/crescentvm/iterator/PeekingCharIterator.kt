@@ -34,13 +34,21 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         return output
     }
 
+    fun nextUntilAndSkip(vararg chars: Char): String {
+
+        val result = nextUntil(*chars)
+        next()
+
+        return result
+    }
+
 
     fun nextUntil(predicate: (Char) -> Boolean): String {
         return buildString {
             while (index < input.length) {
 
                 val nextChar = input[index]
-                println(nextChar)
+
                 if (predicate(nextChar)) {
                     break
                 }
@@ -49,6 +57,14 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
                 append(nextChar)
             }
         }
+    }
+
+    fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {
+
+        val result = nextUntil(predicate)
+        next()
+
+        return result
     }
 
     /*

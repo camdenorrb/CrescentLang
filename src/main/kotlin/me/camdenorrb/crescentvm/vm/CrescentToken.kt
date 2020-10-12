@@ -7,6 +7,10 @@ interface CrescentToken {
         val string: String
     ) : CrescentToken
 
+    data class Text(
+        val string: String
+    ) : CrescentToken
+
     enum class Statement : CrescentToken {
         IMPORT,
         WHILE,
