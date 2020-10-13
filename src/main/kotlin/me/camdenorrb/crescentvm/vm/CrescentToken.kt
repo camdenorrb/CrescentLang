@@ -3,16 +3,16 @@ package me.camdenorrb.crescentvm.vm
 // TODO: Make a way to reconstruct the code through .toString
 interface CrescentToken {
 
-    data class Name(
-        val string: String
+    data class Key(
+        val string: kotlin.String
     ) : CrescentToken
 
-    data class Text(
-        val string: String
+    data class String(
+        val string: kotlin.String
     ) : CrescentToken
 
     data class Comment(
-        val string: String
+        val string: kotlin.String
     ) : CrescentToken
 
     enum class Statement : CrescentToken {
@@ -29,7 +29,6 @@ interface CrescentToken {
         OPEN,
         CLOSE
     }
-
 
     enum class Bracket : CrescentToken {
         OPEN,
@@ -52,7 +51,7 @@ interface CrescentToken {
         VAR
     }
 
-    enum class Operator(val literal: String) : CrescentToken {
+    enum class Operator(val literal: kotlin.String) : CrescentToken {
         NOT("!"),
         ADD("+"),
         SUB("-"),

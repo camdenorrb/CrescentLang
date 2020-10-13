@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.vm
 
+import me.camdenorrb.crescentvm.extensions.equalsAny
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 
 object CrescentLexer {
@@ -37,7 +38,6 @@ object CrescentLexer {
                 }
 
                 // TODO: Add char support ''
-
                 // Is symbol
                 else -> {
                     charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
@@ -115,7 +115,7 @@ object CrescentLexer {
                 // String
                 // TODO: Add support for \"
                 // TODO: Add support for ${}
-                "\"" -> CrescentToken.Text(charIterator.nextUntilAndSkip('"'))
+                "\"" -> CrescentToken.String(charIterator.nextUntilAndSkip('"'))
 
                 // Comment
                 "#" -> CrescentToken.Comment(charIterator.nextUntil('\n').trim())
@@ -131,18 +131,13 @@ object CrescentLexer {
                         charIterator.next()
                     }
 
-                    CrescentToken.Name(key)
+                    CrescentToken.Key(key)
                 }
             }
         }
 
 
         return tokens
-    }
-
-
-    private fun Char.equalsAny(vararg chars: Char): Boolean {
-        return chars.any { this == it }
     }
 
 }

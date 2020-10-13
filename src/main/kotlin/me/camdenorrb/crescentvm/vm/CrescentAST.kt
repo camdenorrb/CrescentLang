@@ -4,11 +4,12 @@ package me.camdenorrb.crescentvm.vm
 class CrescentAST {
 
     enum class Visibility {
-        PUBLIC,
-        LOCAL_SCOPED,
+        LOCAL_SCOPE,
+        PRIVATE,
         INTERNAL,
-        PRIVATE
+        PUBLIC
     }
+
 
     sealed class Node {
 
@@ -25,57 +26,62 @@ class CrescentAST {
         ) : Node()
 
         data class Parameter(
-            val name: String,
-            val type: String // Maybe make a Type node?
+            val name: kotlin.String,
+            val type: kotlin.String // Maybe make a Type node?
         ) : Node()
 
         data class Struct(
-            val name: String,
+            val name: kotlin.String,
             val variables: List<Variable>
         ) : Node()
 
         data class Trait(
-            val name: String,
+            val name: kotlin.String,
             val functionTraits: List<FunctionTrait>
         ) : Node()
 
-        data class Impl(
-            val structName: String,
+        data class Object(
+            val name: kotlin.String,
             val functions: List<Function>
         ) : Node()
 
-        data class File(
-            val name: String,
-            val path: String,
-            val imports: List<String>,
-            val structs: List<Struct>,
-            val traits: List<Trait>,
-            val mainFunction: Function?
+        data class Impl(
+            val structName: kotlin.String,
+            val functions: List<Function>
         ) : Node()
 
         data class FunctionTrait(
-            val name: String,
+            val name: kotlin.String,
             val params: List<Parameter>,
         ) : Node()
 
+        data class FunctionCall(
+            val name: kotlin.String,
+            val arguments: List<Argument>
+        ) : Node()
+
+        data class Variable(
+            val name: kotlin.String,
+            val isFinal: Boolean,
+            val visibility: Visibility,
+            val value: Node
+        ) : Node()
+
         data class Function(
-            val name: String,
+            val name: kotlin.String,
             val isOverride: Boolean,
             val visibility: Visibility,
             val params: List<Parameter>,
             val innerCode: Expression
         ) : Node()
 
-        data class FunctionCall(
-            val name: String,
-            val arguments: List<Argument>
-        ) : Node()
-
-        data class Variable(
-            val name: String,
-            val isFinal: Boolean,
-            val visibility: Visibility,
-            val value: Node
+        data class File(
+            val name: kotlin.String,
+            val path: kotlin.String,
+            val imports: List<kotlin.String>,
+            val structs: List<Struct>,
+            val traits: List<Trait>,
+            val mainFunction: Function?
         ) : Node()
 
 
@@ -83,7 +89,7 @@ class CrescentAST {
 
             data class Else(
                 val block: Expression
-            )
+            ) : Statement()
 
             data class When(
                 val predicateToBlock: List<Pair<Expression, Expression>>
