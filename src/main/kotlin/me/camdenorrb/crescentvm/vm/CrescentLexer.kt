@@ -4,7 +4,7 @@ import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 
 object CrescentLexer {
 
-    operator fun invoke(input: String): List<CrescentToken> {
+    fun invoke(input: String): List<CrescentToken> {
 
         val tokens = mutableListOf<CrescentToken>()
         val charIterator = PeekingCharIterator(input)
