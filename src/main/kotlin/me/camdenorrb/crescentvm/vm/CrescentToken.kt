@@ -42,6 +42,7 @@ interface CrescentToken {
 
     enum class Type : CrescentToken {
         STRUCT,
+        IMPL,
         TRAIT,
         OBJECT
     }

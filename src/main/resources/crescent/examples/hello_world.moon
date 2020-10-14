@@ -1,5 +1,5 @@
 import thing
 
-fun main {
+fun main(args: [String]) {
     println("Hello world") # Meow
 }

@@ -1,6 +1,6 @@
 package me.camdenorrb.crescentvm.extensions
 
-// NOTE: Skips the one that returns false
+// NOTE: Skips the one that returns true
 fun <T> Iterator<T>.nextUntil(predicate: (T) -> Boolean): List<T> {
 
     val elements = mutableListOf<T>()
@@ -9,7 +9,7 @@ fun <T> Iterator<T>.nextUntil(predicate: (T) -> Boolean): List<T> {
 
         val next = next()
 
-        if (!predicate(next)) {
+        if (predicate(next)) {
             break
         }
 

@@ -1,12 +1,12 @@
-struct Function {
+struct Function(
     val name: String
     val parameters: [Parameter]
-}
+)
 
-struct Parameter {
+struct Parameter(
     val name: String
     val type: Type
-}
+)
 
 
 impl Function {
@@ -20,7 +20,7 @@ impl Function {
 impl [Parameter] {
 
     override fun toString -> String {
-        -> "(${self.mapToString(", ")})"
+        -> self.joinToString(", ")
     }
 
 }

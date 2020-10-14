@@ -15,6 +15,7 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         return input[index++]
     }
 
+
     fun next(size: Int): String {
         return input.substring(index, index + size).also {
             index += 5
@@ -34,15 +35,6 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         return output
     }
 
-    fun nextUntilAndSkip(vararg chars: Char): String {
-
-        val result = nextUntil(*chars)
-        next()
-
-        return result
-    }
-
-
     fun nextUntil(predicate: (Char) -> Boolean): String {
         return buildString {
             while (index < input.length) {
@@ -57,6 +49,15 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
                 append(nextChar)
             }
         }
+    }
+
+
+    fun nextUntilAndSkip(vararg chars: Char): String {
+
+        val result = nextUntil(*chars)
+        next()
+
+        return result
     }
 
     fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {

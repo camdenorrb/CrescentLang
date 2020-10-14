@@ -1,17 +1,21 @@
 package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.vm.CrescentLexer
+import me.camdenorrb.crescentvm.vm.CrescentParser
+import java.io.File
 
 object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val code = this::class.java.getResourceAsStream("/crescent/examples/hello_world.moon").readBytes().decodeToString()
+        val file = File("/crescent/examples/hello_world.moon")
+        val code = this::class.java.getResourceAsStream(file.path).readBytes().decodeToString()
 
-        CrescentLexer.invoke(code).forEach {
-            println(it)
-        }
+        println(CrescentParser.invoke(file, CrescentLexer.invoke(code)))
+
+
+        //println(CrescentLexer.invoke(code))
         //CrescentLexer(File("src/main/crescent/StructureExample.cr").readText()).invoke()
 
         /*

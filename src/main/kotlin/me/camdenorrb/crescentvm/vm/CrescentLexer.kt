@@ -33,7 +33,7 @@ object CrescentLexer {
                     charIterator.nextUntil { !it.isLetter() }
                 }
 
-                peekNext.equalsAny('(', ')', '{', '}') -> {
+                peekNext.equalsAny('(', ')', '{', '}', '[', ']') -> {
                     charIterator.next().toString()
                 }
 
@@ -69,6 +69,7 @@ object CrescentLexer {
 
                 // Types
                 "struct" -> CrescentToken.Type.STRUCT
+                "impl"   -> CrescentToken.Type.IMPL
                 "trait"  -> CrescentToken.Type.TRAIT
                 "object" -> CrescentToken.Type.OBJECT
 
