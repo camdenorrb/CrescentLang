@@ -1,6 +1,8 @@
 package me.camdenorrb.crescentvm.vm
 
 // TODO: Make a way to reconstruct the code through .toString
+// TODO: Add ++ and --
+// TODO: Add Operator keyword
 interface CrescentToken {
 
     data class Key(
@@ -21,8 +23,14 @@ interface CrescentToken {
         WHEN,
         FOR,
         IF,
-        FUN,
-        OVERRIDE
+        FUN
+    }
+
+    enum class Modifier : CrescentToken {
+        OVERRIDE,
+        INLINE,
+        PUBLIC,
+        PRIVATE
     }
 
     enum class Parenthesis : CrescentToken {
@@ -44,7 +52,8 @@ interface CrescentToken {
         STRUCT,
         IMPL,
         TRAIT,
-        OBJECT
+        OBJECT,
+        ENUM
     }
 
     enum class Variable : CrescentToken {
@@ -75,9 +84,10 @@ interface CrescentToken {
         NOT_EQUALS_REFERENCE_COMPARE("!=="),
         CONTAINS("in"),
         RANGE(".."),
-        TYPE_PREFIX(":"),
+        VARIABLE_TYPE_PREFIX(":"),
         RETURN("->"),
-        OPTIONAL("?")
+        RESULT("?"),
+        COMMA(",")
     }
 
     enum class Primitive : CrescentToken {

@@ -4,7 +4,8 @@ import java.lang.StringBuilder
 
 class PeekingCharIterator(val input: String): Iterator<Char> {
 
-    private var index = 0
+    @PublishedApi
+    internal var index = 0
 
 
     override fun hasNext(): Boolean {
@@ -35,7 +36,7 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         return output
     }
 
-    fun nextUntil(predicate: (Char) -> Boolean): String {
+    inline fun nextUntil(predicate: (Char) -> Boolean): String {
         return buildString {
             while (index < input.length) {
 
@@ -60,7 +61,7 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         return result
     }
 
-    fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {
+    inline fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {
 
         val result = nextUntil(predicate)
         next()
@@ -132,7 +133,7 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
         return input[index]
     }
 
-    fun peekNextUntil(predicate: (Char) -> Boolean): String {
+    inline fun peekNextUntil(predicate: (Char) -> Boolean): String {
 
         var nextPeekIndex = index
         val outputBuilder = StringBuilder()

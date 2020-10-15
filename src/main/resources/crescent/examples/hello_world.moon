@@ -1,5 +1,6 @@
 import thing
 
+# args is optional
 fun main(args: [String]) {
-    println("Hello world") # Meow
+    println("Hello world") # Hello
 }

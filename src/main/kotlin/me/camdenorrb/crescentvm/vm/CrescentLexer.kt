@@ -10,7 +10,7 @@ object CrescentLexer {
         val tokens = mutableListOf<CrescentToken>()
         val charIterator = PeekingCharIterator(input)
 
-        while (charIterator.hasNext()) {
+        while (true) {
 
             // Skip to next key
             charIterator.nextUntil {
@@ -72,6 +72,7 @@ object CrescentLexer {
                 "impl"   -> CrescentToken.Type.IMPL
                 "trait"  -> CrescentToken.Type.TRAIT
                 "object" -> CrescentToken.Type.OBJECT
+                "enum"   -> CrescentToken.Type.ENUM
 
                 // Statements
                 "import"   -> CrescentToken.Statement.IMPORT
@@ -80,7 +81,9 @@ object CrescentLexer {
                 "while"    -> CrescentToken.Statement.WHILE
                 "for"      -> CrescentToken.Statement.FOR
                 "fun"      -> CrescentToken.Statement.FUN
-                "override" -> CrescentToken.Statement.OVERRIDE
+
+                // Modifiers
+                "override" -> CrescentToken.Modifier.OVERRIDE
 
                 // Arithmetic
                 "!" -> CrescentToken.Operator.NOT
@@ -111,7 +114,7 @@ object CrescentLexer {
                 "!==" -> CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE
 
                 // Type prefix
-                ":" -> CrescentToken.Operator.TYPE_PREFIX
+                ":" -> CrescentToken.Operator.VARIABLE_TYPE_PREFIX
 
                 // String
                 // TODO: Add support for \"
@@ -122,21 +125,12 @@ object CrescentLexer {
                 "#" -> CrescentToken.Comment(charIterator.nextUntil('\n').trim())
 
                 "->" -> CrescentToken.Operator.RETURN
-                "?"  -> CrescentToken.Operator.OPTIONAL
+                "?"  -> CrescentToken.Operator.RESULT
+                ","  -> CrescentToken.Operator.COMMA
                 
-                else -> {
-
-                    // Skip comma
-                    // TODO: Consider removing comma support
-                    if (charIterator.hasNext() && charIterator.peekNext() == ',') {
-                        charIterator.next()
-                    }
-
-                    CrescentToken.Key(key)
-                }
+                else -> CrescentToken.Key(key)
             }
         }
-
 
         return tokens
     }

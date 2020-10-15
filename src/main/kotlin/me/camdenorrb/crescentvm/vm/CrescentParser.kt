@@ -58,7 +58,7 @@ object CrescentParser {
                         "More than one main function???"
                     }
 
-                    mainFunction = readFunction(false, tokenIterator)
+                    mainFunction = readFunction(false, false, tokenIterator)
                 }
 
                 else -> error("Unexpected token: $token")
@@ -98,8 +98,8 @@ object CrescentParser {
             val variableType = nextToken as CrescentToken.Variable
             val isFinal = variableType == CrescentToken.Variable.VAL
 
-            // TODO: Account for visibility
-            variables += readVariable(isFinal, tokenIterator)
+            // TODO: Account for visibility by peeking back
+            variables += readVariable(CrescentAST.Visibility.PUBLIC, isFinal, tokenIterator)
         }
 
         return CrescentAST.Node.Struct(name, variables)
@@ -162,16 +162,20 @@ object CrescentParser {
 
             when (token) {
 
-                CrescentToken.Statement.OVERRIDE -> {
-
-                    // Skip Fun token
-                    checkEquals(tokenIterator.next(), CrescentToken.Statement.FUN)
-
-                    functions += readFunction(true, tokenIterator)
+                is CrescentToken.Modifier -> {
+                    /*NOOP*/
                 }
 
                 CrescentToken.Statement.FUN -> {
-                    functions += readFunction(false, tokenIterator)
+
+                    val modifiers = tokenIterator.peekBackUntil { it !is CrescentToken.Modifier }
+
+                    // TODO: Add isOperator
+                    val isInline   = modifiers.contains(CrescentToken.Modifier.INLINE)
+                    val isOverride = modifiers.contains(CrescentToken.Modifier.OVERRIDE)
+
+                    // TODO: Maybe just take in modifiers into Function
+                    functions += readFunction(isInline, isOverride, tokenIterator)
                 }
 
                 CrescentToken.Bracket.OPEN -> {
@@ -213,16 +217,20 @@ object CrescentParser {
 
             when (token) {
 
-                CrescentToken.Statement.OVERRIDE -> {
-
-                    // Skip Fun token
-                    check(tokenIterator.next() == CrescentToken.Statement.FUN)
-
-                    functions += readFunction(true, tokenIterator)
+                is CrescentToken.Modifier -> {
+                    /*NOOP*/
                 }
 
                 CrescentToken.Statement.FUN -> {
-                    functions += readFunction(false, tokenIterator)
+
+                    val modifiers = tokenIterator.peekBackUntil { it !is CrescentToken.Modifier }
+
+                    // TODO: Add isOperator
+                    val isInline   = modifiers.contains(CrescentToken.Modifier.INLINE)
+                    val isOverride = modifiers.contains(CrescentToken.Modifier.OVERRIDE)
+
+                    // TODO: Maybe just take in modifiers into Function
+                    functions += readFunction(isInline, isOverride, tokenIterator)
                 }
 
                 CrescentToken.Bracket.OPEN -> {
@@ -251,38 +259,75 @@ object CrescentParser {
 
     }
 
-    fun readFunction(isOverride: Boolean, tokenIterator: PeekingTokenIterator): CrescentAST.Node.Function {
+    // TODO: Maybe just take a list of modifier tokens
+    fun readFunction(isInline: Boolean, isOverride: Boolean, tokenIterator: PeekingTokenIterator): CrescentAST.Node.Function {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val parameters = readFunctionParameters(tokenIterator)
+
+        val type = if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
+            tokenIterator.next()
+            readType(tokenIterator)
+        }
+        else {
+            CrescentAST.Node.Type.Unit
+        }
 
         // Skip rest until fully implemented
         tokenIterator.nextUntil { it == CrescentToken.Bracket.CLOSE }
 
         // TODO: Support visibility
         // TODO: Read parameters
-        return CrescentAST.Node.Function(name, isOverride, CrescentAST.Visibility.PUBLIC, parameters, readExpression(tokenIterator))
+        return CrescentAST.Node.Function(
+            name,
+            isOverride,
+            CrescentAST.Visibility.PUBLIC,
+            parameters,
+            type,
+            readExpression(tokenIterator)
+        )
     }
 
     fun readFunctionTrait(tokenIterator: PeekingTokenIterator): CrescentAST.Node.FunctionTrait {
+
         val name = (tokenIterator.next() as CrescentToken.Key).string
-        return CrescentAST.Node.FunctionTrait(name, readFunctionParameters(tokenIterator))
+        val parameters = readFunctionParameters(tokenIterator)
+
+        val type = if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
+            tokenIterator.next()
+            readType(tokenIterator)
+        }
+        else {
+            CrescentAST.Node.Type.Unit
+        }
+
+        return CrescentAST.Node.FunctionTrait(name, parameters, type)
     }
 
-    fun readVariable(isFinal: Boolean, tokenIterator: PeekingTokenIterator): CrescentAST.Node.Variable {
+    fun readVariable(visibility: CrescentAST.Visibility, isFinal: Boolean, tokenIterator: PeekingTokenIterator): CrescentAST.Node.Variable {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
 
-        // Skip type prefix
-        checkEquals(tokenIterator.next(), CrescentToken.Operator.TYPE_PREFIX)
+        val type = if (tokenIterator.peekNext() == CrescentToken.Operator.VARIABLE_TYPE_PREFIX) {
+            tokenIterator.next()
+            readType(tokenIterator)
+        }
+        else {
+            CrescentAST.Node.Type.Implicit
+        }
 
-        // Could be absent
-        val type = readType(tokenIterator)
+        // Actually maybe they should support result types
+        /*
+        check(type !is CrescentAST.Node.Type.Result) {
+            "Variables can't be result type... Yet"
+        }
+        */
+
 
         // TODO: Add visibility
         // TODO: Add expression
         // TODO: Add Type to below
-        return CrescentAST.Node.Variable(name, isFinal, CrescentAST.Visibility.PUBLIC, type, readExpression(tokenIterator))
+        return CrescentAST.Node.Variable(name, isFinal, visibility, type, readExpression(tokenIterator))
     }
 
     fun readExpression(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Expression {
@@ -292,7 +337,7 @@ object CrescentParser {
 
     fun readFunctionParameters(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Parameter> {
 
-        if (tokenIterator.peekNext() == CrescentToken.Bracket.OPEN) {
+        if (tokenIterator.peekNext() != CrescentToken.Bracket.OPEN) {
             return emptyList()
         }
 
@@ -305,10 +350,10 @@ object CrescentParser {
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
 
             val name = (tokenIterator.next() as CrescentToken.Key).string
-            checkEquals(tokenIterator.next(), CrescentToken.Operator.TYPE_PREFIX)
+            checkEquals(tokenIterator.next(), CrescentToken.Operator.VARIABLE_TYPE_PREFIX)
             val type = readType(tokenIterator)
 
-            parameters += CrescentAST.Node.Parameter(name, type)
+            parameters += CrescentAST.Node.Parameter.Basic(name, type)
         }
 
         return parameters
@@ -321,7 +366,7 @@ object CrescentParser {
     fun readType(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Type {
 
         // TODO: Support Array type
-        val type: CrescentAST.Node.Type
+        var type: CrescentAST.Node.Type
 
         when (val peekNext = tokenIterator.peekNext()) {
 
@@ -329,6 +374,8 @@ object CrescentParser {
 
                 tokenIterator.next()
                 type = CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic((tokenIterator.next() as CrescentToken.Key).string))
+
+                // TODO: Maybe support array of results
 
                 // Skip Array close
                 checkEquals(tokenIterator.next(), CrescentToken.ArrayDeclaration.CLOSE)
@@ -343,6 +390,11 @@ object CrescentParser {
                 type = CrescentAST.Node.Type.Implicit
             }
 
+        }
+
+        if (tokenIterator.peekNext() == CrescentToken.Operator.RESULT) {
+            tokenIterator.next()
+            type = CrescentAST.Node.Type.Result(type)
         }
 
         return type

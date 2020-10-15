@@ -29,10 +29,22 @@ class CrescentAST {
             val expression: Expression
         ) : Node()
 
-        data class Parameter(
-            val name: kotlin.String,
-            val type: Type
-        ) : Node()
+        sealed class Parameter {
+
+            abstract val name: kotlin.String
+
+
+            data class Basic(
+                override val name: kotlin.String,
+                val type: Type
+            ) : Parameter()
+
+            data class WithDefault(
+                override val name: kotlin.String,
+                val defaultValue: Expression
+            ) : Parameter()
+
+        }
 
         data class Struct(
             val name: kotlin.String,
@@ -57,6 +69,7 @@ class CrescentAST {
         data class FunctionTrait(
             val name: kotlin.String,
             val params: List<Parameter>,
+            val returnType: Type
         ) : Node()
 
         data class FunctionCall(
@@ -77,7 +90,8 @@ class CrescentAST {
             val isOverride: Boolean,
             val visibility: Visibility,
             val params: List<Parameter>,
-            val innerCode: Expression
+            val returnType: Type,
+            val innerCode: Expression,
         ) : Node()
 
         // TODO: Make a better toString
@@ -99,8 +113,17 @@ class CrescentAST {
             // Should only be used for variables
             object Implicit : Type()
 
+            // No return type
+            object Unit : Type()
+
+
+            // Should only be used for function return types
+            data class Result(val type: Type) : Type()
+
             data class Basic(val name: kotlin.String) : Type()
+
             data class Array(val type: Type) : Type()
+
 
             data class Generic(
                 val type: Basic,
@@ -111,12 +134,12 @@ class CrescentAST {
 
         sealed class Statement {
 
-            data class Else(
-                val block: Expression
-            ) : Statement()
-
             data class When(
                 val predicateToBlock: List<Pair<Expression, Expression>>
+            ) : Statement()
+
+            data class Else(
+                val block: Expression
             ) : Statement()
 
             data class If(
