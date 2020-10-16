@@ -33,7 +33,7 @@ object CrescentLexer {
                     charIterator.nextUntil { !it.isLetter() }
                 }
 
-                peekNext.equalsAny('(', ')', '{', '}', '[', ']') -> {
+                peekNext.equalsAny('(', ')', '{', '}', '[', ']', '\n') -> {
                     charIterator.next().toString()
                 }
 
@@ -44,6 +44,8 @@ object CrescentLexer {
                 }
 
             }
+
+            // TODO: This should only tokenize symbols, the rest should be a Key token
 
             tokens += when (key) {
 
@@ -129,6 +131,7 @@ object CrescentLexer {
                 // Comment
                 "#" -> CrescentToken.Comment(charIterator.nextUntil('\n').trim())
 
+                "\n" -> CrescentToken.Operator.NEW_LINE
                 "->" -> CrescentToken.Operator.RETURN
                 "?"  -> CrescentToken.Operator.RESULT
                 ","  -> CrescentToken.Operator.COMMA

@@ -67,6 +67,7 @@ interface CrescentToken {
     }
 
     enum class Operator(val literal: kotlin.String) : CrescentToken {
+        NEW_LINE("\n"),
         NOT("!"),
         ADD("+"),
         SUB("-"),

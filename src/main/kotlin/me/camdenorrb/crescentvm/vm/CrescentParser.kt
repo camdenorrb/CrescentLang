@@ -280,8 +280,9 @@ object CrescentParser {
         val expression = readExpression(tokenIterator)
 
         // Skip rest until fully implemented
-        tokenIterator.nextUntil { it == CrescentToken.Bracket.CLOSE }
+        //tokenIterator.nextUntil { it == CrescentToken.Bracket.CLOSE }
 
+        println(tokenIterator.peekNext())
         // TODO: Support visibility
         // TODO: Read parameters
         return CrescentAST.Node.Function(
@@ -347,11 +348,37 @@ object CrescentParser {
 
         val nodes = mutableListOf<CrescentAST.Node>()
 
-        // Open Return String/Key
-        println(tokenIterator.peekNext(3))
+        if (tokenIterator.peekNext() == CrescentToken.Bracket.OPEN) {
+            tokenIterator.next()
+        }
 
-        // TODO: Implement
-        return CrescentAST.Node.Expression(emptyList())
+
+        while (true) {
+            nodes += when (val next = tokenIterator.next()) {
+
+                CrescentToken.Operator.RETURN -> {
+                    CrescentAST.Node.Return(readExpression(tokenIterator))
+                    break
+                }
+
+                is CrescentToken.String -> {
+                    CrescentAST.Node.String(next.kotlinString)
+                }
+
+                is CrescentToken.Key -> {
+                    // TODO: Implement
+                    continue
+                }
+
+                CrescentToken.Bracket.CLOSE -> {
+                    break
+                }
+
+                else -> error("Unexpected token $next")
+            }
+        }
+
+        return CrescentAST.Node.Expression(nodes)
     }
 
     fun readFunctionParameters(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Parameter> {
