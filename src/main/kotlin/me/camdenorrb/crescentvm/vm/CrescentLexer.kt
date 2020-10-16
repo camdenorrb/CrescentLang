@@ -83,7 +83,12 @@ object CrescentLexer {
                 "fun"      -> CrescentToken.Statement.FUN
 
                 // Modifiers
+                "async"    -> CrescentToken.Modifier.ASYNC
                 "override" -> CrescentToken.Modifier.OVERRIDE
+                "operator" -> CrescentToken.Modifier.OPERATOR
+                "public"   -> CrescentToken.Modifier.PUBLIC
+                "private"  -> CrescentToken.Modifier.PRIVATE
+                "inline"   -> CrescentToken.Modifier.INLINE
 
                 // Arithmetic
                 "!" -> CrescentToken.Operator.NOT

@@ -9,7 +9,7 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val file = File("/crescent/examples/hello_world.moon")
+        val file = File("/crescent/builtin/function.moon")
         val code = this::class.java.getResourceAsStream(file.path).readBytes().decodeToString()
 
         println(CrescentParser.invoke(file, CrescentLexer.invoke(code)))

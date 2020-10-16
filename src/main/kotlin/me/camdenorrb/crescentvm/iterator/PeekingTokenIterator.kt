@@ -23,8 +23,8 @@ class PeekingTokenIterator(val input: List<CrescentToken>) : Iterator<CrescentTo
     }
 
 
-    fun peekNext(): CrescentToken {
-        return input[index]
+    fun peekNext(amount: Int = 1): CrescentToken {
+        return input[index + (amount - 1)]
     }
 
     fun peekBack(amount: Int = 1): CrescentToken {

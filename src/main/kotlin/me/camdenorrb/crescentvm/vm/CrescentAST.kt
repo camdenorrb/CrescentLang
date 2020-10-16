@@ -29,23 +29,6 @@ class CrescentAST {
             val expression: Expression
         ) : Node()
 
-        sealed class Parameter {
-
-            abstract val name: kotlin.String
-
-
-            data class Basic(
-                override val name: kotlin.String,
-                val type: Type
-            ) : Parameter()
-
-            data class WithDefault(
-                override val name: kotlin.String,
-                val defaultValue: Expression
-            ) : Parameter()
-
-        }
-
         data class Struct(
             val name: kotlin.String,
             val variables: List<Variable>
@@ -65,6 +48,12 @@ class CrescentAST {
             val type: Type,
             val functions: List<Function>
         ) : Node()
+
+        data class Enum(
+            val name: kotlin.String,
+            val variables: List<Variable>,
+            val structs: List<Struct>
+        )
 
         data class FunctionTrait(
             val name: kotlin.String,
@@ -87,7 +76,7 @@ class CrescentAST {
 
         data class Function(
             val name: kotlin.String,
-            val isOverride: Boolean,
+            val modifiers: List<CrescentToken.Modifier>,
             val visibility: Visibility,
             val params: List<Parameter>,
             val returnType: Type,
@@ -104,8 +93,27 @@ class CrescentAST {
             val impls: List<Impl>,
             val traits: List<Trait>,
             val objects: List<Object>,
+            val enums: List<Enum>,
             val mainFunction: Function?
         ) : Node()
+
+
+        sealed class Parameter {
+
+            abstract val name: kotlin.String
+
+
+            data class Basic(
+                override val name: kotlin.String,
+                val type: Type
+            ) : Parameter()
+
+            data class WithDefault(
+                override val name: kotlin.String,
+                val defaultValue: Expression
+            ) : Parameter()
+
+        }
 
         // TODO: Add toStrings
         sealed class Type : Node() {

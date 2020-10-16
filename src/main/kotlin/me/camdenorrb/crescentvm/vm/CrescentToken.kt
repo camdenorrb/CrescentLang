@@ -3,14 +3,17 @@ package me.camdenorrb.crescentvm.vm
 // TODO: Make a way to reconstruct the code through .toString
 // TODO: Add ++ and --
 // TODO: Add Operator keyword
+// TODO: Error keyword
+// TODO: Maybe remove majority of these and let the parser determine it, EX: Import, while
 interface CrescentToken {
 
     data class Key(
         val string: kotlin.String
     ) : CrescentToken
 
+    // TODO: Take in expressions
     data class String(
-        val string: kotlin.String
+        val kotlinString: kotlin.String
     ) : CrescentToken
 
     data class Comment(
@@ -27,7 +30,9 @@ interface CrescentToken {
     }
 
     enum class Modifier : CrescentToken {
+        ASYNC,
         OVERRIDE,
+        OPERATOR,
         INLINE,
         PUBLIC,
         PRIVATE
@@ -116,119 +121,5 @@ interface CrescentToken {
         //Time,
         //Struct
     }
-
-
-    /*
-    interface Value
-
-
-    data class Import(
-        val path: String
-    ) : CrescentToken()
-
-    data class Struct(
-        val name: String,
-        val parameters: List<StructParameter>
-    ) : CrescentToken()
-
-    data class Impl(
-        val forStruct: String,
-        val isStatic: Boolean,
-        val functions: List<ImplFunction>
-    ) : CrescentToken()
-
-    data class Sealed(
-        val name: String,
-        val structs: List<Struct>,
-        val impls: List<Impl>
-    ) : CrescentToken()
-
-    data class Object(
-        val name: String,
-        val functions: List<ImplFunction>
-    ) : CrescentToken()
-
-    data class Trait(
-        val name: String,
-        val functions: List<TraitFunction>
-    ) : CrescentToken()
-
-    data class Annotation(
-        val text: String
-    ) : CrescentToken()
-
-    data class TraitFunction(
-        val name: String,
-        val parameters: List<FunctionParameter>
-    ) : CrescentToken()
-
-    data class ImplFunction(
-        val name: String,
-        val parameters: List<FunctionParameter>,
-        val tokens: List<CrescentToken>
-    ) : CrescentToken()
-
-    // Either pointing to a Struct or a Trait or a Generic
-    data class Type(
-        val name: String
-    ) : CrescentToken()
-
-    data class StructParameter(
-        val isMutable: Boolean,
-        val name: String,
-        val type: Type
-    ) : CrescentToken()
-
-    data class FunctionParameter(
-        val name: String,
-        val type: Type
-    ) : CrescentToken()
-
-    data class ImplFunctionCall(
-        val name: String,
-        val parameters: List<Value>
-    ) : CrescentToken(), Value
-
-    /*
-    data class Expression(
-        val text: String
-    ) : CrescentToken(), Value
-    */
-
-    data class Equation(
-        val token: CrescentOperator,
-        val value1: Value,
-        val value2: Value
-    ) : CrescentToken(), Value
-
-    data class Variable(
-        val name: String,
-        val variableValue: Value
-    ) : CrescentToken()
-
-
-    sealed class Statement : CrescentToken() {
-
-        data class If(
-            val predicate: Value
-        )
-
-        data class For(
-            val predicate: Value
-        ) : Statement()
-
-        data class While(
-            val predicate: Value
-        ) : Statement()
-
-        data class When(
-            val statements: Map<Value, ImplFunction>
-        ) : Statement()
-
-        data class Error(
-            val error: Value
-        ) : Statement()
-
-    }*/
 
 }

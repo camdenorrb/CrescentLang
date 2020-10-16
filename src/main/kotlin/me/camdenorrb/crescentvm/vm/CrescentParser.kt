@@ -15,6 +15,7 @@ object CrescentParser {
         val impls   = mutableListOf<CrescentAST.Node.Impl>()
         val traits  = mutableListOf<CrescentAST.Node.Trait>()
         val objects = mutableListOf<CrescentAST.Node.Object>()
+        val enums   = mutableListOf<CrescentAST.Node.Enum>()
 
         var mainFunction: CrescentAST.Node.Function? = null
         val tokenIterator = PeekingTokenIterator(tokens)
@@ -46,6 +47,10 @@ object CrescentParser {
                     objects += readObject(tokenIterator)
                 }
 
+                CrescentToken.Type.ENUM -> {
+                    enums += readEnum(tokenIterator)
+                }
+
                 CrescentToken.Statement.IMPORT -> {
                     // TODO: Add format verification
                     val key = tokenIterator.next() as CrescentToken.Key
@@ -58,7 +63,7 @@ object CrescentParser {
                         "More than one main function???"
                     }
 
-                    mainFunction = readFunction(false, false, tokenIterator)
+                    mainFunction = readFunction(emptyList(), tokenIterator)
                 }
 
                 else -> error("Unexpected token: $token")
@@ -73,6 +78,7 @@ object CrescentParser {
             impls,
             traits,
             objects,
+            enums,
             mainFunction
         )
     }
@@ -84,7 +90,7 @@ object CrescentParser {
         // Skip open bracket
         checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
 
-        // TODO: Figure out how to handle default lambdas
+        // TODO: Figure out how to handle default lambdas, by counting open/close or checking for = sign
         val variables = mutableListOf<CrescentAST.Node.Variable>()
 
         while (tokenIterator.hasNext()) {
@@ -168,14 +174,11 @@ object CrescentParser {
 
                 CrescentToken.Statement.FUN -> {
 
-                    val modifiers = tokenIterator.peekBackUntil { it !is CrescentToken.Modifier }
+                    val modifiers = tokenIterator
+                        .peekBackUntil { it !is CrescentToken.Modifier && it != CrescentToken.Statement.FUN }
+                        .mapNotNull { it as? CrescentToken.Modifier }
 
-                    // TODO: Add isOperator
-                    val isInline   = modifiers.contains(CrescentToken.Modifier.INLINE)
-                    val isOverride = modifiers.contains(CrescentToken.Modifier.OVERRIDE)
-
-                    // TODO: Maybe just take in modifiers into Function
-                    functions += readFunction(isInline, isOverride, tokenIterator)
+                    functions += readFunction(modifiers, tokenIterator)
                 }
 
                 CrescentToken.Bracket.OPEN -> {
@@ -223,14 +226,11 @@ object CrescentParser {
 
                 CrescentToken.Statement.FUN -> {
 
-                    val modifiers = tokenIterator.peekBackUntil { it !is CrescentToken.Modifier }
+                    val modifiers = tokenIterator
+                        .peekBackUntil { it !is CrescentToken.Modifier && it != CrescentToken.Statement.FUN }
+                        .mapNotNull { it as? CrescentToken.Modifier }
 
-                    // TODO: Add isOperator
-                    val isInline   = modifiers.contains(CrescentToken.Modifier.INLINE)
-                    val isOverride = modifiers.contains(CrescentToken.Modifier.OVERRIDE)
-
-                    // TODO: Maybe just take in modifiers into Function
-                    functions += readFunction(isInline, isOverride, tokenIterator)
+                    functions += readFunction(modifiers, tokenIterator)
                 }
 
                 CrescentToken.Bracket.OPEN -> {
@@ -259,8 +259,12 @@ object CrescentParser {
 
     }
 
+    fun readEnum(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Enum {
+        TODO()
+    }
+
     // TODO: Maybe just take a list of modifier tokens
-    fun readFunction(isInline: Boolean, isOverride: Boolean, tokenIterator: PeekingTokenIterator): CrescentAST.Node.Function {
+    fun readFunction(modifiers: List<CrescentToken.Modifier>, tokenIterator: PeekingTokenIterator): CrescentAST.Node.Function {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val parameters = readFunctionParameters(tokenIterator)
@@ -273,6 +277,8 @@ object CrescentParser {
             CrescentAST.Node.Type.Unit
         }
 
+        val expression = readExpression(tokenIterator)
+
         // Skip rest until fully implemented
         tokenIterator.nextUntil { it == CrescentToken.Bracket.CLOSE }
 
@@ -280,11 +286,11 @@ object CrescentParser {
         // TODO: Read parameters
         return CrescentAST.Node.Function(
             name,
-            isOverride,
+            modifiers,
             CrescentAST.Visibility.PUBLIC,
             parameters,
             type,
-            readExpression(tokenIterator)
+            expression
         )
     }
 
@@ -323,14 +329,27 @@ object CrescentParser {
         }
         */
 
+        val expression = if (tokenIterator.peekNext() == CrescentToken.Operator.ASSIGN) {
+            tokenIterator.next()
+            readExpression(tokenIterator)
+        }
+        else {
+            CrescentAST.Node.Expression(emptyList())
+        }
 
         // TODO: Add visibility
         // TODO: Add expression
         // TODO: Add Type to below
-        return CrescentAST.Node.Variable(name, isFinal, visibility, type, readExpression(tokenIterator))
+        return CrescentAST.Node.Variable(name, isFinal, visibility, type, expression)
     }
 
     fun readExpression(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Expression {
+
+        val nodes = mutableListOf<CrescentAST.Node>()
+
+        // Open Return String/Key
+        println(tokenIterator.peekNext(3))
+
         // TODO: Implement
         return CrescentAST.Node.Expression(emptyList())
     }
@@ -365,7 +384,6 @@ object CrescentParser {
 
     fun readType(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Type {
 
-        // TODO: Support Array type
         var type: CrescentAST.Node.Type
 
         when (val peekNext = tokenIterator.peekNext()) {
