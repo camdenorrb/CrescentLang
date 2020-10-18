@@ -11,6 +11,10 @@ interface CrescentToken {
         val string: kotlin.String
     ) : CrescentToken
 
+    data class Number(
+        val number: kotlin.Number
+    ) : CrescentToken
+
     // TODO: Take in expressions
     data class String(
         val kotlinString: kotlin.String
@@ -69,7 +73,7 @@ interface CrescentToken {
     }
 
 
-    enum class Operator(val literal: kotlin.String) : CrescentToken {
+    enum class InfixOperator(val literal: kotlin.String) : CrescentToken {
         //NEW_LINE("\n"),
         NOT("!"),
         ADD("+"),

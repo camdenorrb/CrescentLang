@@ -13,6 +13,16 @@ class CrescentAST {
 
     sealed class Node {
 
+        data class Number(
+            val number: kotlin.Number
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$number"
+            }
+
+        }
+
         data class String(
             val data: kotlin.String
         ) : Node()
@@ -26,10 +36,16 @@ class CrescentAST {
         ) : Node()
 
         data class Operation(
-            val operator: CrescentToken.Operator,
+            val infixOperator: CrescentToken.InfixOperator,
             val first: Node,
             val second: Node
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$first ${infixOperator.literal} $second"
+            }
+
+        }
 
         data class Return(
             val expression: Expression

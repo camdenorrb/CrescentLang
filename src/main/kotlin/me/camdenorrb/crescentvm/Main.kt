@@ -9,10 +9,18 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val file = File("/crescent/examples/hello_world.moon")
-        val code = this::class.java.getResourceAsStream("/crescent/examples/hello_world.moon").readBytes().decodeToString()
+        val file = File("/crescent/examples/math.moon")
+        val code = this::class.java.getResourceAsStream(file.path).readBytes().decodeToString()
 
+        println(CrescentLexer.invoke(code))
         println(CrescentParser.invoke(file, CrescentLexer.invoke(code)))
+        /*
+        repeat(100000) {
+            println(measureNanoTime {
+                CrescentParser.invoke(file, CrescentLexer.invoke(code))
+            })
+        }
+        */
 
 
         //println(CrescentLexer.invoke(code))

@@ -19,6 +19,7 @@ impl Function {
 
 impl [Parameter] {
 
+    # This should be the default output for any array
     override fun toString -> String {
         -> self.joinToString(", ")
     }

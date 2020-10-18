@@ -26,14 +26,14 @@ object CrescentLexer {
             val key = when {
 
                 peekNext.isDigit() -> {
-                    charIterator.nextUntil { it.isDigit() || it == '.' }
+                    charIterator.nextUntil { !it.isDigit() && it != '.' }
                 }
 
                 peekNext.isLetter() -> {
                     charIterator.nextUntil { !it.isLetter() }
                 }
 
-                peekNext.equalsAny('(', ')', '{', '}', '[', ']', '\n') -> {
+                peekNext.equalsAny('(', ')', '{', '}', '[', ']') -> {
                     charIterator.next().toString()
                 }
 
@@ -45,8 +45,14 @@ object CrescentLexer {
 
             }
 
-            // TODO: This should only tokenize symbols, the rest should be a Key token
+            val asNumber = key.toDoubleOrNull()
 
+            if (asNumber != null) {
+                tokens += CrescentToken.Number(asNumber)
+                continue
+            }
+
+            // TODO: This should only tokenize symbols, the rest should be a Key token
             tokens += when (key) {
 
                 // Parenthesis
@@ -62,8 +68,8 @@ object CrescentLexer {
                 "]" -> CrescentToken.ArrayDeclaration.CLOSE
 
                 // Infix Operators
-                "in" -> CrescentToken.Operator.CONTAINS
-                ".." -> CrescentToken.Operator.RANGE
+                "in" -> CrescentToken.InfixOperator.CONTAINS
+                ".." -> CrescentToken.InfixOperator.RANGE
 
                 // Variables
                 "var" -> CrescentToken.Variable.VAR
@@ -93,35 +99,35 @@ object CrescentLexer {
                 "inline"   -> CrescentToken.Modifier.INLINE
 
                 // Arithmetic
-                "!" -> CrescentToken.Operator.NOT
-                "+" -> CrescentToken.Operator.ADD
-                "-" -> CrescentToken.Operator.SUB
-                "*" -> CrescentToken.Operator.MUL
-                "/" -> CrescentToken.Operator.DIV
-                "%" -> CrescentToken.Operator.REM
+                "!" -> CrescentToken.InfixOperator.NOT
+                "+" -> CrescentToken.InfixOperator.ADD
+                "-" -> CrescentToken.InfixOperator.SUB
+                "*" -> CrescentToken.InfixOperator.MUL
+                "/" -> CrescentToken.InfixOperator.DIV
+                "%" -> CrescentToken.InfixOperator.REM
 
                 // Assign
-                "="  -> CrescentToken.Operator.ASSIGN
-                "+=" -> CrescentToken.Operator.ADD_ASSIGN
-                "-=" -> CrescentToken.Operator.SUB_ASSIGN
-                "*=" -> CrescentToken.Operator.MUL_ASSIGN
-                "/=" -> CrescentToken.Operator.DIV_ASSIGN
-                "%=" -> CrescentToken.Operator.REM_ASSIGN
+                "="  -> CrescentToken.InfixOperator.ASSIGN
+                "+=" -> CrescentToken.InfixOperator.ADD_ASSIGN
+                "-=" -> CrescentToken.InfixOperator.SUB_ASSIGN
+                "*=" -> CrescentToken.InfixOperator.MUL_ASSIGN
+                "/=" -> CrescentToken.InfixOperator.DIV_ASSIGN
+                "%=" -> CrescentToken.InfixOperator.REM_ASSIGN
 
                 // Compare
-                "||" -> CrescentToken.Operator.OR_COMPARE
-                "&&" -> CrescentToken.Operator.AND_COMPARE
-                "<=" -> CrescentToken.Operator.GREATER_EQUALS_COMPARE
-                ">=" -> CrescentToken.Operator.LESSER_EQUALS_COMPARE
-                "==" -> CrescentToken.Operator.EQUALS_COMPARE
-                "!=" -> CrescentToken.Operator.NOT_EQUALS_COMPARE
+                "||" -> CrescentToken.InfixOperator.OR_COMPARE
+                "&&" -> CrescentToken.InfixOperator.AND_COMPARE
+                "<=" -> CrescentToken.InfixOperator.GREATER_EQUALS_COMPARE
+                ">=" -> CrescentToken.InfixOperator.LESSER_EQUALS_COMPARE
+                "==" -> CrescentToken.InfixOperator.EQUALS_COMPARE
+                "!=" -> CrescentToken.InfixOperator.NOT_EQUALS_COMPARE
 
                 // Compare references
-                "===" -> CrescentToken.Operator.EQUALS_REFERENCE_COMPARE
-                "!==" -> CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE
+                "===" -> CrescentToken.InfixOperator.EQUALS_REFERENCE_COMPARE
+                "!==" -> CrescentToken.InfixOperator.NOT_EQUALS_REFERENCE_COMPARE
 
                 // Type prefix
-                ":" -> CrescentToken.Operator.VARIABLE_TYPE_PREFIX
+                ":" -> CrescentToken.InfixOperator.VARIABLE_TYPE_PREFIX
 
                 // String
                 // TODO: Add support for \"
@@ -132,9 +138,9 @@ object CrescentLexer {
                 "#" -> CrescentToken.Comment(charIterator.nextUntil('\n').trim())
 
                 //"\n" -> CrescentToken.Operator.NEW_LINE
-                "->" -> CrescentToken.Operator.RETURN
-                "?"  -> CrescentToken.Operator.RESULT
-                ","  -> CrescentToken.Operator.COMMA
+                "->" -> CrescentToken.InfixOperator.RETURN
+                "?"  -> CrescentToken.InfixOperator.RESULT
+                ","  -> CrescentToken.InfixOperator.COMMA
                 
                 else -> CrescentToken.Key(key)
             }

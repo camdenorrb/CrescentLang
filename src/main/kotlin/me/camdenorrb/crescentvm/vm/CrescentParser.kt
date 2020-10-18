@@ -1,7 +1,5 @@
 package me.camdenorrb.crescentvm.vm
 
-import me.camdenorrb.crescentvm.extensions.containsAll
-import me.camdenorrb.crescentvm.extensions.nextUntil
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import java.io.File
@@ -270,7 +268,7 @@ object CrescentParser {
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val parameters = readFunctionParameters(tokenIterator)
 
-        val type = if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
+        val type = if (tokenIterator.peekNext() == CrescentToken.InfixOperator.RETURN) {
             tokenIterator.next()
             readType(tokenIterator)
         }
@@ -304,7 +302,7 @@ object CrescentParser {
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val parameters = readFunctionParameters(tokenIterator)
 
-        val type = if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
+        val type = if (tokenIterator.peekNext() == CrescentToken.InfixOperator.RETURN) {
             tokenIterator.next()
             readType(tokenIterator)
         }
@@ -319,7 +317,7 @@ object CrescentParser {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
 
-        val type = if (tokenIterator.peekNext() == CrescentToken.Operator.VARIABLE_TYPE_PREFIX) {
+        val type = if (tokenIterator.peekNext() == CrescentToken.InfixOperator.VARIABLE_TYPE_PREFIX) {
             tokenIterator.next()
             readType(tokenIterator)
         }
@@ -334,7 +332,7 @@ object CrescentParser {
         }
         */
 
-        val expression = if (tokenIterator.peekNext() == CrescentToken.Operator.ASSIGN) {
+        val expression = if (tokenIterator.peekNext() == CrescentToken.InfixOperator.ASSIGN) {
             tokenIterator.next()
             readExpression(tokenIterator)
         }
@@ -351,7 +349,7 @@ object CrescentParser {
     fun readExpression(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Expression {
 
         val nodes = mutableListOf<CrescentAST.Node>()
-        var operator: CrescentToken.Operator? = null
+        var infixOperator: CrescentToken.InfixOperator? = null
 
         if (tokenIterator.peekNext() == CrescentToken.Bracket.OPEN) {
             tokenIterator.next()
@@ -361,7 +359,7 @@ object CrescentParser {
 
             val node = when (val next = tokenIterator.next()) {
 
-                CrescentToken.Operator.RETURN -> {
+                CrescentToken.InfixOperator.RETURN -> {
                     nodes += CrescentAST.Node.Return(readExpression(tokenIterator))
                     break
                 }
@@ -380,21 +378,22 @@ object CrescentParser {
                     readVariable(CrescentAST.Visibility.LOCAL_SCOPE, isFinal, tokenIterator)
                 }
 
-                is CrescentToken.Operator -> {
-                    operator = next
+                is CrescentToken.InfixOperator -> {
+                    infixOperator = next
                     continue
                 }
 
-                is CrescentToken.Key -> {
+                is CrescentToken.Number -> {
+                    CrescentAST.Node.Number(next.number)
+                }
 
-                    nodes += if (tokenIterator.peekNext() == CrescentToken.Parenthesis.OPEN) {
+                is CrescentToken.Key -> {
+                    if (tokenIterator.peekNext() == CrescentToken.Parenthesis.OPEN) {
                         CrescentAST.Node.FunctionCall(next.string, readFunctionArguments(tokenIterator))
                     }
                     else {
                         CrescentAST.Node.VariableCall(next.string)
                     }
-
-                    continue
                 }
 
 
@@ -404,15 +403,15 @@ object CrescentParser {
                 }
             }
 
-            if (operator != null) {
+            if (infixOperator != null) {
 
                 nodes += CrescentAST.Node.Operation(
-                    operator,
+                    infixOperator,
                     nodes.removeLast(),
                     node
                 )
 
-                operator = null
+                infixOperator = null
             }
             else {
                 nodes += node
@@ -438,7 +437,7 @@ object CrescentParser {
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
 
             val name = (tokenIterator.next() as CrescentToken.Key).string
-            checkEquals(tokenIterator.next(), CrescentToken.Operator.VARIABLE_TYPE_PREFIX)
+            checkEquals(tokenIterator.next(), CrescentToken.InfixOperator.VARIABLE_TYPE_PREFIX)
             val type = readType(tokenIterator)
 
             parameters += CrescentAST.Node.Parameter.Basic(name, type)
@@ -460,7 +459,7 @@ object CrescentParser {
 
         // TODO: Count opens and closes
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
-            arguments += CrescentAST.Node.Argument(readExpression(tokenIterator)).also { println(it) }
+            arguments += CrescentAST.Node.Argument(readExpression(tokenIterator))
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
@@ -497,7 +496,7 @@ object CrescentParser {
 
         }
 
-        if (tokenIterator.peekNext() == CrescentToken.Operator.RESULT) {
+        if (tokenIterator.peekNext() == CrescentToken.InfixOperator.RESULT) {
             tokenIterator.next()
             type = CrescentAST.Node.Type.Result(type)
         }

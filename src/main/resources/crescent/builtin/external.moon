@@ -1,0 +1,1 @@
+external fun println(value: Any)
