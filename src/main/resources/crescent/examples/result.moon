@@ -5,7 +5,7 @@ fun main {
 }
 
 
-fun a_result_thingy {
+fun resultThingy {
 
     Random.nextInt()
 

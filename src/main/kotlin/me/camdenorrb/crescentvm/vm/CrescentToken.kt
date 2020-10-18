@@ -20,23 +20,6 @@ interface CrescentToken {
         val string: kotlin.String
     ) : CrescentToken
 
-    enum class Statement : CrescentToken {
-        IMPORT,
-        WHILE,
-        WHEN,
-        FOR,
-        IF,
-        FUN
-    }
-
-    enum class Modifier : CrescentToken {
-        ASYNC,
-        OVERRIDE,
-        OPERATOR,
-        INLINE,
-        PUBLIC,
-        PRIVATE
-    }
 
     enum class Parenthesis : CrescentToken {
         OPEN,
@@ -53,6 +36,11 @@ interface CrescentToken {
         CLOSE
     }
 
+    enum class Variable : CrescentToken {
+        VAL,
+        VAR
+    }
+
     enum class Type : CrescentToken {
         STRUCT,
         IMPL,
@@ -61,13 +49,28 @@ interface CrescentToken {
         ENUM
     }
 
-    enum class Variable : CrescentToken {
-        VAL,
-        VAR
+    enum class Statement : CrescentToken {
+        IMPORT,
+        WHILE,
+        WHEN,
+        FOR,
+        IF,
+        FUN
     }
 
+    enum class Modifier : CrescentToken {
+        ASYNC,
+        OVERRIDE,
+        OPERATOR,
+        INLINE,
+        PUBLIC,
+        PRIVATE,
+        INFIX
+    }
+
+
     enum class Operator(val literal: kotlin.String) : CrescentToken {
-        NEW_LINE("\n"),
+        //NEW_LINE("\n"),
         NOT("!"),
         ADD("+"),
         SUB("-"),

@@ -131,7 +131,7 @@ object CrescentLexer {
                 // Comment
                 "#" -> CrescentToken.Comment(charIterator.nextUntil('\n').trim())
 
-                "\n" -> CrescentToken.Operator.NEW_LINE
+                //"\n" -> CrescentToken.Operator.NEW_LINE
                 "->" -> CrescentToken.Operator.RETURN
                 "?"  -> CrescentToken.Operator.RESULT
                 ","  -> CrescentToken.Operator.COMMA

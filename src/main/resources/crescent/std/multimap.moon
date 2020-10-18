@@ -1,8 +1,8 @@
-struct MultiValueMap<K, V> {
+struct MultiValueMap<K, V>(
 
-}
+)
 
-struct MultiKeyMap<K, V> {
+struct MultiKeyMap<K, V>(
 
 }
 

@@ -1,7 +1,7 @@
-struct Example {
+struct Example(
     val aNumber: Int          # New lines makes commas redundant
     val aValue1, aValue2 = "" # Multi declaration of same type, can all be set to one or multiple default values
-}
+)
 
 impl Example {
 
@@ -18,6 +18,7 @@ impl Example {
 }
 
 
+# Can't use self in static syntax
 impl static Example {
 
 }

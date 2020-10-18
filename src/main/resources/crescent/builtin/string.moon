@@ -4,6 +4,6 @@
 # Human readable text
 # @chars is the array of characters making up the string
 ##
-struct String {
+struct String(
     val chars: [char]
-}
+)

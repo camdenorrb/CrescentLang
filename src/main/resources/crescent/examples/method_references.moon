@@ -1,7 +1,7 @@
 
-struct Thing {}
+struct Thing
 
-main impl Thing {
+impl Thing {
     fun thing {}
 }
 

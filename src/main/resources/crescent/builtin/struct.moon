@@ -1,8 +1,8 @@
 
 # This should match the representation of the Struct token
-struct Struct {
+struct Struct (
 
-}
+)
 
 impl Struct {
 

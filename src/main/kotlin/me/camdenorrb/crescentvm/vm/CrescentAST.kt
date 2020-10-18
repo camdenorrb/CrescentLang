@@ -25,6 +25,12 @@ class CrescentAST {
             val nodes: List<Node>
         ) : Node()
 
+        data class Operation(
+            val operator: CrescentToken.Operator,
+            val first: Node,
+            val second: Node
+        ) : Node()
+
         data class Return(
             val expression: Expression
         ) : Node()
@@ -64,6 +70,10 @@ class CrescentAST {
         data class FunctionCall(
             val name: kotlin.String,
             val arguments: List<Argument>
+        ) : Node()
+
+        data class VariableCall(
+            val name: kotlin.String
         ) : Node()
 
         data class Variable(
@@ -139,6 +149,8 @@ class CrescentAST {
             ) : Type()
 
         }
+
+
 
         sealed class Statement {
 
