@@ -2,18 +2,30 @@ package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.vm.CrescentLexer
 import me.camdenorrb.crescentvm.vm.CrescentParser
-import java.io.File
+import java.nio.file.Paths
+import kotlin.io.path.exists
+import kotlin.io.path.readBytes
+import kotlin.io.path.toPath
 
 object Main {
 
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val file = File("/crescent/examples/math.moon")
-        val code = this::class.java.getResourceAsStream(file.path).readBytes().decodeToString()
+        val file = if (args.isNotEmpty()) {
+            Paths.get(args[0]).toAbsolutePath().toUri()
+        } else {
+            this::class.java.getResource("/crescent/examples/math.moon")?.toURI()
+        }?.toPath()?.toAbsolutePath()
+
+        check(file != null && file.exists()) {
+            "could not find: $file"
+        }
+
+        val code = file.readBytes().decodeToString()
 
         println(CrescentLexer.invoke(code))
-        println(CrescentParser.invoke(file, CrescentLexer.invoke(code)))
+        println(CrescentParser.invoke(file.toFile(), CrescentLexer.invoke(code)))
         /*
         repeat(100000) {
             println(measureNanoTime {
