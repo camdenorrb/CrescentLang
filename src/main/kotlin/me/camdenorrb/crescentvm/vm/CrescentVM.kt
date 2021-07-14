@@ -2,7 +2,7 @@ package me.camdenorrb.crescentvm.vm
 
 import java.io.File
 
-class CrescentVM {
+class CrescentVM(val mode: VMModes = VMModes.INTERPRETED) {
 
     fun lex(input: String): List<CrescentToken> {
         return CrescentLexer.invoke(input)
@@ -14,6 +14,9 @@ class CrescentVM {
 
     fun invoke(input: List<CrescentAST.Node.File>) {
         println("${input.size} assemblies specified!")
+        input.forEach { assembly ->
+
+        }
     }
 
 }
