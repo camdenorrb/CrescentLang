@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.vm
 
+import me.camdenorrb.crescentvm.vm.jvm.JVMGenerator
 import java.io.File
 
 class CrescentVM(val mode: VMModes = VMModes.INTERPRETED) {
@@ -16,7 +17,7 @@ class CrescentVM(val mode: VMModes = VMModes.INTERPRETED) {
         println("${input.size} assemblies specified!")
         when (mode) {
             //VMModes.INTERPRETED -> invokeInterpreted(input)
-            VMModes.JVM_BYTECODE -> invokeJVMBytecode(input)
+            VMModes.JVM_BYTECODE -> JVMGenerator.generate(input)
             else -> TODO("Cresent VM $mode")
         }
     }
@@ -26,12 +27,6 @@ class CrescentVM(val mode: VMModes = VMModes.INTERPRETED) {
 
         }
     }*/
-
-    private fun invokeJVMBytecode(input: List<CrescentAST.Node.File>) {
-        input.forEach { assembly ->
-
-        }
-    }
 
 
 }
