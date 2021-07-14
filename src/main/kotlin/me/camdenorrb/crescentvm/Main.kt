@@ -24,8 +24,9 @@ object Main {
 
         val code = file.readBytes().decodeToString()
 
-        println(CrescentLexer.invoke(code))
-        println(CrescentParser.invoke(file.toFile(), CrescentLexer.invoke(code)))
+        val tokens = CrescentLexer.invoke(code)
+        println(tokens)
+        println(CrescentParser.invoke(file.toFile(), tokens))
         /*
         repeat(100000) {
             println(measureNanoTime {
