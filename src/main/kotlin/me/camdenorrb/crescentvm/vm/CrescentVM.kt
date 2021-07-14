@@ -14,9 +14,24 @@ class CrescentVM(val mode: VMModes = VMModes.INTERPRETED) {
 
     fun invoke(input: List<CrescentAST.Node.File>) {
         println("${input.size} assemblies specified!")
+        when (mode) {
+            //VMModes.INTERPRETED -> invokeInterpreted(input)
+            VMModes.JVM_BYTECODE -> invokeJVMBytecode(input)
+            else -> TODO("Cresent VM $mode")
+        }
+    }
+
+    /*private fun invokeInterpreted(input: List<CrescentAST.Node.File>) {
+        input.forEach { assembly ->
+
+        }
+    }*/
+
+    private fun invokeJVMBytecode(input: List<CrescentAST.Node.File>) {
         input.forEach { assembly ->
 
         }
     }
+
 
 }

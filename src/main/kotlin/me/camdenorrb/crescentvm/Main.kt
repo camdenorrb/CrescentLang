@@ -3,6 +3,7 @@ package me.camdenorrb.crescentvm
 import me.camdenorrb.crescentvm.vm.CrescentLexer
 import me.camdenorrb.crescentvm.vm.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentVM
+import me.camdenorrb.crescentvm.vm.VMModes
 import java.nio.file.Paths
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
@@ -25,7 +26,7 @@ object Main {
 
         val code = file.readBytes().decodeToString()
 
-        val vm = CrescentVM()
+        val vm = CrescentVM(VMModes.JVM_BYTECODE)
         val tokens = vm.lex(code)
         println(tokens)
         val assembly = vm.parse(file.toFile(), tokens)
