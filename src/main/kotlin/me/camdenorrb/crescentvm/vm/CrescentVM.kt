@@ -13,7 +13,7 @@ class CrescentVM {
     }
 
     fun invoke(input: List<CrescentAST.Node.File>) {
-
+        println("${input.size} assemblies specified!")
     }
 
 }

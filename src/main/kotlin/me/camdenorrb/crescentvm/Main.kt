@@ -2,6 +2,7 @@ package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.vm.CrescentLexer
 import me.camdenorrb.crescentvm.vm.CrescentParser
+import me.camdenorrb.crescentvm.vm.CrescentVM
 import java.nio.file.Paths
 import kotlin.io.path.exists
 import kotlin.io.path.readBytes
@@ -24,9 +25,12 @@ object Main {
 
         val code = file.readBytes().decodeToString()
 
-        val tokens = CrescentLexer.invoke(code)
+        val vm = CrescentVM()
+        val tokens = vm.lex(code)
         println(tokens)
-        println(CrescentParser.invoke(file.toFile(), tokens))
+        val assembly = vm.parse(file.toFile(), tokens)
+        println(assembly)
+        vm.invoke(listOf(assembly))
         /*
         repeat(100000) {
             println(measureNanoTime {
