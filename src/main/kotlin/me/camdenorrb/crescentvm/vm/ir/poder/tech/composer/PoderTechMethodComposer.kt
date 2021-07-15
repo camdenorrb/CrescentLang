@@ -37,6 +37,7 @@ data class PoderTechMethodComposer(
         val index = instance.addConstant(
             when (item) {
                 is Number -> PoderTechConstant.NumberConstant(item)
+                is String -> PoderTechConstant.StringConstant(item)
                 else -> TODO("Const: ${item::class.java}")
             }
         )

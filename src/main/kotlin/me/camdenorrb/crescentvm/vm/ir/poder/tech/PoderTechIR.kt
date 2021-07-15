@@ -90,15 +90,15 @@ class PoderTechIR : Language {
         TODO("Not yet implemented")
     }
 
+    override fun registerConverter(converter: IRConverter, from: Language, to: Language) {
+        TODO("Not yet implemented")
+    }
+
     override fun appendFromOtherLang(language: Language) {
         TODO("Not yet implemented")
     }
 
     override fun toCode(): ByteArray {
-        TODO("Not yet implemented")
-    }
-
-    override fun registerConverter(converter: IRConverter, from: Language, to: Language) {
         TODO("Not yet implemented")
     }
 
