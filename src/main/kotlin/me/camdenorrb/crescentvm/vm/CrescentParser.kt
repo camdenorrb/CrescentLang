@@ -157,7 +157,7 @@ object CrescentParser {
 
             when (token) {
 
-                CrescentToken.Parenthesis.OPEN, CrescentToken.Parenthesis.CLOSE -> {
+                CrescentToken.Bracket.OPEN, CrescentToken.Parenthesis.OPEN, CrescentToken.Parenthesis.CLOSE -> {
                     /*NOOP*/
                 }
 
