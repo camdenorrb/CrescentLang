@@ -278,7 +278,11 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             TODO()
         } else {
             classBuilder.addAndReturnMethod(access, code.name, description.toString(), 50) { codeBuilder ->
+
                 codeList(codeBuilder, code.innerCode.nodes)
+                if (code.innerCode.nodes.last() !is CrescentAST.Node.Return) {
+                    codeBuilder.return_()
+                }
                 /*if (isType) {
                     codeBuilder.areturn()
                 } else {
