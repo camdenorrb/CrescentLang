@@ -12,6 +12,7 @@ import proguard.classfile.visitor.ClassPoolFiller
 import proguard.classfile.visitor.MultiClassVisitor
 import proguard.io.*
 import proguard.preverify.CodePreverifier
+import java.lang.IllegalStateException
 import java.net.URI
 import java.nio.file.*
 import kotlin.io.path.deleteIfExists
@@ -52,136 +53,140 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
 
     fun generate(input: List<CrescentAST.Node.File>) {
         input.forEach { assembly ->
-            val pool = ClassPool()
-            val output = Paths.get("${assembly.name}.jar").toAbsolutePath()
-            assembly.objects.forEach { p -> //Singleton
-                val builder = ClassBuilder(
-                    CLASS_VERSION,
-                    AccessConstants.PUBLIC or AccessConstants.FINAL,
-                    "${assembly.name}/objects/${p.name}",
-                    ClassConstants.NAME_JAVA_LANG_OBJECT
-                )
-                p.functions.forEach {
-                    makeFunction(builder, it)
-                }
-                pool.addClass(builder.programClass)
-            }
-            if (assembly.mainFunction != null) {
-                val builder = ClassBuilder(
-                    CLASS_VERSION,
-                    AccessConstants.PUBLIC or AccessConstants.FINAL,
-                    "${assembly.name}/Main",
-                    ClassConstants.NAME_JAVA_LANG_OBJECT
-                )
-
-                val newFunction = CrescentAST.Node.Function(
-                    "main",
-                    listOf(CrescentToken.Modifier.PUBLIC, CrescentToken.Modifier.STATIC),
-                    assembly.mainFunction.visibility,
-                    listOf(
-                        CrescentAST.Node.Parameter.Basic(
-                            "args",
-                            CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic("java/lang/String"))
-                        )
-                    ),
-                    CrescentAST.Node.Type.Unit,
-                    assembly.mainFunction.innerCode
-                )
-                makeFunction(builder, newFunction)
-                pool.addClass(builder.programClass)
-            }
-
-            assembly.enums.forEach { enum ->
-                TODO()
-            }
-            val classes = mutableMapOf<String, ClassBuilder>()
-
-            assembly.structs.forEach { struct -> //Class
-                val builder = ClassBuilder(
-                    CLASS_VERSION,
-                    AccessConstants.PUBLIC or AccessConstants.FINAL,
-                    "${assembly.name}/structs/${struct.name}",
-                    ClassConstants.NAME_JAVA_LANG_OBJECT
-                )
-                check(!classes.contains(struct.name)) {
-                    "Duplicate struct: ${struct.name}!"
-                }
-                struct.variables.forEach {
-                    makeVariable(builder, it)
-                }
-                classes[struct.name] = builder
-                pool.addClass(builder.programClass)
-            }
-
-            assembly.impls.forEach { impl ->
-                val realType = (impl.type as CrescentAST.Node.Type.Basic).name
-                check(classes[realType] != null) {
-                    "Struct $realType is missing!"
-                }
-                val clazz = classes[realType]!!
-                impl.functions.forEach {
-                    makeFunction(clazz, it)
-                }
-            }
-
-            assembly.traits.forEach { trait -> //Interface
-                val builder = ClassBuilder(
-                    CLASS_VERSION,
-                    AccessConstants.PUBLIC or AccessConstants.FINAL,
-                    "${assembly.name}/interfaces/${trait.name}",
-                    ClassConstants.NAME_JAVA_LANG_OBJECT
-                )
-                trait.functionTraits.forEach {
-                    makeFunction(
-                        builder,
-                        CrescentAST.Node.Function(
-                            it.name,
-                            listOf(CrescentToken.Modifier.PUBLIC),
-                            CrescentAST.Visibility.PUBLIC,
-                            it.params,
-                            it.returnType,
-                            CrescentAST.Node.Expression(emptyList())
-                        )
+            try {
+                val pool = ClassPool()
+                val output = Paths.get("${assembly.name}.jar").toAbsolutePath()
+                assembly.objects.forEach { p -> //Singleton
+                    val builder = ClassBuilder(
+                        CLASS_VERSION,
+                        AccessConstants.PUBLIC or AccessConstants.FINAL,
+                        "${assembly.name}/objects/${p.name}",
+                        ClassConstants.NAME_JAVA_LANG_OBJECT
                     )
+                    p.functions.forEach {
+                        makeFunction(builder, it)
+                    }
+                    pool.addClass(builder.programClass)
                 }
-                pool.addClass(builder.programClass)
-            }
-            check(pool.size() > 0) {
-                "No classes were generated!"
-            }
-            pool.classesAccept(ClassInitializer(pool, jmodPool))
-            pool.classesAccept(
-                MultiClassVisitor(
-                    AllAttributeVisitor(true, CodePreverifier(false)),
-                    AccessFixer(),
-                    InnerClassesAccessFixer(),
-                    StringSharer(),
-                    NameAndTypeShrinker(),
-                    BootstrapMethodsAttributeShrinker(),
-                    ConstantPoolShrinker(),
-                    InterfaceSorter(),
-                    AttributeSorter(),
-                    ClassMemberSorter(),
-                    ClassElementSorter(),
-                    ConstantPoolSorter(),
-                    ClassCleaner()
-                )
-            )
-            output.deleteIfExists()
-            val jarWriter = JarWriter(
-                ZipWriter(
-                    FixedFileWriter(
-                        output.toFile()
+                if (assembly.mainFunction != null) {
+                    val builder = ClassBuilder(
+                        CLASS_VERSION,
+                        AccessConstants.PUBLIC or AccessConstants.FINAL,
+                        "${assembly.name}/Main",
+                        ClassConstants.NAME_JAVA_LANG_OBJECT
+                    )
+
+                    val newFunction = CrescentAST.Node.Function(
+                        "main",
+                        listOf(CrescentToken.Modifier.PUBLIC, CrescentToken.Modifier.STATIC),
+                        assembly.mainFunction.visibility,
+                        listOf(
+                            CrescentAST.Node.Parameter.Basic(
+                                "args",
+                                CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic("java/lang/String"))
+                            )
+                        ),
+                        CrescentAST.Node.Type.Unit,
+                        assembly.mainFunction.innerCode
+                    )
+                    makeFunction(builder, newFunction)
+                    pool.addClass(builder.programClass)
+                }
+
+                assembly.enums.forEach { enum ->
+                    TODO()
+                }
+                val classes = mutableMapOf<String, ClassBuilder>()
+
+                assembly.structs.forEach { struct -> //Class
+                    val builder = ClassBuilder(
+                        CLASS_VERSION,
+                        AccessConstants.PUBLIC or AccessConstants.FINAL,
+                        "${assembly.name}/structs/${struct.name}",
+                        ClassConstants.NAME_JAVA_LANG_OBJECT
+                    )
+                    check(!classes.contains(struct.name)) {
+                        "Duplicate struct: ${struct.name}!"
+                    }
+                    struct.variables.forEach {
+                        makeVariable(builder, it)
+                    }
+                    classes[struct.name] = builder
+                    pool.addClass(builder.programClass)
+                }
+
+                assembly.impls.forEach { impl ->
+                    val realType = (impl.type as CrescentAST.Node.Type.Basic).name
+                    check(classes[realType] != null) {
+                        "Struct $realType is missing!"
+                    }
+                    val clazz = classes[realType]!!
+                    impl.functions.forEach {
+                        makeFunction(clazz, it)
+                    }
+                }
+
+                assembly.traits.forEach { trait -> //Interface
+                    val builder = ClassBuilder(
+                        CLASS_VERSION,
+                        AccessConstants.PUBLIC or AccessConstants.FINAL,
+                        "${assembly.name}/interfaces/${trait.name}",
+                        ClassConstants.NAME_JAVA_LANG_OBJECT
+                    )
+                    trait.functionTraits.forEach {
+                        makeFunction(
+                            builder,
+                            CrescentAST.Node.Function(
+                                it.name,
+                                listOf(CrescentToken.Modifier.PUBLIC),
+                                CrescentAST.Visibility.PUBLIC,
+                                it.params,
+                                it.returnType,
+                                CrescentAST.Node.Expression(emptyList())
+                            )
+                        )
+                    }
+                    pool.addClass(builder.programClass)
+                }
+                check(pool.size() > 0) {
+                    "No classes were generated for \"${assembly.name}\""
+                }
+                pool.classesAccept(ClassInitializer(pool, jmodPool))
+                pool.classesAccept(
+                    MultiClassVisitor(
+                        AllAttributeVisitor(true, CodePreverifier(false)),
+                        AccessFixer(),
+                        InnerClassesAccessFixer(),
+                        StringSharer(),
+                        NameAndTypeShrinker(),
+                        BootstrapMethodsAttributeShrinker(),
+                        ConstantPoolShrinker(),
+                        InterfaceSorter(),
+                        AttributeSorter(),
+                        ClassMemberSorter(),
+                        ClassElementSorter(),
+                        ConstantPoolSorter(),
+                        ClassCleaner()
                     )
                 )
-            )
-            pool.classesAccept(DataEntryClassWriter(jarWriter))
-            jarWriter.close()
-            if (assembly.mainFunction != null) {
-                val manifest = "Manifest-Version: 1.0\nMain-Class: ${assembly.name}.Main\n"
-                val fs = createFileSystem(output)
-                addFile(fs, "META-INF/MANIFEST.MF", manifest.toByteArray())
-                fs.close()
+                output.deleteIfExists()
+                val jarWriter = JarWriter(
+                    ZipWriter(
+                        FixedFileWriter(
+                            output.toFile()
+                        )
+                    )
+                )
+                pool.classesAccept(DataEntryClassWriter(jarWriter))
+                jarWriter.close()
+                if (assembly.mainFunction != null) {
+                    val manifest = "Manifest-Version: 1.0\nMain-Class: ${assembly.name}.Main\n"
+                    val fs = createFileSystem(output)
+                    addFile(fs, "META-INF/MANIFEST.MF", manifest.toByteArray())
+                    fs.close()
+                }
+            } catch (ex: IllegalStateException) {
+                ex.printStackTrace()
             }
         }
     }
