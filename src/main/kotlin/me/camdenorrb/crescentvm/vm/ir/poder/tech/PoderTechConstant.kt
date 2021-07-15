@@ -1,6 +1,9 @@
 package me.camdenorrb.crescentvm.vm.ir.poder.tech
 
 import me.camdenorrb.crescentvm.vm.ir.Constant
+import me.camdenorrb.crescentvm.vm.stack.on.OnStack
+import me.camdenorrb.crescentvm.vm.stack.on.StackString
+import me.camdenorrb.crescentvm.vm.stack.on.numbers.*
 import java.io.OutputStream
 import java.nio.ByteBuffer
 
@@ -18,6 +21,8 @@ sealed class PoderTechConstant : Constant {
             }
         }
     }
+
+    abstract fun toStackType(): OnStack
 
     override fun write(): ByteArray {
         val bytes = ByteArray(size())
@@ -83,6 +88,30 @@ sealed class PoderTechConstant : Constant {
                 }
                 is Byte -> {
                     BYTE
+                }
+                else -> throw java.lang.IllegalStateException("Unknown Number: ${payload::class.java}")
+            }
+        }
+
+        override fun toStackType(): OnStack {
+            return when(payload) {
+                is Int -> {
+                    StackInt
+                }
+                is Short -> {
+                    StackShort
+                }
+                is Double -> {
+                    StackDouble
+                }
+                is Long -> {
+                    StackLong
+                }
+                is Float -> {
+                    StackFloat
+                }
+                is Byte -> {
+                    StackByte
                 }
                 else -> throw java.lang.IllegalStateException("Unknown Number: ${payload::class.java}")
             }
@@ -176,6 +205,10 @@ sealed class PoderTechConstant : Constant {
         override fun matches(other: Constant): Boolean {
             if (other !is StringConstant) return false
             return other.payload == payload
+        }
+
+        override fun toStackType(): OnStack {
+            return StackString
         }
 
         override fun write(output: ByteBuffer) {

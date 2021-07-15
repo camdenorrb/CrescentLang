@@ -65,11 +65,11 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
         context.stack.push(number.number)
     }
 
-    private fun loadOp(varIndex: Int) {
+    private fun loadOp(varIndex: UByte) {
         val variable = context.getVar(varIndex)
         when (variable.type) {
             is StackDouble -> {
-                codeBuilder.dload(variable.startIndex)
+                codeBuilder.dload(variable.startIndex.toInt())
             }
             else -> TODO("Stack Type: ${variable.type::class.java}")
         }
@@ -79,15 +79,15 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
         }
     }
 
-    private fun storeOp(op: Any, uses: Int): Int {
+    private fun storeOp(op: Any, uses: Int): UByte {
         if (op !is OnStack) {
             addToStack(op)
         }
 
         return when (val newResult = context.stack.pop()) {
             is StackDouble -> {
-                val variable = Variable.newVar(context, newResult, 2, uses)
-                codeBuilder.dstore(variable.startIndex)
+                val variable = Variable.newVar(context, newResult, 2u, uses)
+                codeBuilder.dstore(variable.startIndex.toInt())
                 variable.startIndex
             }
             else -> TODO("Stack Type: ${newResult::class.java}")
@@ -101,7 +101,7 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
             val second = if (op2 is OnStack && op1 !is OnStack) {
                 storeOp(op2, 1)
             } else {
-                0
+                0u
             }
             if (op1 !is OnStack) {
                 addToStack(op1)
@@ -109,7 +109,7 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
             if (op2 !is OnStack) {
                 addToStack(op2)
             }
-            if (second > 0) {
+            if (second > 0u) {
                 loadOp(second)
             }
             false
