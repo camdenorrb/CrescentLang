@@ -8,7 +8,12 @@ class PoderTechVM(val mode: VMModes = VMModes.INTERPRETED) {
 
     }
 
+    fun packageLib() {
+
+    }
+
     fun invoke(clazzName: String) {
+        packageLib()
 
     }
 }
