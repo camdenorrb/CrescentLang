@@ -331,7 +331,18 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                 }
                 context.stack.push(test2)
             }
-            CrescentToken.Operator.SUB -> TODO()
+            CrescentToken.Operator.SUB -> {
+                val test1 = context.stack.pop()
+                val test2 = context.stack.pop()
+                numCheck(test1, test2)
+                when (test1) {
+                    is Double -> {
+                        codeBuilder.dsub()
+                    }
+                    else -> TODO("Number type: \"${test1::class.java}\" unrecognized")
+                }
+                context.stack.push(test2)
+            }
             CrescentToken.Operator.MUL -> {
                 val test1 = context.stack.pop()
                 val test2 = context.stack.pop()
