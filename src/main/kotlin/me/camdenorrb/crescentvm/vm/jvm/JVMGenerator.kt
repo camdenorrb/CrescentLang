@@ -230,7 +230,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         code.params.forEach {
             when (it) {
                 is CrescentAST.Node.Parameter.Basic -> {
-                    description.append(CodeBuilder.genDescriptor(it.type))
+                    description.append(CodeTranslator.genDescriptor(it.type))
                 }
                 else -> {
                     TODO("Parse Parameter \"${it::class.java}\"")
@@ -239,7 +239,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
         description.append(")")
         //var isType = true
-        description.append(CodeBuilder.genDescriptor(code.returnType))
+        description.append(CodeTranslator.genDescriptor(code.returnType))
         /*when (code.returnType) {
             is CrescentAST.Node.Type.Basic -> {
                 description.append(genDescriptor(code.returnType))
@@ -257,8 +257,8 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             TODO()
         } else {
             classBuilder.addAndReturnMethod(access, code.name, description.toString(), 50) { codeBuilder ->
-                val builder2 = CodeBuilder(context, codeBuilder)
-                builder2.codeLaunch(*code.innerCode.nodes.toTypedArray())
+                val codeTranslator = CodeTranslator(context, codeBuilder)
+                codeTranslator.codeGenerate(code.innerCode.nodes)
                 if (code.innerCode.nodes.last() !is CrescentAST.Node.Return) {
                     codeBuilder.return_()
                 }
@@ -306,6 +306,6 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         if (access and AccessConstants.PUBLIC == 0 && access and AccessConstants.PRIVATE == 0 && access and AccessConstants.PROTECTED == 0) {
             access = AccessConstants.PUBLIC
         }
-        return classBuilder.addAndReturnField(access, variable.name, CodeBuilder.genDescriptor(variable.type))
+        return classBuilder.addAndReturnField(access, variable.name, CodeTranslator.genDescriptor(variable.type))
     }
 }
