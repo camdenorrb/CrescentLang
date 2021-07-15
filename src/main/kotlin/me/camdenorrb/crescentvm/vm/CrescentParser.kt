@@ -420,6 +420,11 @@ object CrescentParser {
                     }
                 }
 
+                CrescentToken.Parenthesis.OPEN -> {
+                    readExpression(tokenIterator).also {
+                        tokenIterator.next()
+                    }
+                }
 
                 else -> {
                     tokenIterator.back()
