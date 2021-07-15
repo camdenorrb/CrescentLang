@@ -397,9 +397,12 @@ object CrescentParser {
                     CrescentAST.Node.String(next.kotlinString)
                 }
 
-                is CrescentToken.Variable -> {
-                    val isFinal = next == CrescentToken.Variable.VAL
-                    readVariable(CrescentAST.Visibility.LOCAL_SCOPE, isFinal, tokenIterator)
+                CrescentToken.Variable.VAL -> {
+                    readVariable(CrescentAST.Visibility.LOCAL_SCOPE, isFinal = true, tokenIterator)
+                }
+
+                CrescentToken.Variable.VAR -> {
+                    readVariable(CrescentAST.Visibility.LOCAL_SCOPE, isFinal = false, tokenIterator)
                 }
 
                 is CrescentToken.Operator -> {
@@ -433,6 +436,7 @@ object CrescentParser {
                 }
             }
 
+            // If an inlined operator was the previous node
             if (operator != null) {
 
                 nodes += CrescentAST.Node.Operation(
