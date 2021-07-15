@@ -33,16 +33,14 @@ object Main {
             files.add(file)
         }
 
-        val assemblies = mutableListOf<CrescentAST.Node.File>()
+        val assemblies = mutableSetOf<CrescentAST.Node.File>()
         val vm = CrescentVM(VMModes.JVM_BYTECODE)
 
         files.forEach { path ->
             val code = path.readBytes().decodeToString()
             val tokens = vm.lex(code)
             println(tokens)
-            val assembly = vm.parse(path.toFile(), tokens)
-            println(assembly)
-            assemblies.add(assembly)
+            vm.parse(path.toFile(), tokens, assemblies)
         }
 
         vm.invoke(assemblies)

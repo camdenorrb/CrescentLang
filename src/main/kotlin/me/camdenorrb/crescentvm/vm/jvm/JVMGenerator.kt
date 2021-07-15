@@ -49,11 +49,14 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
     }
 
-    fun generate(input: List<CrescentAST.Node.File>) {
+    fun generate(input: Set<CrescentAST.Node.File>) {
         input.forEach { assembly ->
             try {
                 val pool = ClassPool()
                 val output = Paths.get("${assembly.name}.jar").toAbsolutePath()
+                assembly.imports.forEach {
+                    println(it)
+                }
                 assembly.objects.forEach { p -> //Singleton
                     val builder = ClassBuilder(
                         CLASS_VERSION,

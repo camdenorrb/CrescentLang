@@ -69,6 +69,5 @@ data class PoderTechMethodComposer(
     fun deleteVariable(index: UByte) {
         context.getVar(index).delete(context)
         addInstruction(PoderTechInstruction.IndexInstruction(PoderTechInstruction.OP_DEL_VARIABLE, index))
-
     }
 }
