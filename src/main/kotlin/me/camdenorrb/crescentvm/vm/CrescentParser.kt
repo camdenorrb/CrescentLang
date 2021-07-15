@@ -11,10 +11,10 @@ object CrescentParser {
 
         val imports = mutableListOf<String>()
         val structs = mutableListOf<CrescentAST.Node.Struct>()
-        val impls   = mutableListOf<CrescentAST.Node.Impl>()
-        val traits  = mutableListOf<CrescentAST.Node.Trait>()
+        val impls = mutableListOf<CrescentAST.Node.Impl>()
+        val traits = mutableListOf<CrescentAST.Node.Trait>()
         val objects = mutableListOf<CrescentAST.Node.Object>()
-        val enums   = mutableListOf<CrescentAST.Node.Enum>()
+        val enums = mutableListOf<CrescentAST.Node.Enum>()
 
         var mainFunction: CrescentAST.Node.Function? = null
         val tokenIterator = PeekingTokenIterator(tokens)
@@ -38,7 +38,7 @@ object CrescentParser {
                     impls += readImpl(tokenIterator)
                 }
 
-                CrescentToken.Type.TRAIT  -> {
+                CrescentToken.Type.TRAIT -> {
                     traits += readTrait(tokenIterator)
                 }
 
@@ -181,7 +181,8 @@ object CrescentParser {
                 }
 
                 CrescentToken.Variable.VAL -> {
-                    val visibility = tokenIterator.peekBack() as? CrescentAST.Visibility ?: CrescentAST.Visibility.PUBLIC
+                    val visibility =
+                        tokenIterator.peekBack() as? CrescentAST.Visibility ?: CrescentAST.Visibility.PUBLIC
                     variables += readVariable(visibility, isFinal = true, tokenIterator)
                 }
 
@@ -207,7 +208,10 @@ object CrescentParser {
     }
 
     // TODO: Maybe just take a list of modifier tokens
-    fun readFunction(modifiers: List<CrescentToken.Modifier>, tokenIterator: PeekingTokenIterator): CrescentAST.Node.Function {
+    fun readFunction(
+        modifiers: List<CrescentToken.Modifier>,
+        tokenIterator: PeekingTokenIterator
+    ): CrescentAST.Node.Function {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val parameters = readFunctionParameters(tokenIterator)
@@ -215,8 +219,7 @@ object CrescentParser {
         val type = if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
             tokenIterator.next()
             readType(tokenIterator)
-        }
-        else {
+        } else {
             CrescentAST.Node.Type.Unit
         }
 
@@ -249,23 +252,25 @@ object CrescentParser {
         val type = if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
             tokenIterator.next()
             readType(tokenIterator)
-        }
-        else {
+        } else {
             CrescentAST.Node.Type.Unit
         }
 
         return CrescentAST.Node.FunctionTrait(name, parameters, type)
     }
 
-    fun readVariable(visibility: CrescentAST.Visibility, isFinal: Boolean, tokenIterator: PeekingTokenIterator): CrescentAST.Node.Variable {
+    fun readVariable(
+        visibility: CrescentAST.Visibility,
+        isFinal: Boolean,
+        tokenIterator: PeekingTokenIterator
+    ): CrescentAST.Node.Variable {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
 
         val type = if (tokenIterator.peekNext() == CrescentToken.Operator.VARIABLE_TYPE_PREFIX) {
             tokenIterator.next()
             readType(tokenIterator)
-        }
-        else {
+        } else {
             CrescentAST.Node.Type.Implicit
         }
 
@@ -279,8 +284,7 @@ object CrescentParser {
         val expression = if (tokenIterator.peekNext() == CrescentToken.Operator.ASSIGN) {
             tokenIterator.next()
             readExpression(tokenIterator)
-        }
-        else {
+        } else {
             CrescentAST.Node.Expression(emptyList())
         }
 
@@ -343,7 +347,8 @@ object CrescentParser {
             CrescentToken.ArrayDeclaration.OPEN -> {
 
                 tokenIterator.next()
-                type = CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic((tokenIterator.next() as CrescentToken.Key).string))
+                type =
+                    CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic((tokenIterator.next() as CrescentToken.Key).string))
 
                 // TODO: Maybe support array of results
 
@@ -417,8 +422,7 @@ object CrescentParser {
                 is CrescentToken.Key -> {
                     if (tokenIterator.peekNext() == CrescentToken.Parenthesis.OPEN) {
                         CrescentAST.Node.FunctionCall(next.string, readFunctionArguments(tokenIterator))
-                    }
-                    else {
+                    } else {
                         CrescentAST.Node.VariableCall(next.string)
                     }
                 }
@@ -446,8 +450,7 @@ object CrescentParser {
                 )
 
                 operator = null
-            }
-            else {
+            } else {
                 nodes += node
             }
 

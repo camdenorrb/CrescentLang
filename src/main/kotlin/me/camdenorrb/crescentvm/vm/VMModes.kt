@@ -9,6 +9,7 @@ enum class VMModes {
      * todo
      */
     INTERPRETED,
+
     /**
      * JVM_BYTECODE transforms the AST into .class files for the Java Virtual Machine
      * In Progress
@@ -21,6 +22,7 @@ enum class VMModes {
      * todo
      */
     BINARY,
+
     /**
      * C_CODE transforms the AST into .cpp and .h files to allow for c compilers to compile and other c programs to link to
      * todo determine if wanted

@@ -229,43 +229,91 @@ sealed class PoderTechInstruction : Instruction {
         }
     }
 
-    data class ClassMarker(val name: Int, override val opCode: Byte = 0) : PoderTechInstruction() {
+    interface ClassItems
+
+    data class ClassMarker(val name: Int, val instructions: Array<ClassItems>, override val opCode: Byte = 0) :
+        PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
-                return ClassMarker(PoderTechIR.readVarInt(input))
+                return ClassMarker(PoderTechIR.readVarInt(input), Array(PoderTechIR.readVarInt(input)) {
+                    PoderTechInstruction.read(input) as ClassItems
+                })
             }
         }
 
         override fun size(): Int {
-            return 1 + PoderTechIR.getVarIntSize(name)
+            return 1 + PoderTechIR.getVarIntSize(name) + PoderTechIR.getVarIntSize(instructions.size) + instructions.sumOf { (it as PoderTechInstruction).size() }
         }
 
         override fun write(output: ByteBuffer) {
             output.put(TYPE_MARKER_CLASS)
             PoderTechIR.writeVarInt(name, output)
+            PoderTechIR.writeVarInt(instructions.size, output)
+            instructions.forEach {
+                (it as PoderTechInstruction).write(output)
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is ClassMarker) return false
+
+            return name == other.name
+        }
+
+        override fun hashCode(): Int {
+            return name
         }
     }
 
-    data class MethodMarker(val name: Int, val descriptor: Int, override val opCode: Byte = 0) :
-        PoderTechInstruction() {
+    data class MethodMarker(
+        val name: Int,
+        val descriptor: Int,
+        val instructions: Array<PoderTechInstruction>,
+        override val opCode: Byte = 0
+    ) :
+        PoderTechInstruction(), ClassItems {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
-                return MethodMarker(PoderTechIR.readVarInt(input), PoderTechIR.readVarInt(input))
+                return MethodMarker(
+                    PoderTechIR.readVarInt(input),
+                    PoderTechIR.readVarInt(input),
+                    Array(PoderTechIR.readVarInt(input)) {
+                        PoderTechInstruction.read(input)
+                    })
             }
         }
 
         override fun size(): Int {
-            return 1 + PoderTechIR.getVarIntSize(name) + PoderTechIR.getVarIntSize(descriptor)
+            return 1 + PoderTechIR.getVarIntSize(name) + PoderTechIR.getVarIntSize(descriptor) + PoderTechIR.getVarIntSize(
+                instructions.size
+            ) + instructions.sumOf { it.size() }
         }
 
         override fun write(output: ByteBuffer) {
             output.put(TYPE_MARKER_METHOD)
             PoderTechIR.writeVarInt(name, output)
             PoderTechIR.writeVarInt(descriptor, output)
+            PoderTechIR.writeVarInt(instructions.size, output)
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is MethodMarker) return false
+
+            if (name != other.name) return false
+            return descriptor == other.descriptor
+        }
+
+        override fun hashCode(): Int {
+            var result = name
+            result = 31 * result + descriptor
+            return result
         }
     }
 
-    data class FieldMarker(val name: Int, val descriptor: Int, override val opCode: Byte = 0) : PoderTechInstruction() {
+    data class FieldMarker(val name: Int, val descriptor: Int, override val opCode: Byte = 0) : PoderTechInstruction(),
+        ClassItems {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
                 return FieldMarker(PoderTechIR.readVarInt(input), PoderTechIR.readVarInt(input))
@@ -283,12 +331,12 @@ sealed class PoderTechInstruction : Instruction {
         }
     }
 
-    data class ConstPoolMarker(val data: Array<PoderTechConstants>, override val opCode: Byte = 0) :
+    data class ConstPoolMarker(val data: Array<PoderTechConstant>, override val opCode: Byte = 0) :
         PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
                 return ConstPoolMarker(Array(PoderTechIR.readVarInt(input)) {
-                    PoderTechConstants.read(input)
+                    PoderTechConstant.read(input)
                 })
             }
         }

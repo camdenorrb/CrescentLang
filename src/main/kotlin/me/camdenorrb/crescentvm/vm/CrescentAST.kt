@@ -169,7 +169,6 @@ class CrescentAST {
         }
 
 
-
         sealed class Statement {
 
             data class When(

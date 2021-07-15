@@ -4,7 +4,7 @@ import me.camdenorrb.crescentvm.vm.ir.IRConverter
 import me.camdenorrb.crescentvm.vm.ir.Language
 import java.nio.ByteBuffer
 
-class PoderTechIR() : Language {
+class PoderTechIR : Language {
     companion object {
         fun getVarIntSize(int: Int): Int {
             var i = int

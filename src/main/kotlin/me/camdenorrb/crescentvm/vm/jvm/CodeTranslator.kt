@@ -2,14 +2,15 @@ package me.camdenorrb.crescentvm.vm.jvm
 
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentToken
+import me.camdenorrb.crescentvm.vm.stack.Variable
 import me.camdenorrb.crescentvm.vm.stack.on.OnStack
 import me.camdenorrb.crescentvm.vm.stack.on.StackClazz
-import me.camdenorrb.crescentvm.vm.stack.Variable
 import me.camdenorrb.crescentvm.vm.stack.on.numbers.StackDouble
 import me.camdenorrb.crescentvm.vm.stack.on.numbers.StackFloat
 import me.camdenorrb.crescentvm.vm.stack.on.numbers.StackInt
 import me.camdenorrb.crescentvm.vm.stack.on.numbers.StackLong
 import proguard.classfile.editor.CompactCodeAttributeComposer
+import kotlin.math.pow
 
 data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCodeAttributeComposer) {
     fun codeGenerate(codes: List<CrescentAST.Node>) {

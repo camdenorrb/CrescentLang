@@ -76,26 +76,26 @@ object CrescentLexer {
 
                 // Types
                 "struct" -> CrescentToken.Type.STRUCT
-                "impl"   -> CrescentToken.Type.IMPL
-                "trait"  -> CrescentToken.Type.TRAIT
+                "impl" -> CrescentToken.Type.IMPL
+                "trait" -> CrescentToken.Type.TRAIT
                 "object" -> CrescentToken.Type.OBJECT
-                "enum"   -> CrescentToken.Type.ENUM
+                "enum" -> CrescentToken.Type.ENUM
 
                 // Statements
-                "import"   -> CrescentToken.Statement.IMPORT
-                "if"       -> CrescentToken.Statement.IF
-                "when"     -> CrescentToken.Statement.WHEN
-                "while"    -> CrescentToken.Statement.WHILE
-                "for"      -> CrescentToken.Statement.FOR
-                "fun"      -> CrescentToken.Statement.FUN
+                "import" -> CrescentToken.Statement.IMPORT
+                "if" -> CrescentToken.Statement.IF
+                "when" -> CrescentToken.Statement.WHEN
+                "while" -> CrescentToken.Statement.WHILE
+                "for" -> CrescentToken.Statement.FOR
+                "fun" -> CrescentToken.Statement.FUN
 
                 // Modifiers
-                "async"    -> CrescentToken.Modifier.ASYNC
+                "async" -> CrescentToken.Modifier.ASYNC
                 "override" -> CrescentToken.Modifier.OVERRIDE
                 "operator" -> CrescentToken.Modifier.OPERATOR
-                "public"   -> CrescentToken.Modifier.PUBLIC
-                "private"  -> CrescentToken.Modifier.PRIVATE
-                "inline"   -> CrescentToken.Modifier.INLINE
+                "public" -> CrescentToken.Modifier.PUBLIC
+                "private" -> CrescentToken.Modifier.PRIVATE
+                "inline" -> CrescentToken.Modifier.INLINE
 
                 // Arithmetic
                 "!" -> CrescentToken.Operator.NOT
@@ -107,7 +107,7 @@ object CrescentLexer {
                 "^" -> CrescentToken.Operator.POW
 
                 // Assign
-                "="  -> CrescentToken.Operator.ASSIGN
+                "=" -> CrescentToken.Operator.ASSIGN
                 "+=" -> CrescentToken.Operator.ADD_ASSIGN
                 "-=" -> CrescentToken.Operator.SUB_ASSIGN
                 "*=" -> CrescentToken.Operator.MUL_ASSIGN
@@ -139,10 +139,10 @@ object CrescentLexer {
 
                 //"\n" -> CrescentToken.Operator.NEW_LINE
                 "->" -> CrescentToken.Operator.RETURN
-                "?"  -> CrescentToken.Operator.RESULT
-                ","  -> CrescentToken.Operator.COMMA
-                "."  -> CrescentToken.Operator.DOT
-                
+                "?" -> CrescentToken.Operator.RESULT
+                "," -> CrescentToken.Operator.COMMA
+                "." -> CrescentToken.Operator.DOT
+
                 else -> CrescentToken.Key(key)
             }
         }
