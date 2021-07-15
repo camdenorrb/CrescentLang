@@ -3,6 +3,7 @@ package me.camdenorrb.crescentvm
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentVM
 import me.camdenorrb.crescentvm.vm.VMModes
+import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import kotlin.io.path.*
@@ -23,8 +24,8 @@ object Main {
         }
         val files = mutableListOf<Path>()
         if (file.isDirectory()) {
-            file.forEachDirectoryEntry {
-                if (!it.isDirectory() && it.endsWith(".moon")) {
+            Files.walk(file).forEach {
+                if (!it.isDirectory() && it.extension == "moon") {
                     files.add(it)
                 }
             }
@@ -41,6 +42,7 @@ object Main {
             println(tokens)
             val assembly = vm.parse(path.toFile(), tokens)
             println(assembly)
+            assemblies.add(assembly)
         }
 
         vm.invoke(assemblies)
