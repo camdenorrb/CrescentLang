@@ -480,7 +480,21 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
     }
 
-    private fun makeVariable(classBuilder: ClassBuilder, variable: CrescentAST.Node.Variable) {
-
+    private fun makeVariable(classBuilder: ClassBuilder, variable: CrescentAST.Node.Variable): ProgramField {
+        var access = 0
+            when (variable.visibility) {
+                CrescentAST.Visibility.PUBLIC -> access = access or AccessConstants.PUBLIC
+                CrescentAST.Visibility.PRIVATE -> access =
+                    access or AccessConstants.PRIVATE or AccessConstants.SYNTHETIC
+                CrescentAST.Visibility.INTERNAL -> access =
+                    access or AccessConstants.PROTECTED or AccessConstants.SYNTHETIC
+                else -> {
+                    println("Unknown Modifier: ${variable.visibility}")
+                }
+            }
+        if (access and AccessConstants.PUBLIC == 0 && access and AccessConstants.PRIVATE == 0 && access and AccessConstants.PROTECTED == 0) {
+            access = AccessConstants.PUBLIC
+        }
+        return classBuilder.addAndReturnField(access, variable.name, genDescriptor(variable.type))
     }
 }

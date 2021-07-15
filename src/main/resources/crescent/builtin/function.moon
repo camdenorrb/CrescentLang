@@ -1,6 +1,6 @@
 struct Function(
     val name: String
-    val parameters: [Parameter]
+    #val parameters: [Parameter]
 )
 
 struct Parameter(
