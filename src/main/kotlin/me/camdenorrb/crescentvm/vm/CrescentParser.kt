@@ -99,6 +99,9 @@ object CrescentParser {
             if (nextToken == CrescentToken.Parenthesis.CLOSE) {
                 break
             }
+            if (nextToken is CrescentToken.Comment) {
+                continue
+            }
 
             val variableType = nextToken as CrescentToken.Variable
             val isFinal = variableType == CrescentToken.Variable.VAL
