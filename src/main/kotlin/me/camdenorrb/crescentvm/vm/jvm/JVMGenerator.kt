@@ -282,6 +282,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             is CrescentAST.Node.Operation -> operation(codeBuilder, node)
             is CrescentAST.Node.Argument -> argument(codeBuilder, node)
             is CrescentAST.Node.Number -> number(codeBuilder, node)
+            is CrescentAST.Node.String -> string(codeBuilder, node)
             is CrescentAST.Node.Expression -> TODO("Node: $node")
             is CrescentAST.Node.File -> TODO("Node: $node")
             is CrescentAST.Node.Function -> TODO("Node: $node")
@@ -289,13 +290,17 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             is CrescentAST.Node.Impl -> TODO("Node: $node")
             is CrescentAST.Node.Object -> TODO("Node: $node")
             is CrescentAST.Node.Return -> TODO("Node: $node")
-            is CrescentAST.Node.String -> TODO("Node: $node")
             is CrescentAST.Node.Struct -> TODO("Node: $node")
             is CrescentAST.Node.Trait -> TODO("Node: $node")
             is CrescentAST.Node.Variable -> TODO("Node: $node")
             is CrescentAST.Node.VariableCall -> TODO("Node: $node")
             else -> TODO("Node: $node")
         }
+    }
+
+    private fun string(codeBuilder: CompactCodeAttributeComposer, string: CrescentAST.Node.String) {
+        codeBuilder.ldc(string.data)
+        context.stack.push(string.data)
     }
 
     private fun number(codeBuilder: CompactCodeAttributeComposer, number: CrescentAST.Node.Number) {
@@ -394,6 +399,9 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                 builder.append("[")
                 builder.append(genDescriptor(type.type))
                 builder.toString()
+            }
+            is CrescentAST.Node.String, is String -> {
+                "Ljava/lang/String;"
             }
             else -> TODO("Type \"${type::class.java}\"")
         }
