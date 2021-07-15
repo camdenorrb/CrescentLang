@@ -105,6 +105,7 @@ object CrescentLexer {
                 "*" -> CrescentToken.Operator.MUL
                 "/" -> CrescentToken.Operator.DIV
                 "%" -> CrescentToken.Operator.REM
+                "^" -> CrescentToken.Operator.POW
 
                 // Assign
                 "="  -> CrescentToken.Operator.ASSIGN

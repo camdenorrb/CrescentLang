@@ -81,6 +81,7 @@ interface CrescentToken {
         SUB("-"),
         MUL("*"),
         DIV("/"),
+        POW("^"),
         REM("%"),
         ASSIGN("="),
         ADD_ASSIGN("+="),

@@ -236,9 +236,6 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
         val description = StringBuilder("(")
         code.params.forEach {
-            if (description.length > 1) {
-                description.append(",")
-            }
             when (it) {
                 is CrescentAST.Node.Parameter.Basic -> {
                     description.append(genDescriptor(it.type))
@@ -325,15 +322,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             CrescentToken.Operator.ADD -> {
                 val test1 = context.stack.pop()
                 val test2 = context.stack.pop()
-                check(test1 is Number) {
-                    "Add on non-number! \"${test1::class.java}\""
-                }
-                check(test2 is Number) {
-                    "Add on non-number! \"${test2::class.java}\""
-                }
-                check(test1::class == test2::class) {
-                    "\"${test1::class.java}\" != \"${test2::class.java}\""
-                }
+                numCheck(test1, test2)
                 when (test1) {
                     is Double -> {
                         codeBuilder.dadd()
@@ -343,8 +332,42 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                 context.stack.push(test2)
             }
             CrescentToken.Operator.SUB -> TODO()
-            CrescentToken.Operator.MUL -> TODO()
-            CrescentToken.Operator.DIV -> TODO()
+            CrescentToken.Operator.MUL -> {
+                val test1 = context.stack.pop()
+                val test2 = context.stack.pop()
+                numCheck(test1, test2)
+                when (test1) {
+                    is Double -> {
+                        codeBuilder.dmul()
+                    }
+                    else -> TODO("Number type: \"${test1::class.java}\" unrecognized")
+                }
+                context.stack.push(test2)
+            }
+            CrescentToken.Operator.DIV -> {
+                val test1 = context.stack.pop()
+                val test2 = context.stack.pop()
+                numCheck(test1, test2)
+                when (test1) {
+                    is Double -> {
+                        codeBuilder.ddiv()
+                    }
+                    else -> TODO("Number type: \"${test1::class.java}\" unrecognized")
+                }
+                context.stack.push(test2)
+            }
+            CrescentToken.Operator.POW -> {
+                val test1 = context.stack.pop()
+                val test2 = context.stack.pop()
+                numCheck(test1, test2)
+                val builder = StringBuilder("(")
+                builder.append(genDescriptor(test1))
+                builder.append(genDescriptor(test2))
+                builder.append(")")
+                builder.append(genDescriptor(test1))
+                codeBuilder.invokestatic("java/lang/Math", "pow", builder.toString())
+                context.stack.push(test2)
+            }
             CrescentToken.Operator.REM -> TODO()
             CrescentToken.Operator.ASSIGN -> TODO()
             CrescentToken.Operator.ADD_ASSIGN -> TODO()
@@ -366,6 +389,19 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             CrescentToken.Operator.RETURN -> TODO()
             CrescentToken.Operator.RESULT -> TODO()
             CrescentToken.Operator.COMMA -> TODO()
+            else -> TODO()
+        }
+    }
+
+    private fun numCheck(test1: Any, test2: Any) {
+        check(test1 is Number) {
+            "Add on non-number! \"${test1::class.java}\""
+        }
+        check(test2 is Number) {
+            "Add on non-number! \"${test2::class.java}\""
+        }
+        check(test1::class == test2::class) {
+            "\"${test1::class.java}\" != \"${test2::class.java}\""
         }
     }
 
