@@ -2,7 +2,9 @@ package me.camdenorrb.crescentvm.vm.jvm
 
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentToken
+import me.camdenorrb.crescentvm.vm.jvm.special.Clazz
 import me.camdenorrb.crescentvm.vm.jvm.special.OnStack
+import me.camdenorrb.crescentvm.vm.jvm.special.StackClazz
 import me.camdenorrb.crescentvm.vm.jvm.special.Variable
 import me.camdenorrb.crescentvm.vm.jvm.special.numbers.StackDouble
 import me.camdenorrb.crescentvm.vm.jvm.special.numbers.StackFloat
@@ -251,7 +253,7 @@ data class CodeBuilder(val context: CodeContext, val codeBuilder: CompactCodeAtt
         when (functionCall.name) {
             "println" -> {
                 codeBuilder.getstatic("java/lang/System", "out", "Ljava/io/PrintStream;")
-                context.stack.push(System.out)
+                context.stack.push(StackClazz("java/io/PrintStream"))
                 codeLaunch(*functionCall.arguments.toTypedArray())
                 var arg = context.stack.pop()
                 if (arg !is OnStack) {
