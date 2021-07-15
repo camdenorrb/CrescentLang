@@ -12,7 +12,6 @@ import proguard.classfile.visitor.ClassPoolFiller
 import proguard.classfile.visitor.MultiClassVisitor
 import proguard.io.*
 import proguard.preverify.CodePreverifier
-import java.lang.IllegalStateException
 import java.net.URI
 import java.nio.file.*
 import kotlin.io.path.deleteIfExists
@@ -147,6 +146,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                 pool.classesAccept(ClassInitializer(pool, jmodPool))
                 pool.classesAccept(
                     MultiClassVisitor(
+                        SimpleOptimizer.replacer,
                         AllAttributeVisitor(true, CodePreverifier(false)),
                         AccessFixer(),
                         InnerClassesAccessFixer(),
@@ -334,7 +334,40 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         when (val num = number.number) {
             is Double -> {
                 context.stack.push(num)
-                codeBuilder.ldc2_w(num)
+                when (val x = num.toDouble()) {
+                    0.0 -> codeBuilder.dconst_0()
+                    1.0 -> codeBuilder.dconst_1()
+                    else -> codeBuilder.ldc2_w(x)
+                }
+            }
+            is Float -> {
+                context.stack.push(num)
+                when (val x = num.toFloat()) {
+                    0f -> codeBuilder.fconst_0()
+                    1f -> codeBuilder.fconst_1()
+                    2f -> codeBuilder.fconst_2()
+                    else -> codeBuilder.ldc(x)
+                }
+            }
+            is Int -> {
+                context.stack.push(num)
+                when (val x = num.toInt()) {
+                    0 -> codeBuilder.iconst_0()
+                    1 -> codeBuilder.iconst_1()
+                    2 -> codeBuilder.iconst_2()
+                    3 -> codeBuilder.iconst_3()
+                    4 -> codeBuilder.iconst_4()
+                    5 -> codeBuilder.iconst_5()
+                    else -> codeBuilder.ldc(x)
+                }
+            }
+            is Long -> {
+                context.stack.push(num)
+                when (val x = num.toLong()) {
+                    0L -> codeBuilder.lconst_0()
+                    1L -> codeBuilder.lconst_1()
+                    else -> codeBuilder.ldc2_w(x)
+                }
             }
             else -> TODO("Parse NumberType: ${num::class.java}")
         }
@@ -486,16 +519,16 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
 
     private fun makeVariable(classBuilder: ClassBuilder, variable: CrescentAST.Node.Variable): ProgramField {
         var access = 0
-            when (variable.visibility) {
-                CrescentAST.Visibility.PUBLIC -> access = access or AccessConstants.PUBLIC
-                CrescentAST.Visibility.PRIVATE -> access =
-                    access or AccessConstants.PRIVATE or AccessConstants.SYNTHETIC
-                CrescentAST.Visibility.INTERNAL -> access =
-                    access or AccessConstants.PROTECTED or AccessConstants.SYNTHETIC
-                else -> {
-                    println("Unknown Modifier: ${variable.visibility}")
-                }
+        when (variable.visibility) {
+            CrescentAST.Visibility.PUBLIC -> access = access or AccessConstants.PUBLIC
+            CrescentAST.Visibility.PRIVATE -> access =
+                access or AccessConstants.PRIVATE or AccessConstants.SYNTHETIC
+            CrescentAST.Visibility.INTERNAL -> access =
+                access or AccessConstants.PROTECTED or AccessConstants.SYNTHETIC
+            else -> {
+                println("Unknown Modifier: ${variable.visibility}")
             }
+        }
         if (access and AccessConstants.PUBLIC == 0 && access and AccessConstants.PRIVATE == 0 && access and AccessConstants.PROTECTED == 0) {
             access = AccessConstants.PUBLIC
         }
