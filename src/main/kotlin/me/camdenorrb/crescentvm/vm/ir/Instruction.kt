@@ -4,7 +4,7 @@ import java.io.OutputStream
 import java.nio.ByteBuffer
 
 interface Instruction {
-    val opCode: Byte
+    val opCode: UByte
 
     fun size(): Int
     fun write(): ByteArray

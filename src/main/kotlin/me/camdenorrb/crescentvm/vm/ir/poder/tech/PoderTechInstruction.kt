@@ -156,15 +156,15 @@ sealed class PoderTechInstruction : Instruction {
         output.write(write())
     }
 
-    data class SimpleInstruction(override val opCode: Byte) : PoderTechInstruction() {
+    data class SimpleInstruction(override val opCode: UByte) : PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
-                return SimpleInstruction(input.get())
+                return SimpleInstruction(input.get().toUByte())
             }
         }
 
         override fun write(output: ByteBuffer) {
-            output.put(TYPE_SIMPLE).put(opCode)
+            output.put(TYPE_SIMPLE).put(opCode.toByte())
         }
 
         override fun size(): Int {
@@ -172,27 +172,27 @@ sealed class PoderTechInstruction : Instruction {
         }
     }
 
-    data class ConstInstruction(override val opCode: Byte, val constIndex: Int) : PoderTechInstruction() {
+    data class ConstInstruction(override val opCode: UByte, val constIndex: Int) : PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
-                return ConstInstruction(input.get(), PoderTechIR.readVarInt(input))
+                return ConstInstruction(input.get().toUByte(), PoderTechIR.readVarInt(input))
             }
         }
 
         override fun size(): Int {
-            return 2 + PoderTechIR.getVarIntSize(constIndex) ////Type, opCode, index
+            return 2 + PoderTechIR.varIntSize(constIndex) ////Type, opCode, index
         }
 
         override fun write(output: ByteBuffer) {
-            output.put(TYPE_CONSTANT).put(opCode)
+            output.put(TYPE_CONSTANT).put(opCode.toByte())
             PoderTechIR.writeVarInt(constIndex, output)
         }
     }
 
-    data class IndexInstruction(override val opCode: Byte, val index: UByte) : PoderTechInstruction() {
+    data class IndexInstruction(override val opCode: UByte, val index: UByte) : PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
-                return IndexInstruction(input.get(), input.get().toUByte())
+                return IndexInstruction(input.get().toUByte(), input.get().toUByte())
             }
         }
 
@@ -201,14 +201,14 @@ sealed class PoderTechInstruction : Instruction {
         }
 
         override fun write(output: ByteBuffer) {
-            output.put(TYPE_INDEX).put(opCode).put(index.toByte())
+            output.put(TYPE_INDEX).put(opCode.toByte()).put(index.toByte())
         }
     }
 
-    class InfoInstruction(override val opCode: Byte, vararg val info: UByte) : PoderTechInstruction() {
+    class InfoInstruction(override val opCode: UByte, vararg val info: UByte) : PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
-                val code = input.get()
+                val code = input.get().toUByte()
                 val info = UByteArray(PoderTechIR.readVarInt(input)) {
                     input.get().toUByte()
                 }
@@ -217,11 +217,11 @@ sealed class PoderTechInstruction : Instruction {
         }
 
         override fun size(): Int {
-            return 2 + PoderTechIR.getVarIntSize(info.size) + info.size //Type, opCode, sizeOf(info), info
+            return 2 + PoderTechIR.varIntSize(info.size) + info.size //Type, opCode, sizeOf(info), info
         }
 
         override fun write(output: ByteBuffer) {
-            output.put(TYPE_INFO).put(opCode)
+            output.put(TYPE_INFO).put(opCode.toByte())
             PoderTechIR.writeVarInt(info.size, output)
             info.forEach {
                 output.put(it.toByte())
@@ -231,23 +231,24 @@ sealed class PoderTechInstruction : Instruction {
 
     interface ClassItems
 
-    data class ClassMarker(val name: Int, val instructions: Array<ClassItems>, override val opCode: Byte = 0) :
+    data class ClassMarker(val name: Int, val descriptor: Int, val instructions: Array<ClassItems>, override val opCode: UByte = 0u) :
         PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
-                return ClassMarker(PoderTechIR.readVarInt(input), Array(PoderTechIR.readVarInt(input)) {
+                return ClassMarker(PoderTechIR.readVarInt(input), PoderTechIR.readVarInt(input), Array(PoderTechIR.readVarInt(input)) {
                     PoderTechInstruction.read(input) as ClassItems
                 })
             }
         }
 
         override fun size(): Int {
-            return 1 + PoderTechIR.getVarIntSize(name) + PoderTechIR.getVarIntSize(instructions.size) + instructions.sumOf { (it as PoderTechInstruction).size() }
+            return 1 + PoderTechIR.varIntSize(name) + PoderTechIR.varIntSize(descriptor) + PoderTechIR.varIntSize(instructions.size) + instructions.sumOf { (it as PoderTechInstruction).size() }
         }
 
         override fun write(output: ByteBuffer) {
             output.put(TYPE_MARKER_CLASS)
             PoderTechIR.writeVarInt(name, output)
+            PoderTechIR.writeVarInt(descriptor, output)
             PoderTechIR.writeVarInt(instructions.size, output)
             instructions.forEach {
                 (it as PoderTechInstruction).write(output)
@@ -270,7 +271,7 @@ sealed class PoderTechInstruction : Instruction {
         val name: Int,
         val descriptor: Int,
         val instructions: Array<PoderTechInstruction>,
-        override val opCode: Byte = 0
+        override val opCode: UByte = 0u
     ) :
         PoderTechInstruction(), ClassItems {
         companion object {
@@ -285,7 +286,7 @@ sealed class PoderTechInstruction : Instruction {
         }
 
         override fun size(): Int {
-            return 1 + PoderTechIR.getVarIntSize(name) + PoderTechIR.getVarIntSize(descriptor) + PoderTechIR.getVarIntSize(
+            return 1 + PoderTechIR.varIntSize(name) + PoderTechIR.varIntSize(descriptor) + PoderTechIR.varIntSize(
                 instructions.size
             ) + instructions.sumOf { it.size() }
         }
@@ -312,7 +313,7 @@ sealed class PoderTechInstruction : Instruction {
         }
     }
 
-    data class FieldMarker(val name: Int, val descriptor: Int, override val opCode: Byte = 0) : PoderTechInstruction(),
+    data class FieldMarker(val name: Int, val descriptor: Int, override val opCode: UByte = 0u) : PoderTechInstruction(),
         ClassItems {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
@@ -321,7 +322,7 @@ sealed class PoderTechInstruction : Instruction {
         }
 
         override fun size(): Int {
-            return 1 + PoderTechIR.getVarIntSize(name) + PoderTechIR.getVarIntSize(descriptor)
+            return 1 + PoderTechIR.varIntSize(name) + PoderTechIR.varIntSize(descriptor)
         }
 
         override fun write(output: ByteBuffer) {
@@ -331,7 +332,7 @@ sealed class PoderTechInstruction : Instruction {
         }
     }
 
-    data class ConstPoolMarker(val data: Array<PoderTechConstant>, override val opCode: Byte = 0) :
+    data class ConstPoolMarker(val data: Array<PoderTechConstant>, override val opCode: UByte = 0u) :
         PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
@@ -342,7 +343,7 @@ sealed class PoderTechInstruction : Instruction {
         }
 
         override fun size(): Int {
-            return 1 + PoderTechIR.getVarIntSize(data.size) + data.sumOf { it.size() }
+            return 1 + PoderTechIR.varIntSize(data.size) + data.sumOf { it.size() }
         }
 
         override fun write(output: ByteBuffer) {
@@ -369,7 +370,7 @@ sealed class PoderTechInstruction : Instruction {
         }
     }
 
-    data class VersionData(val version: Int, override val opCode: Byte = 0) : PoderTechInstruction() {
+    data class VersionData(val version: Int, override val opCode: UByte = 0u) : PoderTechInstruction() {
         companion object {
             fun read(input: ByteBuffer): PoderTechInstruction {
                 return VersionData(PoderTechIR.readVarInt(input))
@@ -377,7 +378,7 @@ sealed class PoderTechInstruction : Instruction {
         }
 
         override fun size(): Int {
-            return 1 + PoderTechIR.getVarIntSize(version)
+            return 1 + PoderTechIR.varIntSize(version)
         }
 
         override fun write(output: ByteBuffer) {

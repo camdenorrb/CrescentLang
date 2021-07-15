@@ -6,6 +6,7 @@ import me.camdenorrb.crescentvm.vm.ir.poder.tech.PoderTechInstruction
 data class PoderTechClassComposer(
     private val instance: PoderTechBinaryComposer,
     val name: String,
+    val description: String,
     val superName: String,
     private val tmpInstructions: MutableList<PoderTechInstruction.ClassItems> = mutableListOf()
 ) {
@@ -21,6 +22,7 @@ data class PoderTechClassComposer(
         instance.addClass(
             PoderTechInstruction.ClassMarker(
                 instance.addConstant(PoderTechConstant.StringConstant(name)),
+                instance.addConstant(PoderTechConstant.StringConstant(description)),
                 tmpInstructions.toTypedArray()
             )
         )

@@ -53,8 +53,8 @@ data class PoderTechBinaryComposer(
         })
     }
 
-    fun addClass(name: String, superName: String = "builtin/Any"): PoderTechClassComposer {
-        return PoderTechClassComposer(this, name, superName)
+    fun addClass(name: String, description: String, superName: String = "builtin/Any"): PoderTechClassComposer {
+        return PoderTechClassComposer(this, name, description, superName)
     }
 
     internal fun addClass(classInstructions: PoderTechInstruction.ClassMarker) {
