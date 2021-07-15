@@ -1,13 +1,11 @@
 package me.camdenorrb.crescentvm
 
-import me.camdenorrb.crescentvm.vm.CrescentLexer
-import me.camdenorrb.crescentvm.vm.CrescentParser
+import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentVM
 import me.camdenorrb.crescentvm.vm.VMModes
+import java.nio.file.Path
 import java.nio.file.Paths
-import kotlin.io.path.exists
-import kotlin.io.path.readBytes
-import kotlin.io.path.toPath
+import kotlin.io.path.*
 
 object Main {
 
@@ -23,15 +21,29 @@ object Main {
         check(file != null && file.exists()) {
             "could not find: $file"
         }
+        val files = mutableListOf<Path>()
+        if (file.isDirectory()) {
+            file.forEachDirectoryEntry {
+                if (!it.isDirectory() && it.endsWith(".moon")) {
+                    files.add(it)
+                }
+            }
+        } else {
+            files.add(file)
+        }
 
-        val code = file.readBytes().decodeToString()
-
+        val assemblies = mutableListOf<CrescentAST.Node.File>()
         val vm = CrescentVM(VMModes.JVM_BYTECODE)
-        val tokens = vm.lex(code)
-        println(tokens)
-        val assembly = vm.parse(file.toFile(), tokens)
-        println(assembly)
-        vm.invoke(listOf(assembly))
+
+        files.forEach { path ->
+            val code = path.readBytes().decodeToString()
+            val tokens = vm.lex(code)
+            println(tokens)
+            val assembly = vm.parse(path.toFile(), tokens)
+            println(assembly)
+        }
+
+        vm.invoke(assemblies)
         /*
         repeat(100000) {
             println(measureNanoTime {
@@ -49,6 +61,10 @@ object Main {
         CrescentValue(null, "10", CrescentDataType.I16)
         CrescentValue(null, "10", CrescentDataType.I16)
         */
+    }
+
+    fun genBytes(): ByteArray {
+
     }
 
 }
