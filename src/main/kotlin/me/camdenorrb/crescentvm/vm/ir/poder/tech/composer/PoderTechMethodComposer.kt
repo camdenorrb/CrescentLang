@@ -34,7 +34,6 @@ data class PoderTechMethodComposer(
     }
 
     fun loadConst(item: Any) {
-
         val index = instance.addConstant(
             when (item) {
                 is Number -> PoderTechConstant.NumberConstant(item)

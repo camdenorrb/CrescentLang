@@ -30,7 +30,7 @@ sealed class PoderTechConstant : Constant {
         output.write(write())
     }
 
-    data class NumberConstant(val num: Number) : PoderTechConstant() {
+    data class NumberConstant(val payload: Number) : PoderTechConstant() {
         companion object {
             private const val BYTE: Byte = 0
             private const val SHORT: Byte = 1
@@ -64,8 +64,8 @@ sealed class PoderTechConstant : Constant {
             }
         }
 
-        fun getType(num: Number): Byte {
-            return when(num) {
+        fun getType(): Byte {
+            return when(payload) {
                 is Int -> {
                     INT
                 }
@@ -84,63 +84,65 @@ sealed class PoderTechConstant : Constant {
                 is Byte -> {
                     BYTE
                 }
-                else -> throw java.lang.IllegalStateException("Unknown Number: ${num::class.java}")
+                else -> throw java.lang.IllegalStateException("Unknown Number: ${payload::class.java}")
             }
         }
 
         override fun write(output: ByteBuffer) {
-            val type = getType(num)
+            val type = getType()
             output.put(type)
-            when(num) {
+            when(payload) {
                 is Int -> {
-                    PoderTechIR.writeVarInt(num, output)
+                    PoderTechIR.writeVarInt(payload, output)
                 }
                 is Short -> {
-                    PoderTechIR.writeVarInt(num.toInt(), output)
+                    PoderTechIR.writeVarInt(payload.toInt(), output)
                 }
                 is Double -> {
-                    PoderTechIR.writeVarLong(num.toBits(), output)
+                    PoderTechIR.writeVarLong(payload.toBits(), output)
                 }
                 is Long -> {
-                    PoderTechIR.writeVarLong(num, output)
+                    PoderTechIR.writeVarLong(payload, output)
                 }
                 is Float -> {
-                    PoderTechIR.writeVarInt(num.toBits(), output)
+                    PoderTechIR.writeVarInt(payload.toBits(), output)
                 }
                 is Byte -> {
-                    output.put(num)
+                    output.put(payload)
                 }
-                else -> throw java.lang.IllegalStateException("Unknown Number: ${num::class.java}")
+                else -> throw java.lang.IllegalStateException("Unknown Number: ${payload::class.java}")
             }
         }
 
         override fun size(): Int {
-            return 1 + when(num) {
+            return 1 + when(payload) {
                 is Int -> {
-                    PoderTechIR.varIntSize(num)
+                    PoderTechIR.varIntSize(payload)
                 }
                 is Short -> {
-                    PoderTechIR.varIntSize(num.toInt())
+                    PoderTechIR.varIntSize(payload.toInt())
                 }
                 is Double -> {
-                    PoderTechIR.varLongSize(num.toBits())
+                    PoderTechIR.varLongSize(payload.toBits())
                 }
                 is Long -> {
-                    PoderTechIR.varLongSize(num)
+                    PoderTechIR.varLongSize(payload)
                 }
                 is Float -> {
-                    PoderTechIR.varIntSize(num.toBits())
+                    PoderTechIR.varIntSize(payload.toBits())
                 }
                 is Byte -> {
                     1
                 }
-                else -> throw java.lang.IllegalStateException("Unknown Number: ${num::class.java}")
+                else -> throw java.lang.IllegalStateException("Unknown Number: ${payload::class.java}")
             }
 
         }
 
         override fun matches(other: Constant): Boolean {
-            TODO("Not yet implemented")
+            if (other !is NumberConstant) return false
+            if (other.getType() != getType()) return false
+            return other.payload == payload
         }
     }
 
