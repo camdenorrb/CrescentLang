@@ -63,8 +63,4 @@ object Main {
         */
     }
 
-    fun genBytes(): ByteArray {
-
-    }
-
 }
