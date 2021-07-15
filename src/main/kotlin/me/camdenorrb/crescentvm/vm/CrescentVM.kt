@@ -17,8 +17,8 @@ class CrescentVM(val mode: VMModes = VMModes.INTERPRETED) {
         println("${input.size} assemblies specified!")
         when (mode) {
             //VMModes.INTERPRETED -> invokeInterpreted(input)
-            VMModes.JVM_BYTECODE -> JVMGenerator.generate(input)
-            else -> TODO("Cresent VM $mode")
+            VMModes.JVM_BYTECODE -> JVMGenerator().generate(input)
+            else -> TODO("Crescent VM $mode")
         }
     }
 

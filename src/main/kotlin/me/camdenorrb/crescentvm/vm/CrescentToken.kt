@@ -69,6 +69,7 @@ interface CrescentToken {
         INLINE,
         PUBLIC,
         PRIVATE,
+        STATIC,
         INFIX
     }
 
