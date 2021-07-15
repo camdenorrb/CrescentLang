@@ -1,3 +1,5 @@
+import ::Type
+
 struct Function(
     val name: String
    #val parameters: [Parameter]
