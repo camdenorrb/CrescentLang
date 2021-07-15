@@ -9,7 +9,6 @@ import proguard.classfile.util.ClassInitializer
 import proguard.classfile.util.StringSharer
 import proguard.classfile.visitor.ClassCleaner
 import proguard.classfile.visitor.ClassPoolFiller
-import proguard.classfile.visitor.MultiClassVisitor
 import proguard.io.*
 import proguard.preverify.CodePreverifier
 import java.net.URI
@@ -331,6 +330,8 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
     }
 
     private fun number(codeBuilder: CompactCodeAttributeComposer, number: CrescentAST.Node.Number) {
+        //todo push on stack and wait for consumption
+        // reason: Allows pre-optimization and dead code removal
         when (val num = number.number) {
             is Double -> {
                 context.stack.push(num)
