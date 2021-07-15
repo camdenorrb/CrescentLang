@@ -1,5 +1,6 @@
-package me.camdenorrb.crescentvm.vm
+package me.camdenorrb.crescentvm.vm.machines
 
+import me.camdenorrb.crescentvm.vm.*
 import me.camdenorrb.crescentvm.vm.jvm.JVMGenerator
 import java.io.File
 

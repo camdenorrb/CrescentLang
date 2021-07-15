@@ -1,7 +1,7 @@
 package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.vm.CrescentAST
-import me.camdenorrb.crescentvm.vm.CrescentVM
+import me.camdenorrb.crescentvm.vm.machines.CrescentVM
 import me.camdenorrb.crescentvm.vm.VMModes
 import java.nio.file.Files
 import java.nio.file.Path
