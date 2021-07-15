@@ -183,26 +183,6 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
     }
 
-    private fun getImpl(impl: CrescentAST.Node.Impl, map: MutableMap<String, ClassBuilder>) {
-        when (impl.type) {
-            is CrescentAST.Node.Type.Basic -> {
-                val realType = impl.type.name
-                check(map[realType] != null) {
-                    "Struct $realType is missing!"
-                }
-                val clazz = map[realType]!!
-                impl.functions.forEach {
-                    makeFunction(clazz, it)
-                }
-            }
-            is CrescentAST.Node.Type.Array -> {
-                println("Arrays classes not implemented!")
-            }
-            else -> TODO(impl.type::class.java.name)
-        }
-
-    }
-
     private fun addFile(fs: FileSystem, path: String, byteArray: ByteArray) {
         val nf: Path = fs.getPath(path)
         try {
@@ -250,7 +230,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         code.params.forEach {
             when (it) {
                 is CrescentAST.Node.Parameter.Basic -> {
-                    description.append(genDescriptor(it.type))
+                    description.append(CodeBuilder.genDescriptor(it.type))
                 }
                 else -> {
                     TODO("Parse Parameter \"${it::class.java}\"")
@@ -259,7 +239,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
         description.append(")")
         //var isType = true
-        description.append(genDescriptor(code.returnType))
+        description.append(CodeBuilder.genDescriptor(code.returnType))
         /*when (code.returnType) {
             is CrescentAST.Node.Type.Basic -> {
                 description.append(genDescriptor(code.returnType))
@@ -277,8 +257,8 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             TODO()
         } else {
             classBuilder.addAndReturnMethod(access, code.name, description.toString(), 50) { codeBuilder ->
-
-                codeList(codeBuilder, code.innerCode.nodes)
+                val builder2 = CodeBuilder(context, codeBuilder)
+                builder2.codeLaunch(*code.innerCode.nodes.toTypedArray())
                 if (code.innerCode.nodes.last() !is CrescentAST.Node.Return) {
                     codeBuilder.return_()
                 }
@@ -291,231 +271,24 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
     }
 
-    private fun codeList(codeBuilder: CompactCodeAttributeComposer, codes: List<CrescentAST.Node>) {
-        codes.forEach {
-            codeLaunch(codeBuilder, it)
-        }
-    }
-
-    private fun codeLaunch(codeBuilder: CompactCodeAttributeComposer, node: CrescentAST.Node) {
-        when (node) {
-            is CrescentAST.Node.FunctionCall -> functionCall(codeBuilder, node)
-            is CrescentAST.Node.Operation -> operation(codeBuilder, node)
-            is CrescentAST.Node.Argument -> argument(codeBuilder, node)
-            is CrescentAST.Node.Number -> number(codeBuilder, node)
-            is CrescentAST.Node.String -> string(codeBuilder, node)
-            is CrescentAST.Node.Expression -> codeList(codeBuilder, node.nodes)
-            is CrescentAST.Node.Return -> return_(codeBuilder, node)
-            else -> TODO("Node: $node")
-        }
-    }
-
-    private fun return_(codeBuilder: CompactCodeAttributeComposer, return_: CrescentAST.Node.Return) {
-        codeList(codeBuilder, return_.expression.nodes)
-        if (return_.expression.nodes.isEmpty()) {
-            codeBuilder.return_()
-        } else {
-            when (val result = context.stack.pop()) {
-                is String -> {
-                    codeBuilder.areturn()
-                }
-                else -> TODO("Return aType \"${result::class.java}\"")
-            }
-        }
-    }
-
-    private fun string(codeBuilder: CompactCodeAttributeComposer, string: CrescentAST.Node.String) {
-        codeBuilder.ldc(string.data)
-        context.stack.push(string.data)
-    }
-
-    private fun number(codeBuilder: CompactCodeAttributeComposer, number: CrescentAST.Node.Number) {
-        //todo push on stack and wait for consumption
-        // reason: Allows pre-optimization and dead code removal
-        when (val num = number.number) {
-            is Double -> {
-                context.stack.push(num)
-                when (val x = num.toDouble()) {
-                    0.0 -> codeBuilder.dconst_0()
-                    1.0 -> codeBuilder.dconst_1()
-                    else -> codeBuilder.ldc2_w(x)
-                }
-            }
-            is Float -> {
-                context.stack.push(num)
-                when (val x = num.toFloat()) {
-                    0f -> codeBuilder.fconst_0()
-                    1f -> codeBuilder.fconst_1()
-                    2f -> codeBuilder.fconst_2()
-                    else -> codeBuilder.ldc(x)
-                }
-            }
-            is Int -> {
-                context.stack.push(num)
-                when (val x = num.toInt()) {
-                    0 -> codeBuilder.iconst_0()
-                    1 -> codeBuilder.iconst_1()
-                    2 -> codeBuilder.iconst_2()
-                    3 -> codeBuilder.iconst_3()
-                    4 -> codeBuilder.iconst_4()
-                    5 -> codeBuilder.iconst_5()
-                    else -> codeBuilder.ldc(x)
-                }
-            }
-            is Long -> {
-                context.stack.push(num)
-                when (val x = num.toLong()) {
-                    0L -> codeBuilder.lconst_0()
-                    1L -> codeBuilder.lconst_1()
-                    else -> codeBuilder.ldc2_w(x)
-                }
-            }
-            else -> TODO("Parse NumberType: ${num::class.java}")
-        }
-    }
-
-    private fun operation(codeBuilder: CompactCodeAttributeComposer, operation: CrescentAST.Node.Operation) {
-        codeList(codeBuilder, listOf(operation.first, operation.second))
-        when (operation.operator) {
-            CrescentToken.Operator.NOT -> TODO()
-            CrescentToken.Operator.ADD -> {
-                val test1 = context.stack.pop()
-                val test2 = context.stack.pop()
-                numCheck(test1, test2)
-                when (test1) {
-                    is Double -> {
-                        codeBuilder.dadd()
-                    }
-                    else -> TODO("Number type: \"${test1::class.java}\" unrecognized")
-                }
-                context.stack.push(test2)
-            }
-            CrescentToken.Operator.SUB -> {
-                val test1 = context.stack.pop()
-                val test2 = context.stack.pop()
-                numCheck(test1, test2)
-                when (test1) {
-                    is Double -> {
-                        codeBuilder.dsub()
-                    }
-                    else -> TODO("Number type: \"${test1::class.java}\" unrecognized")
-                }
-                context.stack.push(test2)
-            }
-            CrescentToken.Operator.MUL -> {
-                val test1 = context.stack.pop()
-                val test2 = context.stack.pop()
-                numCheck(test1, test2)
-                when (test1) {
-                    is Double -> {
-                        codeBuilder.dmul()
-                    }
-                    else -> TODO("Number type: \"${test1::class.java}\" unrecognized")
-                }
-                context.stack.push(test2)
-            }
-            CrescentToken.Operator.DIV -> {
-                val test1 = context.stack.pop()
-                val test2 = context.stack.pop()
-                numCheck(test1, test2)
-                when (test1) {
-                    is Double -> {
-                        codeBuilder.ddiv()
-                    }
-                    else -> TODO("Number type: \"${test1::class.java}\" unrecognized")
-                }
-                context.stack.push(test2)
-            }
-            CrescentToken.Operator.POW -> {
-                val test1 = context.stack.pop()
-                val test2 = context.stack.pop()
-                numCheck(test1, test2)
-                val builder = StringBuilder("(")
-                builder.append(genDescriptor(test1))
-                builder.append(genDescriptor(test2))
-                builder.append(")")
-                builder.append(genDescriptor(test1))
-                codeBuilder.invokestatic("java/lang/Math", "pow", builder.toString())
-                context.stack.push(test2)
-            }
-            CrescentToken.Operator.REM -> TODO()
-            CrescentToken.Operator.ASSIGN -> TODO()
-            CrescentToken.Operator.ADD_ASSIGN -> TODO()
-            CrescentToken.Operator.SUB_ASSIGN -> TODO()
-            CrescentToken.Operator.MUL_ASSIGN -> TODO()
-            CrescentToken.Operator.DIV_ASSIGN -> TODO()
-            CrescentToken.Operator.REM_ASSIGN -> TODO()
-            CrescentToken.Operator.OR_COMPARE -> TODO()
-            CrescentToken.Operator.AND_COMPARE -> TODO()
-            CrescentToken.Operator.EQUALS_COMPARE -> TODO()
-            CrescentToken.Operator.LESSER_EQUALS_COMPARE -> TODO()
-            CrescentToken.Operator.GREATER_EQUALS_COMPARE -> TODO()
-            CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
-            CrescentToken.Operator.NOT_EQUALS_COMPARE -> TODO()
-            CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
-            CrescentToken.Operator.CONTAINS -> TODO()
-            CrescentToken.Operator.RANGE -> TODO()
-            CrescentToken.Operator.VARIABLE_TYPE_PREFIX -> TODO()
-            CrescentToken.Operator.RESULT -> TODO()
-            CrescentToken.Operator.COMMA -> TODO()
-            else -> TODO()
-        }
-    }
-
-    private fun numCheck(test1: Any, test2: Any) {
-        check(test1 is Number) {
-            "Add on non-number! \"${test1::class.java}\""
-        }
-        check(test2 is Number) {
-            "Add on non-number! \"${test2::class.java}\""
-        }
-        check(test1::class == test2::class) {
-            "\"${test1::class.java}\" != \"${test2::class.java}\""
-        }
-    }
-
-    private fun argument(codeBuilder: CompactCodeAttributeComposer, argument: CrescentAST.Node.Argument) {
-        codeList(codeBuilder, argument.value.nodes)
-    }
-
-    private fun functionCall(codeBuilder: CompactCodeAttributeComposer, functionCall: CrescentAST.Node.FunctionCall) {
-        when (functionCall.name) {
-            "println" -> {
-                codeBuilder.getstatic("java/lang/System", "out", "Ljava/io/PrintStream;")
-                context.stack.push(System.out)
-                codeList(codeBuilder, functionCall.arguments)
-
-                codeBuilder.invokevirtual("java/io/PrintStream", "println", "(${genDescriptor(context.stack.pop())})V")
-                context.stack.pop()
-            }
-            else -> TODO(functionCall.name)
-        }
-    }
-
-    private fun genDescriptor(type: Any): String {
-        return when (type) {
-            is Double -> {
-                return "D"
-            }
-            is CrescentAST.Node.Type.Unit -> "V"
+    private fun getImpl(impl: CrescentAST.Node.Impl, map: MutableMap<String, ClassBuilder>) {
+        when (impl.type) {
             is CrescentAST.Node.Type.Basic -> {
-                if (type.name == "String") {
-                    "Ljava/lang/String;"
-                } else {
-                    TODO("Type \"${type.name}\"")
+                val realType = impl.type.name
+                check(map[realType] != null) {
+                    "Struct $realType is missing!"
+                }
+                val clazz = map[realType]!!
+                impl.functions.forEach {
+                    makeFunction(clazz, it)
                 }
             }
             is CrescentAST.Node.Type.Array -> {
-                val builder = StringBuilder()
-                builder.append("[")
-                builder.append(genDescriptor(type.type))
-                builder.toString()
+                println("Arrays classes not implemented!")
             }
-            is CrescentAST.Node.String, is String -> {
-                "Ljava/lang/String;"
-            }
-            else -> TODO("Type \"${type::class.java}\"")
+            else -> TODO(impl.type::class.java.name)
         }
+
     }
 
     private fun makeVariable(classBuilder: ClassBuilder, variable: CrescentAST.Node.Variable): ProgramField {
@@ -533,6 +306,6 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         if (access and AccessConstants.PUBLIC == 0 && access and AccessConstants.PRIVATE == 0 && access and AccessConstants.PROTECTED == 0) {
             access = AccessConstants.PUBLIC
         }
-        return classBuilder.addAndReturnField(access, variable.name, genDescriptor(variable.type))
+        return classBuilder.addAndReturnField(access, variable.name, CodeBuilder.genDescriptor(variable.type))
     }
 }
