@@ -102,7 +102,8 @@ interface CrescentToken {
         VARIABLE_TYPE_PREFIX(":"),
         RETURN("->"),
         RESULT("?"),
-        COMMA(",")
+        COMMA(","),
+        DOT(".")
     }
 
     enum class Primitive : CrescentToken {

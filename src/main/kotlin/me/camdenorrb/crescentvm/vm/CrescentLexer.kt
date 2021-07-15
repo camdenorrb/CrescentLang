@@ -33,7 +33,7 @@ object CrescentLexer {
                     charIterator.nextUntil { !it.isLetter() }
                 }
 
-                peekNext.equalsAny('(', ')', '{', '}', '[', ']', '\'', '"', '^') -> {
+                peekNext.equalsAny('(', ')', '{', '}', '[', ']', '\'', '"', '^', '.') -> {
                     charIterator.next().toString()
                 }
 
@@ -141,6 +141,7 @@ object CrescentLexer {
                 "->" -> CrescentToken.Operator.RETURN
                 "?"  -> CrescentToken.Operator.RESULT
                 ","  -> CrescentToken.Operator.COMMA
+                "."  -> CrescentToken.Operator.DOT
                 
                 else -> CrescentToken.Key(key)
             }
