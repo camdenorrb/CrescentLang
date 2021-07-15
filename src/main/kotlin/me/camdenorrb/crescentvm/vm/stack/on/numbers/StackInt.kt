@@ -1,8 +1,8 @@
-package me.camdenorrb.crescentvm.vm.jvm.special.numbers
+package me.camdenorrb.crescentvm.vm.stack.on.numbers
 
-import me.camdenorrb.crescentvm.vm.jvm.special.OnStack
+import me.camdenorrb.crescentvm.vm.stack.on.OnStack
 
-object StackDouble: Number(), OnStack {
+object StackInt: Number(), OnStack {
     override fun toByte(): Byte {
         TODO("Not yet implemented")
     }

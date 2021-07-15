@@ -1,7 +1,7 @@
-package me.camdenorrb.crescentvm.vm.jvm.special
+package me.camdenorrb.crescentvm.vm.stack
 
 import me.camdenorrb.crescentvm.vm.jvm.CodeContext
-import me.camdenorrb.crescentvm.vm.jvm.special.numbers.StackInt
+import me.camdenorrb.crescentvm.vm.stack.on.numbers.StackInt
 
 data class Variable(val startIndex: Int, val size: Byte, val type: Any, var uses: Int) {
     companion object {

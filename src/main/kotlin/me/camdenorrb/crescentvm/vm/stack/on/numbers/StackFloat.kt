@@ -1,6 +1,6 @@
-package me.camdenorrb.crescentvm.vm.jvm.special.numbers
+package me.camdenorrb.crescentvm.vm.stack.on.numbers
 
-import me.camdenorrb.crescentvm.vm.jvm.special.OnStack
+import me.camdenorrb.crescentvm.vm.stack.on.OnStack
 
 object StackFloat: Number(), OnStack {
     override fun toByte(): Byte {

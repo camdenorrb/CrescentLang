@@ -4,9 +4,8 @@ import me.camdenorrb.crescentvm.vm.ir.IRConverter
 import me.camdenorrb.crescentvm.vm.ir.Language
 import java.nio.ByteBuffer
 
-class PoderTechIR(override val name: String) : Language {
+class PoderTechIR() : Language {
     companion object {
-
         fun getVarIntSize(int: Int): Int {
             var i = int
             var result = 0
@@ -45,7 +44,9 @@ class PoderTechIR(override val name: String) : Language {
             return result
         }
     }
+
     val instructions = mutableListOf<PoderTechInstruction>()
+    override val name: String = "PoderTechIR"
 
     override fun appendFromFile(file: ByteArray) {
         TODO("Not yet implemented")
@@ -54,7 +55,6 @@ class PoderTechIR(override val name: String) : Language {
     override fun appendFromOtherLang(language: Language) {
         TODO("Not yet implemented")
     }
-
 
     override fun toCode(): ByteArray {
         TODO("Not yet implemented")

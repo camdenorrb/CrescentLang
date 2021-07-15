@@ -1,3 +1,3 @@
-package me.camdenorrb.crescentvm.vm.jvm.special
+package me.camdenorrb.crescentvm.vm.stack.on
 
 data class StackClazz(val name: String): OnStack

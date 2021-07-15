@@ -1,6 +1,6 @@
 package me.camdenorrb.crescentvm.vm.jvm
 
-import me.camdenorrb.crescentvm.vm.jvm.special.Variable
+import me.camdenorrb.crescentvm.vm.stack.Variable
 import java.util.*
 
 data class CodeContext(val variables: MutableSet<Variable> = mutableSetOf(), val stack: Stack<Any> = Stack()) {
