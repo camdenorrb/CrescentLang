@@ -285,7 +285,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             is CrescentAST.Node.Argument -> argument(codeBuilder, node)
             is CrescentAST.Node.Number -> number(codeBuilder, node)
             is CrescentAST.Node.String -> string(codeBuilder, node)
-            is CrescentAST.Node.Expression -> TODO("Node: $node")
+            is CrescentAST.Node.Expression -> codeList(codeBuilder, node.nodes)
             is CrescentAST.Node.File -> TODO("Node: $node")
             is CrescentAST.Node.Function -> TODO("Node: $node")
             is CrescentAST.Node.FunctionTrait -> TODO("Node: $node")
