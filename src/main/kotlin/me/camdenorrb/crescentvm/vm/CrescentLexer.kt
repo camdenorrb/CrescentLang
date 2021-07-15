@@ -5,6 +5,7 @@ import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 
 object CrescentLexer {
 
+    // TODO: Remake to act like how my filter works, finds all matches and eliminates as it continues to read
     fun invoke(input: String): List<CrescentToken> {
 
         val tokens = mutableListOf<CrescentToken>()
@@ -139,9 +140,10 @@ object CrescentLexer {
 
                 //"\n" -> CrescentToken.Operator.NEW_LINE
                 "->" -> CrescentToken.Operator.RETURN
-                "?" -> CrescentToken.Operator.RESULT
-                "," -> CrescentToken.Operator.COMMA
-                "." -> CrescentToken.Operator.DOT
+                "?"  -> CrescentToken.Operator.RESULT
+                ","  -> CrescentToken.Operator.COMMA
+                "."  -> CrescentToken.Operator.DOT
+                "::" -> CrescentToken.Operator.IMPORT_SEPARATOR
 
                 else -> CrescentToken.Key(key)
             }

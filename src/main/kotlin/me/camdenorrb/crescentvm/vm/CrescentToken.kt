@@ -7,6 +7,10 @@ package me.camdenorrb.crescentvm.vm
 // TODO: Maybe remove majority of these and let the parser determine it, EX: Import, while
 interface CrescentToken {
 
+    // Used only by the token iterator
+    object None : CrescentToken
+
+
     data class Key(
         val string: kotlin.String
     ) : CrescentToken
@@ -103,7 +107,8 @@ interface CrescentToken {
         RETURN("->"),
         RESULT("?"),
         COMMA(","),
-        DOT(".")
+        DOT("."),
+        IMPORT_SEPARATOR("::")
     }
 
     enum class Primitive : CrescentToken {

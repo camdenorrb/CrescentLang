@@ -51,6 +51,11 @@ class CrescentAST {
             val expression: Expression
         ) : Node()
 
+        data class Import(
+            val path: kotlin.String,
+            val typeName: kotlin.String
+        ) : Node()
+
         data class Struct(
             val name: kotlin.String,
             val variables: List<Variable>
@@ -116,7 +121,7 @@ class CrescentAST {
         data class File(
             val name: kotlin.String,
             val path: kotlin.String,
-            val imports: List<kotlin.String>,
+            val imports: List<Import>,
             val structs: List<Struct>,
             val impls: List<Impl>,
             val traits: List<Trait>,

@@ -9,7 +9,7 @@ object CrescentParser {
 
     fun invoke(file: File, tokens: List<CrescentToken>): CrescentAST.Node.File {
 
-        val imports = mutableListOf<String>()
+        val imports = mutableListOf<CrescentAST.Node.Import>()
         val structs = mutableListOf<CrescentAST.Node.Struct>()
         val impls = mutableListOf<CrescentAST.Node.Impl>()
         val traits = mutableListOf<CrescentAST.Node.Trait>()
@@ -51,9 +51,39 @@ object CrescentParser {
                 }
 
                 CrescentToken.Statement.IMPORT -> {
-                    // TODO: Add format verification
-                    val key = tokenIterator.next() as CrescentToken.Key
-                    imports += key.string
+
+                    // If it's a local import
+                    if (tokenIterator.peekNext() == CrescentToken.Operator.IMPORT_SEPARATOR) {
+
+                        // Skip import separator
+                        tokenIterator.next()
+
+                        imports += CrescentAST.Node.Import("", (tokenIterator.next() as CrescentToken.Key).string)
+
+                        continue
+                    }
+
+
+                    val path = buildString {
+
+                        append((tokenIterator.next() as CrescentToken.Key).string)
+
+                        while (tokenIterator.peekNext() == CrescentToken.Operator.DOT) {
+
+                            // Skip the dot
+                            tokenIterator.next()
+
+                            append('.').append((tokenIterator.next() as CrescentToken.Key).string)
+                        }
+                    }
+
+                    check(tokenIterator.next() == CrescentToken.Operator.IMPORT_SEPARATOR) {
+                        "Incorrect import format expected `{path}::{type}`"
+                    }
+
+                    val type = (tokenIterator.next() as CrescentToken.Key).string
+
+                    imports += CrescentAST.Node.Import(path, type)
                 }
 
                 CrescentToken.Statement.FUN -> {
@@ -96,6 +126,11 @@ object CrescentParser {
 
             val nextToken = tokenIterator.next()
 
+            when(nextToken) {
+                CrescentToken.Parenthesis.CLOSE -> {
+
+                }
+            }
             if (nextToken == CrescentToken.Parenthesis.CLOSE) {
                 break
             }

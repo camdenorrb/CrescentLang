@@ -1,3 +1,7 @@
 
 # Current idea, Package -> Type
-import examples::Thing
+import crescent.examples::Thing
+
+# Short hand method (If in same package)
+import ::Thing
+
