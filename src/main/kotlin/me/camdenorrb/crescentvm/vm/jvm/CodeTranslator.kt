@@ -2,7 +2,6 @@ package me.camdenorrb.crescentvm.vm.jvm
 
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentToken
-import me.camdenorrb.crescentvm.vm.jvm.special.Clazz
 import me.camdenorrb.crescentvm.vm.jvm.special.OnStack
 import me.camdenorrb.crescentvm.vm.jvm.special.StackClazz
 import me.camdenorrb.crescentvm.vm.jvm.special.Variable
@@ -13,8 +12,20 @@ import me.camdenorrb.crescentvm.vm.jvm.special.numbers.StackLong
 import proguard.classfile.editor.CompactCodeAttributeComposer
 import kotlin.math.pow
 
-data class CodeBuilder(val context: CodeContext, val codeBuilder: CompactCodeAttributeComposer) {
-    fun codeLaunch(vararg codes: CrescentAST.Node) {
+data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCodeAttributeComposer) {
+    fun codeGenerate(codes: List<CrescentAST.Node>) {
+        codeLaunch(*codes.toTypedArray())
+        if (context.variables.isNotEmpty()) {
+            System.err.println("[WARN] ${context.variables.size} were not deallocated from variables!")
+        }
+        if (context.stack.isNotEmpty()) {
+            System.err.println("[WARN] ${context.stack.size} were not deallocated from stack!")
+        }
+        context.stack.clear()
+        context.variables.clear()
+    }
+
+    private fun codeLaunch(vararg codes: CrescentAST.Node) {
         codes.forEach { node ->
             when (node) {
                 is CrescentAST.Node.FunctionCall -> functionCall(node)
