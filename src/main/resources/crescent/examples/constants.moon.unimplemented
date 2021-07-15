@@ -1,8 +1,8 @@
 
-const THING = "Meow"
+const thing = "Meow"
 
 object Constants {
 
-    const THING = "Meow"
+    const thing = "Meow"
 
 }

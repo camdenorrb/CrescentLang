@@ -36,13 +36,13 @@ class CrescentAST {
         ) : Node()
 
         data class Operation(
-            val infixOperator: CrescentToken.InfixOperator,
+            val operator: CrescentToken.Operator,
             val first: Node,
             val second: Node
         ) : Node() {
 
             override fun toString(): kotlin.String {
-                return "$first ${infixOperator.literal} $second"
+                return "$first ${operator.literal} $second"
             }
 
         }
@@ -63,12 +63,14 @@ class CrescentAST {
 
         data class Object(
             val name: kotlin.String,
-            val functions: List<Function>
+            val variables: List<Variable>,
+            val functions: List<Function>,
         ) : Node()
 
         data class Impl(
             val type: Type,
-            val functions: List<Function>
+            val functions: List<Function>,
+            val extends: List<Type>
         ) : Node()
 
         data class Enum(

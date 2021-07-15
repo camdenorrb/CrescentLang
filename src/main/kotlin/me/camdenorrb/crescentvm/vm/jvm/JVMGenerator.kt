@@ -315,9 +315,9 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
 
     private fun operation(codeBuilder: CompactCodeAttributeComposer, operation: CrescentAST.Node.Operation) {
         codeList(codeBuilder, listOf(operation.first, operation.second))
-        when (operation.infixOperator) {
-            CrescentToken.InfixOperator.NOT -> TODO()
-            CrescentToken.InfixOperator.ADD -> {
+        when (operation.operator) {
+            CrescentToken.Operator.NOT -> TODO()
+            CrescentToken.Operator.ADD -> {
                 val test1 = context.stack.pop()
                 val test2 = context.stack.pop()
                 check(test1 is Number) {
@@ -337,30 +337,30 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                 }
                 context.stack.push(test2)
             }
-            CrescentToken.InfixOperator.SUB -> TODO()
-            CrescentToken.InfixOperator.MUL -> TODO()
-            CrescentToken.InfixOperator.DIV -> TODO()
-            CrescentToken.InfixOperator.REM -> TODO()
-            CrescentToken.InfixOperator.ASSIGN -> TODO()
-            CrescentToken.InfixOperator.ADD_ASSIGN -> TODO()
-            CrescentToken.InfixOperator.SUB_ASSIGN -> TODO()
-            CrescentToken.InfixOperator.MUL_ASSIGN -> TODO()
-            CrescentToken.InfixOperator.DIV_ASSIGN -> TODO()
-            CrescentToken.InfixOperator.REM_ASSIGN -> TODO()
-            CrescentToken.InfixOperator.OR_COMPARE -> TODO()
-            CrescentToken.InfixOperator.AND_COMPARE -> TODO()
-            CrescentToken.InfixOperator.EQUALS_COMPARE -> TODO()
-            CrescentToken.InfixOperator.LESSER_EQUALS_COMPARE -> TODO()
-            CrescentToken.InfixOperator.GREATER_EQUALS_COMPARE -> TODO()
-            CrescentToken.InfixOperator.EQUALS_REFERENCE_COMPARE -> TODO()
-            CrescentToken.InfixOperator.NOT_EQUALS_COMPARE -> TODO()
-            CrescentToken.InfixOperator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
-            CrescentToken.InfixOperator.CONTAINS -> TODO()
-            CrescentToken.InfixOperator.RANGE -> TODO()
-            CrescentToken.InfixOperator.VARIABLE_TYPE_PREFIX -> TODO()
-            CrescentToken.InfixOperator.RETURN -> TODO()
-            CrescentToken.InfixOperator.RESULT -> TODO()
-            CrescentToken.InfixOperator.COMMA -> TODO()
+            CrescentToken.Operator.SUB -> TODO()
+            CrescentToken.Operator.MUL -> TODO()
+            CrescentToken.Operator.DIV -> TODO()
+            CrescentToken.Operator.REM -> TODO()
+            CrescentToken.Operator.ASSIGN -> TODO()
+            CrescentToken.Operator.ADD_ASSIGN -> TODO()
+            CrescentToken.Operator.SUB_ASSIGN -> TODO()
+            CrescentToken.Operator.MUL_ASSIGN -> TODO()
+            CrescentToken.Operator.DIV_ASSIGN -> TODO()
+            CrescentToken.Operator.REM_ASSIGN -> TODO()
+            CrescentToken.Operator.OR_COMPARE -> TODO()
+            CrescentToken.Operator.AND_COMPARE -> TODO()
+            CrescentToken.Operator.EQUALS_COMPARE -> TODO()
+            CrescentToken.Operator.LESSER_EQUALS_COMPARE -> TODO()
+            CrescentToken.Operator.GREATER_EQUALS_COMPARE -> TODO()
+            CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
+            CrescentToken.Operator.NOT_EQUALS_COMPARE -> TODO()
+            CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
+            CrescentToken.Operator.CONTAINS -> TODO()
+            CrescentToken.Operator.RANGE -> TODO()
+            CrescentToken.Operator.VARIABLE_TYPE_PREFIX -> TODO()
+            CrescentToken.Operator.RETURN -> TODO()
+            CrescentToken.Operator.RESULT -> TODO()
+            CrescentToken.Operator.COMMA -> TODO()
         }
     }
 
