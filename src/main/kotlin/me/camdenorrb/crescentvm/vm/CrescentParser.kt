@@ -144,9 +144,10 @@ object CrescentParser {
 
             when (token) {
 
-                CrescentToken.Parenthesis.OPEN, CrescentToken.Parenthesis.CLOSE, is CrescentToken.Modifier -> {
+                CrescentToken.Bracket.OPEN, is CrescentToken.Comment, CrescentToken.Parenthesis.OPEN, CrescentToken.Parenthesis.CLOSE, is CrescentToken.Modifier -> {
                     /*NOOP*/
                 }
+
 
                 CrescentToken.Statement.FUN -> {
 
@@ -369,7 +370,6 @@ object CrescentParser {
         return type
     }
 
-
     fun readExpression(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Expression {
 
         val nodes = mutableListOf<CrescentAST.Node>()
@@ -420,6 +420,7 @@ object CrescentParser {
                     }
                 }
 
+                // TODO: This should be done differently
                 CrescentToken.Parenthesis.OPEN -> {
                     readExpression(tokenIterator).also {
                         tokenIterator.next()

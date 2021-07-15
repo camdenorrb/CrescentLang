@@ -33,11 +33,10 @@ object CrescentLexer {
                     charIterator.nextUntil { !it.isLetter() }
                 }
 
-                peekNext.equalsAny('(', ')', '{', '}', '[', ']') -> {
+                peekNext.equalsAny('(', ')', '{', '}', '[', ']', '\'', '"', '^') -> {
                     charIterator.next().toString()
                 }
 
-                // TODO: Add char support ''
                 // Is symbol
                 else -> {
                     charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
