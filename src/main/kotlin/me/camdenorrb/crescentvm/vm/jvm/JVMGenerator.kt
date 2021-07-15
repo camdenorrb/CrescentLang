@@ -397,7 +397,6 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             CrescentToken.Operator.CONTAINS -> TODO()
             CrescentToken.Operator.RANGE -> TODO()
             CrescentToken.Operator.VARIABLE_TYPE_PREFIX -> TODO()
-            CrescentToken.Operator.RETURN -> TODO()
             CrescentToken.Operator.RESULT -> TODO()
             CrescentToken.Operator.COMMA -> TODO()
             else -> TODO()

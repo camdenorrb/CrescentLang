@@ -17,7 +17,7 @@ enum class VMModes {
 
     /**
      * BINARY transforms the AST into lumps of native code that can be wrapped with an executable or library wrapper
-     * May also generate .class files for the JVM to use and link to the binary
+     * May also generate .class files for the JVM and .h for the C compiler to use and link to the binary
      * todo
      */
     BINARY,
