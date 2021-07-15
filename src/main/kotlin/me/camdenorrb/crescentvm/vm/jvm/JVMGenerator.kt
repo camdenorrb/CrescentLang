@@ -83,7 +83,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                         listOf(
                             CrescentAST.Node.Parameter.Basic(
                                 "args",
-                                CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic("java/lang/String"))
+                                CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic("String"))
                             )
                         ),
                         CrescentAST.Node.Type.Unit,
@@ -116,20 +116,13 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                 }
 
                 assembly.impls.forEach { impl ->
-                    val realType = (impl.type as CrescentAST.Node.Type.Basic).name
-                    check(classes[realType] != null) {
-                        "Struct $realType is missing!"
-                    }
-                    val clazz = classes[realType]!!
-                    impl.functions.forEach {
-                        makeFunction(clazz, it)
-                    }
+                    getImpl(impl, classes)
                 }
 
                 assembly.traits.forEach { trait -> //Interface
                     val builder = ClassBuilder(
                         CLASS_VERSION,
-                        AccessConstants.PUBLIC or AccessConstants.FINAL,
+                        AccessConstants.PUBLIC or AccessConstants.INTERFACE,
                         "${assembly.name}/interfaces/${trait.name}",
                         ClassConstants.NAME_JAVA_LANG_OBJECT
                     )
@@ -191,6 +184,26 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
     }
 
+    private fun getImpl(impl: CrescentAST.Node.Impl, map: MutableMap<String, ClassBuilder>) {
+        when (impl.type) {
+            is CrescentAST.Node.Type.Basic -> {
+                val realType = impl.type.name
+                check(map[realType] != null) {
+                    "Struct $realType is missing!"
+                }
+                val clazz = map[realType]!!
+                impl.functions.forEach {
+                    makeFunction(clazz, it)
+                }
+            }
+            is CrescentAST.Node.Type.Array -> {
+                println("Arrays classes not implemented!")
+            }
+            else -> TODO(impl.type::class.java.name)
+        }
+
+    }
+
     private fun addFile(fs: FileSystem, path: String, byteArray: ByteArray) {
         val nf: Path = fs.getPath(path)
         try {
@@ -246,9 +259,12 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             }
         }
         description.append(")")
-        var isType = true
-        when (code.returnType) {
-            is CrescentAST.Node.Type.Basic -> TODO()
+        //var isType = true
+        description.append(genDescriptor(code.returnType))
+        /*when (code.returnType) {
+            is CrescentAST.Node.Type.Basic -> {
+                description.append(genDescriptor(code.returnType))
+            }
             is CrescentAST.Node.Type.Array -> TODO()
             is CrescentAST.Node.Type.Generic -> TODO()
             CrescentAST.Node.Type.Implicit -> TODO()
@@ -257,17 +273,17 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                 isType = false
                 description.append("V")
             }
-        }
+        }*/
         return if (code.innerCode.nodes.isEmpty()) {
             TODO()
         } else {
             classBuilder.addAndReturnMethod(access, code.name, description.toString(), 50) { codeBuilder ->
                 codeList(codeBuilder, code.innerCode.nodes)
-                if (isType) {
+                /*if (isType) {
                     codeBuilder.areturn()
                 } else {
                     codeBuilder.return_()
-                }
+                }*/
             }
         }
     }
@@ -286,17 +302,22 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             is CrescentAST.Node.Number -> number(codeBuilder, node)
             is CrescentAST.Node.String -> string(codeBuilder, node)
             is CrescentAST.Node.Expression -> codeList(codeBuilder, node.nodes)
-            is CrescentAST.Node.File -> TODO("Node: $node")
-            is CrescentAST.Node.Function -> TODO("Node: $node")
-            is CrescentAST.Node.FunctionTrait -> TODO("Node: $node")
-            is CrescentAST.Node.Impl -> TODO("Node: $node")
-            is CrescentAST.Node.Object -> TODO("Node: $node")
-            is CrescentAST.Node.Return -> TODO("Node: $node")
-            is CrescentAST.Node.Struct -> TODO("Node: $node")
-            is CrescentAST.Node.Trait -> TODO("Node: $node")
-            is CrescentAST.Node.Variable -> TODO("Node: $node")
-            is CrescentAST.Node.VariableCall -> TODO("Node: $node")
+            is CrescentAST.Node.Return -> return_(codeBuilder, node)
             else -> TODO("Node: $node")
+        }
+    }
+
+    private fun return_(codeBuilder: CompactCodeAttributeComposer, return_: CrescentAST.Node.Return) {
+        codeList(codeBuilder, return_.expression.nodes)
+        if (return_.expression.nodes.isEmpty()) {
+            codeBuilder.return_()
+        } else {
+            when (val result = context.stack.pop()) {
+                is String -> {
+                    codeBuilder.areturn()
+                }
+                else -> TODO("Return aType \"${result::class.java}\"")
+            }
         }
     }
 
@@ -438,9 +459,10 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             is Double -> {
                 return "D"
             }
+            is CrescentAST.Node.Type.Unit -> "V"
             is CrescentAST.Node.Type.Basic -> {
-                if (type.name == "java/lang/String") {
-                    "L${type.name};"
+                if (type.name == "String") {
+                    "Ljava/lang/String;"
                 } else {
                     TODO("Type \"${type.name}\"")
                 }
