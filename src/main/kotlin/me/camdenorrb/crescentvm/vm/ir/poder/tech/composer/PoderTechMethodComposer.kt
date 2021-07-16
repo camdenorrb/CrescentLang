@@ -7,6 +7,8 @@ import me.camdenorrb.crescentvm.vm.stack.Variable
 import me.camdenorrb.crescentvm.vm.stack.floating.LoadInstruction
 import me.camdenorrb.crescentvm.vm.stack.on.OnStack
 import me.camdenorrb.crescentvm.vm.stack.on.StackArray
+import me.camdenorrb.crescentvm.vm.stack.on.StackClazz
+import me.camdenorrb.crescentvm.vm.stack.on.StackNull
 import me.camdenorrb.crescentvm.vm.stack.on.numbers.*
 import proguard.classfile.instruction.SimpleInstruction
 import java.lang.IllegalStateException
@@ -318,10 +320,22 @@ data class PoderTechMethodComposer(
 
     fun newArray() {
         doOrderedOp()
-        val size = context.stack.pop() //ignored here
+        val size = context.stack.pop()
         val type = context.stack.pop()
         context.stack.push(StackArray(type))
         addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_NEW_ARRAY))
+    }
+
+    fun new() {
+        doOp()
+        val type = context.stack.pop()
+        context.stack.push(StackClazz(type.toString()))
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_NEW))
+    }
+
+    fun null_() {
+        context.stack.push(StackNull)
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_NULL))
     }
 
     fun pop() {
@@ -353,6 +367,13 @@ data class PoderTechMethodComposer(
 
     fun throw_() {
         addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_THROW))
+    }
+
+    fun cmp() {
+        doOp()
+        context.stack.pop()
+        context.stack.push(0.toByte())
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_CMP))
     }
 
     fun breakpoint() {
