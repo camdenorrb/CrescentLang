@@ -6,7 +6,9 @@ import me.camdenorrb.crescentvm.vm.jvm.CodeContext
 import me.camdenorrb.crescentvm.vm.stack.Variable
 import me.camdenorrb.crescentvm.vm.stack.floating.LoadInstruction
 import me.camdenorrb.crescentvm.vm.stack.on.OnStack
+import me.camdenorrb.crescentvm.vm.stack.on.StackArray
 import me.camdenorrb.crescentvm.vm.stack.on.numbers.*
+import proguard.classfile.instruction.SimpleInstruction
 import java.lang.IllegalStateException
 
 data class PoderTechMethodComposer(
@@ -115,6 +117,62 @@ data class PoderTechMethodComposer(
         context.stack.push(toStackNumType(a as StackNumber, b as StackNumber))
     }
 
+    fun or() {
+        doUnOrderedOp()
+        val a = context.stack.pop()
+        val b = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_BITWISE_OR))
+        context.stack.push(toStackNumType(a as StackNumber, b as StackNumber))
+    }
+
+    fun and() {
+        doUnOrderedOp()
+        val a = context.stack.pop()
+        val b = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_BITWISE_AND))
+        context.stack.push(toStackNumType(a as StackNumber, b as StackNumber))
+    }
+
+    fun shl() {
+        doOrderedOp()
+        val a = context.stack.pop()
+        val b = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_BITWISE_SHIFT_LEFT))
+        context.stack.push(toStackNumType(a as StackNumber, b as StackNumber))
+    }
+
+    fun shr() {
+        doOrderedOp()
+        val a = context.stack.pop()
+        val b = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_BITWISE_SHIFT_RIGHT))
+        context.stack.push(toStackNumType(a as StackNumber, b as StackNumber))
+    }
+
+    fun ushl() {
+        doOrderedOp()
+        val a = context.stack.pop()
+        val b = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_BITWISE_LOGICAL_SHIFT_LEFT))
+        context.stack.push(toStackNumType(a as StackNumber, b as StackNumber))
+    }
+
+    fun ushr() {
+        doOrderedOp()
+        val a = context.stack.pop()
+        val b = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_BITWISE_LOGICAL_SHIFT_RIGHT))
+        context.stack.push(toStackNumType(a as StackNumber, b as StackNumber))
+    }
+
+    fun xor() {
+        doUnOrderedOp()
+        val a = context.stack.pop()
+        val b = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_BITWISE_XOR))
+        context.stack.push(toStackNumType(a as StackNumber, b as StackNumber))
+    }
+
     fun mul() {
         doUnOrderedOp()
         val a = context.stack.pop()
@@ -213,8 +271,8 @@ data class PoderTechMethodComposer(
     }
 
     private fun doOrderedOp() {
-        val a = context.stack.pop()
         val b = context.stack.pop()
+        val a = context.stack.pop()
         var swap = false
         if (b is OnStack && a !is OnStack) {
             swap = true
@@ -258,10 +316,46 @@ data class PoderTechMethodComposer(
         }
     }
 
+    fun newArray() {
+        doOrderedOp()
+        val size = context.stack.pop() //ignored here
+        val type = context.stack.pop()
+        context.stack.push(StackArray(type))
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_NEW_ARRAY))
+    }
+
     fun pop() {
-        val arg = context.stack.pop()
-        if (arg is OnStack) {
+        if (context.stack.pop() is OnStack) {
             addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_POP))
         }
+    }
+
+    fun aload() {
+        doOrderedOp()
+        val index = context.stack.pop()
+        val array = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_A_LOAD))
+    }
+
+    fun astore() {
+        doOrderedOp()
+        val value = context.stack.pop()
+        val index = context.stack.pop()
+        val array = context.stack.pop()
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_A_STORE))
+    }
+
+    fun dup() {
+        doOp()
+        context.stack.push(context.stack.peek())
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_DUP))
+    }
+
+    fun throw_() {
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_THROW))
+    }
+
+    fun breakpoint() {
+        addInstruction(PoderTechInstruction.SimpleInstruction(PoderTechInstruction.OP_BREAKPOINT))
     }
 }

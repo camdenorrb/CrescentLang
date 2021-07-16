@@ -78,18 +78,18 @@ sealed class PoderTechInstruction : Instruction {
         const val OP_STORE: UByte = 9u //InfoInstruction: store(index, uses)
         const val OP_LOAD: UByte = 10u //IndexInstruction: load(index)
         const val OP_CONST: UByte = 11u //ConstInstruction: load(constIndexType)
-        const val OP_A_LOAD: UByte = 12u //IndexInstruction: Array load(index)
-        const val OP_A_STORE: UByte = 13u //IndexInstruction: Array store(index)
+        const val OP_A_LOAD: UByte = 12u //SimpleInstruction: Array load(index)
+        const val OP_A_STORE: UByte = 13u //SimpleInstruction: Array store(index)
         const val OP_POP: UByte = 14u //SimpleInstruction: remove last stack item(deallocate if possible)
         const val OP_DEL_VARIABLE: UByte = 15u //IndexInstruction: remove(index) (deallocate if possible)
         const val OP_SWAP: UByte =
             16u //SimpleInstruction: pops 2 items from stack, swaps them, them pushes them back onto the stack
+        const val OP_NULL: UByte = 17u //SimpleInstruction: loads a null pointer onto the stack
 
         /**
          * These codes are for jump operations
          * On false for if, goto index
          */
-        const val OP_NULL: UByte = 17u //SimpleInstruction: loads a null pointer onto the stack
         const val OP_GOTO: UByte = 18u //IndexInstruction: goto(index)
         const val OP_IF_EQ: UByte = 19u //IndexInstruction
         const val OP_IF_NE: UByte = 20u //IndexInstruction
@@ -112,14 +112,14 @@ sealed class PoderTechInstruction : Instruction {
         /**
          * These codes are for class based operations
          */
-        const val OP_INVOKE_METHOD: UByte = 31u //ConstInstruction: invoke(constIndexDescriptor)
-        const val OP_INVOKE_STATIC: UByte = 32u //ConstInstruction: invoke(constIndexDescriptor)
-        const val OP_GET_STATIC: UByte = 33u //ConstInstruction: get(constIndexDescriptor)
-        const val OP_GET_FIELD: UByte = 34u //ConstInstruction: get(constIndexDescriptor)
-        const val OP_PUT_STATIC: UByte = 35u //ConstInstruction: set(constIndexDescriptor)
-        const val OP_PUT_FIELD: UByte = 36u //ConstInstruction: set(constIndexDescriptor)
-        const val OP_NEW: UByte = 37u //ConstInstruction: new(constIndexDescriptor)
-        const val OP_NEW_ARRAY: UByte = 38u //InfoInstruction: new Array(size, constIndexDescriptor)
+        const val OP_INVOKE_METHOD: UByte = 31u //SimpleInstruction: invoke(constIndexDescriptor)
+        const val OP_INVOKE_STATIC: UByte = 32u //SimpleInstruction: invoke(constIndexDescriptor)
+        const val OP_GET_STATIC: UByte = 33u //SimpleInstruction: get(constIndexDescriptor)
+        const val OP_GET_FIELD: UByte = 34u //SimpleInstruction: get(constIndexDescriptor)
+        const val OP_PUT_STATIC: UByte = 35u //SimpleInstruction: set(constIndexDescriptor)
+        const val OP_PUT_FIELD: UByte = 36u //SimpleInstruction: set(constIndexDescriptor)
+        const val OP_NEW: UByte = 37u //SimpleInstruction: new(constIndexDescriptor)
+        const val OP_NEW_ARRAY: UByte = 38u //SimpleInstruction: new Array(size, constIndexDescriptor)
 
         /**
          * These codes are bitwise operators
