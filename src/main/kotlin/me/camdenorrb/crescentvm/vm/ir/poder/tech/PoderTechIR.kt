@@ -110,7 +110,7 @@ class PoderTechIR : Language {
     }
 
     override fun toCode(): ByteArray {
-        val size = instructions.sumOf { it.size() } + MAGIC.size + varIntSize(instructions.size) + 1
+        val size =  MAGIC.size + varIntSize(instructions.size) + instructions.sumOf { it.size() }
         val bytes = ByteArray(size)
         val builder = ByteBuffer.wrap(bytes)
         builder.put(MAGIC)

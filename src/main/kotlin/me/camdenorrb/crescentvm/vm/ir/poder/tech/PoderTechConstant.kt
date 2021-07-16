@@ -148,7 +148,7 @@ sealed class PoderTechConstant : Constant {
         }
 
         override fun size(): Int {
-            return 1 + when(payload) {
+            return 2 + when(payload) {
                 is Int -> {
                     PoderTechIR.varIntSize(payload)
                 }
