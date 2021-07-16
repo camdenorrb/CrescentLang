@@ -141,8 +141,9 @@ sealed class PoderTechInstruction : Instruction {
         val OP_THROW: UByte =
             48u //SimpleInstruction: if hit, dump stacktrace using Exception.getTraceString() from last stack var and exit
         val OP_MultiInstruction: UByte = 49u //InfoInstruction: List of Instruction(part1, part2, ...) for op extensions
+        val OP_DUP: UByte = 50u //SimpleInstruction
         val OP_BREAKPOINT: UByte =
-            50u //SimpleInstruction: if hit, noop function breakpoint should be called in vm, otherwise dump stacktrace
+            51u //SimpleInstruction: if hit, noop function breakpoint should be called in vm, otherwise dump stacktrace
     }
 
     override fun write(): ByteArray {

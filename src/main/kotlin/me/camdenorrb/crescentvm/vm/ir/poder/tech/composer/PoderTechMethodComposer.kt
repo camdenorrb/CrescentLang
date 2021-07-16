@@ -74,7 +74,7 @@ data class PoderTechMethodComposer(
         addInstruction(PoderTechInstruction.IndexInstruction(PoderTechInstruction.OP_DEL_VARIABLE, index))
     }
 
-    fun store(): UByte {
+    fun store(uses: Byte = -1): UByte {
         var variable = context.stack.pop()
         if (variable !is OnStack) {
             when (variable) {
@@ -91,8 +91,20 @@ data class PoderTechMethodComposer(
             }
             else -> TODO("Stack Type: ${variable::class.java}")
         }
-        val index = Variable.newVar(context, variable, length, -1).startIndex
-        addInstruction(PoderTechInstruction.IndexInstruction(PoderTechInstruction.OP_STORE, index))
+        val index = Variable.newVar(context, variable, length, uses).startIndex
+        addInstruction(PoderTechInstruction.InfoInstruction(PoderTechInstruction.OP_STORE, index, uses.toUByte()))
         return index
+    }
+
+    fun load(index: UByte) {
+        val variable = context.getVar(index)
+
+        addInstruction(PoderTechInstruction.IndexInstruction(PoderTechInstruction.OP_LOAD, index))
+        if (variable.uses > 1) {
+            variable.uses = (variable.uses - 1).toByte()
+            if (variable.uses == 0.toByte()) {
+                deleteVariable(index)
+            }
+        }
     }
 }

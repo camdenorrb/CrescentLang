@@ -73,13 +73,16 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
             }
             else -> TODO("Stack Type: ${variable.type::class.java}")
         }
-        variable.uses -= 1
-        if (variable.uses == 1) {
-            variable.delete(context)
+
+        if (variable.uses > 1) {
+            variable.uses = (variable.uses - 1).toByte()
+            if (variable.uses == 0.toByte()) {
+                variable.delete(context)
+            }
         }
     }
 
-    private fun storeOp(op: Any, uses: Int): UByte {
+    private fun storeOp(op: Any, uses: Byte): UByte {
         if (op !is OnStack) {
             addToStack(op)
         }

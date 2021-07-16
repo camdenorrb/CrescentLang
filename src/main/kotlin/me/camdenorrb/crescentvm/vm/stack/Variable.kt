@@ -3,9 +3,9 @@ package me.camdenorrb.crescentvm.vm.stack
 import me.camdenorrb.crescentvm.vm.jvm.CodeContext
 import me.camdenorrb.crescentvm.vm.stack.on.numbers.StackInt
 
-data class Variable(val startIndex: UByte, val size: UByte, val type: Any, var uses: Int) {
+data class Variable(val startIndex: UByte, val size: UByte, val type: Any, var uses: Byte) {
     companion object {
-        fun newVar(context: CodeContext, type: Any = StackInt, width: UByte = 1u, uses: Int = 1): Variable {
+        fun newVar(context: CodeContext, type: Any = StackInt, width: UByte = 1u, uses: Byte = 1): Variable {
             val result = if (context.variables.isEmpty()) {
                 Variable(1u, width, type, uses)
             } else {
