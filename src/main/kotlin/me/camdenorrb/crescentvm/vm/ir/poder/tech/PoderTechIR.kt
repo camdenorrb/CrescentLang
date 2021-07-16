@@ -90,7 +90,15 @@ class PoderTechIR : Language {
     override val name: String = NAME
 
     override fun appendFromFile(file: ByteArray) {
-        TODO("Not yet implemented")
+        val builder = ByteBuffer.wrap(file)
+        val magicCheck = ByteArray(MAGIC.size)
+        builder.get(magicCheck)
+        check(magicCheck.contentEquals(MAGIC)) {
+            "File was not valid!"
+        }
+        repeat(readVarInt(builder)) {
+            instructions.add(PoderTechInstruction.read(builder))
+        }
     }
 
     override fun registerConverter(converter: IRConverter, from: Language, to: Language) {
@@ -102,10 +110,11 @@ class PoderTechIR : Language {
     }
 
     override fun toCode(): ByteArray {
-        val size = instructions.sumOf { it.size() } + MAGIC.size
+        val size = instructions.sumOf { it.size() } + MAGIC.size + varIntSize(instructions.size) + 1
         val bytes = ByteArray(size)
         val builder = ByteBuffer.wrap(bytes)
         builder.put(MAGIC)
+        writeVarInt(instructions.size, builder)
         instructions.forEach {
             it.write(builder)
         }

@@ -1,5 +1,6 @@
 package tech.poder.test
 
+import me.camdenorrb.crescentvm.vm.ir.poder.tech.PoderTechIR
 import me.camdenorrb.crescentvm.vm.ir.poder.tech.composer.PoderTechBinaryComposer
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -19,5 +20,9 @@ object IRCheck {
         fileBuilder.compile()
         println(fileBuilder.instance)
         Files.write(Paths.get("Example.bin"), fileBuilder.instance.toCode())
+        val bytes = Files.readAllBytes(Paths.get("Example.bin"))
+        val neutralInstance = PoderTechIR()
+        neutralInstance.appendFromFile(bytes)
+        println(neutralInstance)
     }
 }

@@ -17,6 +17,9 @@ sealed class PoderTechConstant : Constant {
                 TYPE_STRING -> {
                     StringConstant.read(input)
                 }
+                TYPE_NUMBER -> {
+                    NumberConstant.read(input)
+                }
                 else -> throw IllegalStateException("Malformed Constant Pool!")
             }
         }
@@ -119,6 +122,7 @@ sealed class PoderTechConstant : Constant {
 
         override fun write(output: ByteBuffer) {
             val type = getType()
+            output.put(TYPE_NUMBER)
             output.put(type)
             when(payload) {
                 is Int -> {

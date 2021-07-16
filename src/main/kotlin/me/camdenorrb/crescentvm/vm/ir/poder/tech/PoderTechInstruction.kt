@@ -297,6 +297,9 @@ sealed class PoderTechInstruction : Instruction {
             PoderTechIR.writeVarInt(name, output)
             PoderTechIR.writeVarInt(descriptor, output)
             PoderTechIR.writeVarInt(instructions.size, output)
+            instructions.forEach {
+                it.write(output)
+            }
         }
 
         override fun equals(other: Any?): Boolean {
