@@ -3,7 +3,10 @@ package me.camdenorrb.crescentvm.vm.ir.poder.tech.composer
 import me.camdenorrb.crescentvm.vm.ir.poder.tech.PoderTechConstant
 import me.camdenorrb.crescentvm.vm.ir.poder.tech.PoderTechInstruction
 import me.camdenorrb.crescentvm.vm.jvm.CodeContext
+import me.camdenorrb.crescentvm.vm.stack.Variable
 import me.camdenorrb.crescentvm.vm.stack.floating.LoadInstruction
+import me.camdenorrb.crescentvm.vm.stack.on.OnStack
+import me.camdenorrb.crescentvm.vm.stack.on.numbers.StackDouble
 import java.util.*
 
 data class PoderTechMethodComposer(
@@ -69,5 +72,27 @@ data class PoderTechMethodComposer(
     fun deleteVariable(index: UByte) {
         context.getVar(index).delete(context)
         addInstruction(PoderTechInstruction.IndexInstruction(PoderTechInstruction.OP_DEL_VARIABLE, index))
+    }
+
+    fun store(): UByte {
+        var variable = context.stack.pop()
+        if (variable !is OnStack) {
+            when (variable) {
+                is LoadInstruction -> {
+                    variable.moveToStack
+                }
+                else -> TODO("Stack Type: ${variable::class.java}")
+            }
+            variable = context.stack.pop()
+        }
+        val length: UByte = when (variable) {
+            is StackDouble -> {
+                2u
+            }
+            else -> TODO("Stack Type: ${variable::class.java}")
+        }
+        val index = Variable.newVar(context, variable, length, -1).startIndex
+        addInstruction(PoderTechInstruction.IndexInstruction(PoderTechInstruction.OP_STORE, index))
+        return index
     }
 }

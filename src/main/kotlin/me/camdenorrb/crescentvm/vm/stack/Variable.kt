@@ -10,7 +10,7 @@ data class Variable(val startIndex: UByte, val size: UByte, val type: Any, var u
                 Variable(1u, width, type, uses)
             } else {
                 val sorted = context.variables.sortedBy { it.startIndex }
-                if (sorted.first().startIndex !in 1u.toUByte()..width.toUByte()) {
+                if (sorted.first().startIndex !in 1u.toUByte()..width) {
                     Variable(1u, width, type, uses)
                 }
                 sorted.forEachIndexed { index, variable ->

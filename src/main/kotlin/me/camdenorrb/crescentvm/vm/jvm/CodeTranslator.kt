@@ -12,7 +12,7 @@ import me.camdenorrb.crescentvm.vm.stack.on.numbers.StackLong
 import proguard.classfile.editor.CompactCodeAttributeComposer
 import kotlin.math.pow
 
-data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCodeAttributeComposer) {
+data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCodeAttributeComposer, val imported: Map<String, String>) {
     fun codeGenerate(codes: List<CrescentAST.Node>) {
         codeLaunch(*codes.toTypedArray())
         if (context.variables.isNotEmpty()) {
@@ -271,7 +271,7 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
                     addToStack(arg)
                     arg = context.stack.pop()
                 }
-                val desc = genDescriptor(arg)
+                val desc = genDescriptor(arg, imported)
                 codeBuilder.invokevirtual("java/io/PrintStream", "println", "(${desc})V")
                 context.stack.pop()
             }
@@ -330,7 +330,7 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
     }
 
     companion object {
-        fun genDescriptor(type: Any): String {
+        fun genDescriptor(type: Any, imported: Map<String, String>): String {
             return when (type) {
                 is Double, is StackDouble -> {
                     return "D"
@@ -339,6 +339,8 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
                 is CrescentAST.Node.Type.Basic -> {
                     if (type.name == "String") {
                         "Ljava/lang/String;"
+                    } else if (imported.containsKey(type.name)) {
+                        "L${imported[type.name]};"
                     } else {
                         TODO("Type \"${type.name}\"")
                     }
@@ -349,7 +351,7 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
                 is CrescentAST.Node.Type.Array -> {
                     val builder = StringBuilder()
                     builder.append("[")
-                    builder.append(genDescriptor(type.type))
+                    builder.append(genDescriptor(type.type, imported))
                     builder.toString()
                 }
                 else -> TODO("Type \"${type::class.java}\"")

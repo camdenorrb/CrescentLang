@@ -50,22 +50,46 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
     }
 
     fun generate(input: Set<CrescentAST.Node.File>) {
+        val assemblyToImports = mutableMapOf<String, List<String>>()
+        input.forEach { assembly ->
+            val dataTypes = mutableListOf<String>()
+            assembly.enums.forEach {
+                dataTypes.add("${assembly.name}/enums/${it.name}")
+            }
+            assembly.objects.forEach {
+                dataTypes.add("${assembly.name}/objects/${it.name}")
+            }
+            assembly.traits.forEach {
+                dataTypes.add("${assembly.name}/interfaces/${it.name}")
+            }
+            assembly.structs.forEach {
+                dataTypes.add("${assembly.name}/interfaces/${it.name}")
+            }
+            assemblyToImports[assembly.path] = dataTypes.toList()
+        }
         input.forEach { assembly ->
             try {
                 val pool = ClassPool()
                 val output = Paths.get("${assembly.name}.jar").toAbsolutePath()
+                val resolvedTypes = mutableMapOf<String, String>()
                 assembly.imports.forEach {
-                    println(it)
+                    var newPath = Paths.get(assembly.path).parent
+                    newPath = if (it.path.isEmpty()) {
+                        Paths.get(newPath.toString(), "${it.typeName}.moon")
+                    } else {
+                        Paths.get(newPath.parent.toString(), it.path, "${it.typeName}.moon")
+                    }
+                    resolvedTypes[it.typeName] = assemblyToImports[newPath.toString()]!!.first { data -> data.endsWith(it.typeName) }
                 }
                 assembly.objects.forEach { p -> //Singleton
                     val builder = ClassBuilder(
                         CLASS_VERSION,
                         AccessConstants.PUBLIC or AccessConstants.FINAL,
-                        "${assembly.name}/objects/${p.name}",
+                        "${assembly.name}/structs/${p.name}",
                         ClassConstants.NAME_JAVA_LANG_OBJECT
                     )
                     p.functions.forEach {
-                        makeFunction(builder, it)
+                        makeFunction(builder, it, resolvedTypes)
                     }
                     pool.addClass(builder.programClass)
                 }
@@ -90,7 +114,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                         CrescentAST.Node.Type.Unit,
                         assembly.mainFunction.innerCode
                     )
-                    makeFunction(builder, newFunction)
+                    makeFunction(builder, newFunction, resolvedTypes)
                     pool.addClass(builder.programClass)
                 }
 
@@ -110,14 +134,14 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                         "Duplicate struct: ${struct.name}!"
                     }
                     struct.variables.forEach {
-                        makeVariable(builder, it)
+                        makeVariable(builder, it, resolvedTypes)
                     }
                     classes[struct.name] = builder
                     pool.addClass(builder.programClass)
                 }
 
                 assembly.impls.forEach { impl ->
-                    getImpl(impl, classes)
+                    getImpl(impl, classes, resolvedTypes)
                 }
 
                 assembly.traits.forEach { trait -> //Interface
@@ -137,7 +161,8 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                                 it.params,
                                 it.returnType,
                                 CrescentAST.Node.Expression(emptyList())
-                            )
+                            ),
+                            resolvedTypes
                         )
                     }
                     pool.addClass(builder.programClass)
@@ -213,7 +238,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         return FileSystems.newFileSystem(uri, env)
     }
 
-    private fun makeFunction(classBuilder: ClassBuilder, code: CrescentAST.Node.Function): ProgramMethod {
+    private fun makeFunction(classBuilder: ClassBuilder, code: CrescentAST.Node.Function, resolvedTypes: Map<String, String>): ProgramMethod {
         var access = 0
         code.modifiers.forEach {
             when (it) {
@@ -233,7 +258,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         code.params.forEach {
             when (it) {
                 is CrescentAST.Node.Parameter.Basic -> {
-                    description.append(CodeTranslator.genDescriptor(it.type))
+                    description.append(CodeTranslator.genDescriptor(it.type, resolvedTypes))
                 }
                 else -> {
                     TODO("Parse Parameter \"${it::class.java}\"")
@@ -242,7 +267,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
         description.append(")")
         //var isType = true
-        description.append(CodeTranslator.genDescriptor(code.returnType))
+        description.append(CodeTranslator.genDescriptor(code.returnType, resolvedTypes))
         /*when (code.returnType) {
             is CrescentAST.Node.Type.Basic -> {
                 description.append(genDescriptor(code.returnType))
@@ -257,10 +282,10 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
             }
         }*/
         return if (code.innerCode.nodes.isEmpty()) {
-            TODO()
+            classBuilder.addAndReturnMethod(access, code.name, description.toString())
         } else {
             classBuilder.addAndReturnMethod(access, code.name, description.toString(), 50) { codeBuilder ->
-                val codeTranslator = CodeTranslator(context, codeBuilder)
+                val codeTranslator = CodeTranslator(context, codeBuilder, resolvedTypes)
                 codeTranslator.codeGenerate(code.innerCode.nodes)
                 if (code.innerCode.nodes.last() !is CrescentAST.Node.Return) {
                     codeBuilder.return_()
@@ -274,7 +299,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         }
     }
 
-    private fun getImpl(impl: CrescentAST.Node.Impl, map: MutableMap<String, ClassBuilder>) {
+    private fun getImpl(impl: CrescentAST.Node.Impl, map: MutableMap<String, ClassBuilder>, resolvedTypes: Map<String, String>) {
         when (impl.type) {
             is CrescentAST.Node.Type.Basic -> {
                 val realType = impl.type.name
@@ -283,7 +308,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
                 }
                 val clazz = map[realType]!!
                 impl.functions.forEach {
-                    makeFunction(clazz, it)
+                    makeFunction(clazz, it, resolvedTypes)
                 }
             }
             is CrescentAST.Node.Type.Array -> {
@@ -294,7 +319,7 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
 
     }
 
-    private fun makeVariable(classBuilder: ClassBuilder, variable: CrescentAST.Node.Variable): ProgramField {
+    private fun makeVariable(classBuilder: ClassBuilder, variable: CrescentAST.Node.Variable, resolvedTypes: Map<String, String>): ProgramField {
         var access = 0
         when (variable.visibility) {
             CrescentAST.Visibility.PUBLIC -> access = access or AccessConstants.PUBLIC
@@ -309,6 +334,6 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         if (access and AccessConstants.PUBLIC == 0 && access and AccessConstants.PRIVATE == 0 && access and AccessConstants.PROTECTED == 0) {
             access = AccessConstants.PUBLIC
         }
-        return classBuilder.addAndReturnField(access, variable.name, CodeTranslator.genDescriptor(variable.type))
+        return classBuilder.addAndReturnField(access, variable.name, CodeTranslator.genDescriptor(variable.type, resolvedTypes))
     }
 }
