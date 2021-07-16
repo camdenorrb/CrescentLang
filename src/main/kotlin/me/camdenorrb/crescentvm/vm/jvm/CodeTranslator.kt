@@ -101,10 +101,9 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
         return if (op1 !is OnStack && op2 !is OnStack) {
             true
         } else {
-            val second = if (op2 is OnStack && op1 !is OnStack) {
-                storeOp(op2, 1)
-            } else {
-                0u
+            var swap = false
+            if (op2 is OnStack && op1 !is OnStack) {
+               swap = true
             }
             if (op1 !is OnStack) {
                 addToStack(op1)
@@ -112,8 +111,8 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
             if (op2 !is OnStack) {
                 addToStack(op2)
             }
-            if (second > 0u) {
-                loadOp(second)
+            if (swap) {
+                codeBuilder.swap()
             }
             false
         }

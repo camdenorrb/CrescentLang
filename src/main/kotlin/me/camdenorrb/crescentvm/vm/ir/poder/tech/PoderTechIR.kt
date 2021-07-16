@@ -81,10 +81,13 @@ class PoderTechIR : Language {
             } while (remainder and 0x80 != 0)
             return result
         }
+
+        const val NAME: String = "PoderTechIR"
+        val MAGIC = byteArrayOf(9, 8, 2, 4, *NAME.encodeToByteArray())
     }
 
     val instructions = mutableListOf<PoderTechInstruction>()
-    override val name: String = "PoderTechIR"
+    override val name: String = NAME
 
     override fun appendFromFile(file: ByteArray) {
         TODO("Not yet implemented")
@@ -99,7 +102,14 @@ class PoderTechIR : Language {
     }
 
     override fun toCode(): ByteArray {
-        TODO("Not yet implemented")
+        val size = instructions.sumOf { it.size() } + MAGIC.size
+        val bytes = ByteArray(size)
+        val builder = ByteBuffer.wrap(bytes)
+        builder.put(MAGIC)
+        instructions.forEach {
+            it.write(builder)
+        }
+        return bytes
     }
 
     override fun convertTo(other: Language): Language {

@@ -70,12 +70,12 @@ sealed class PoderTechInstruction : Instruction {
         const val OP_NEG: UByte = 5u //SimpleInstruction
         const val OP_INC: UByte = 6u //IndexInstruction: inc(index)
         const val OP_DEC: UByte = 7u //IndexInstruction: dec(index)
-        const val OP_NUM_CONV: UByte = 8u //convertTo(constIndexType)
+        const val OP_NUM_CONV: UByte = 8u //ConstInstruction convertTo(constIndexType)
 
         /**
          * These codes are for save/load operations
          */
-        const val OP_STORE: UByte = 9u //IndexInstruction: store(index)
+        const val OP_STORE: UByte = 9u //InfoInstruction: store(index, uses)
         const val OP_LOAD: UByte = 10u //IndexInstruction: load(index)
         const val OP_CONST: UByte = 11u //ConstInstruction: load(constIndexType)
         const val OP_A_LOAD: UByte = 12u //IndexInstruction: Array load(index)
@@ -89,7 +89,7 @@ sealed class PoderTechInstruction : Instruction {
          * These codes are for jump operations
          * On false for if, goto index
          */
-        val OP_NULL: UByte = 17u //SimpleInstruction: loads a null pointer onto the stack
+        const val OP_NULL: UByte = 17u //SimpleInstruction: loads a null pointer onto the stack
         const val OP_GOTO: UByte = 18u //IndexInstruction: goto(index)
         const val OP_IF_EQ: UByte = 19u //IndexInstruction
         const val OP_IF_NE: UByte = 20u //IndexInstruction
@@ -136,13 +136,13 @@ sealed class PoderTechInstruction : Instruction {
         /**
          * These codes are misc
          */
-        val OP_RETURN: UByte = 46u //SimpleInstruction
-        val OP_RETURN_LAST: UByte = 47u //SimpleInstruction
-        val OP_THROW: UByte =
+        const val OP_RETURN: UByte = 46u //SimpleInstruction
+        const val OP_RETURN_LAST: UByte = 47u //SimpleInstruction
+        const val OP_THROW: UByte =
             48u //SimpleInstruction: if hit, dump stacktrace using Exception.getTraceString() from last stack var and exit
-        val OP_MultiInstruction: UByte = 49u //InfoInstruction: List of Instruction(part1, part2, ...) for op extensions
-        val OP_DUP: UByte = 50u //SimpleInstruction
-        val OP_BREAKPOINT: UByte =
+        const val OP_MultiInstruction: UByte = 49u //InfoInstruction: List of Instruction(part1, part2, ...) for op extensions
+        const val OP_DUP: UByte = 50u //SimpleInstruction
+        const val OP_BREAKPOINT: UByte =
             51u //SimpleInstruction: if hit, noop function breakpoint should be called in vm, otherwise dump stacktrace
     }
 
