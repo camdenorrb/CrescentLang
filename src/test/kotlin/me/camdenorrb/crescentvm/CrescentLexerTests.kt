@@ -149,14 +149,19 @@ class CrescentLexerTests {
             """.trimIndent()
         )
 
-        println(tokens)
         assertContentEquals(tokens,
             listOf(
                 CrescentToken.Statement.FUN, CrescentToken.Key("main"), CrescentToken.Bracket.OPEN,
                 CrescentToken.Variable.VAL, CrescentToken.Key("input1"), CrescentToken.Operator.ASSIGN, CrescentToken.Key("readDouble"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Enter your first number"), CrescentToken.Parenthesis.CLOSE,
                 CrescentToken.Variable.VAL, CrescentToken.Key("input2"), CrescentToken.Operator.ASSIGN, CrescentToken.Key("readDouble"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Enter your second number"), CrescentToken.Parenthesis.CLOSE,
                 CrescentToken.Variable.VAL, CrescentToken.Key("operation"), CrescentToken.Operator.ASSIGN, CrescentToken.Key("readLine"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Enter a operation [+, -, *, /]"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Variable.VAL, CrescentToken.Key("result"), CrescentToken.Operator.ASSIGN, CrescentToken.Key("when"), CrescentToken.Parenthesis.OPEN, CrescentToken.Key("operation"), CrescentToken.Parenthesis.CLOSE, CrescentToken.Bracket.OPEN,
+                CrescentToken.Variable.VAL, CrescentToken.Key("result"), CrescentToken.Operator.ASSIGN, CrescentToken.Statement.WHEN, CrescentToken.Parenthesis.OPEN, CrescentToken.Key("operation"), CrescentToken.Parenthesis.CLOSE, CrescentToken.Bracket.OPEN,
+                CrescentToken.Char('+'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.ADD, CrescentToken.Key("input2"),
+                CrescentToken.Char('-'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.SUB, CrescentToken.Key("input2"),
+                CrescentToken.Char('*'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.MUL, CrescentToken.Key("input2"),
+                CrescentToken.Char('/'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.DIV, CrescentToken.Key("input2"),
+                CrescentToken.Bracket.CLOSE,
+                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.Key("result"), CrescentToken.Parenthesis.CLOSE,
                 CrescentToken.Bracket.CLOSE
             )
         )
