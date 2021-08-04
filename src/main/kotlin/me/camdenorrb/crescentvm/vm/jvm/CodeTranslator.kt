@@ -239,7 +239,7 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
             CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
             CrescentToken.Operator.CONTAINS -> TODO()
             CrescentToken.Operator.RANGE -> TODO()
-            CrescentToken.Operator.VARIABLE_TYPE_PREFIX -> TODO()
+            CrescentToken.Operator.TYPE_PREFIX -> TODO()
             CrescentToken.Operator.RESULT -> TODO()
             CrescentToken.Operator.COMMA -> TODO()
             else -> TODO()

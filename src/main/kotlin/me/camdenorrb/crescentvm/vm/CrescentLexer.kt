@@ -2,6 +2,7 @@ package me.camdenorrb.crescentvm.vm
 
 import me.camdenorrb.crescentvm.extensions.equalsAny
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
+import me.camdenorrb.crescentvm.project.checkEquals
 
 object CrescentLexer {
 
@@ -64,8 +65,8 @@ object CrescentLexer {
                 "}" -> CrescentToken.Bracket.CLOSE
 
                 // Array declaration
-                "[" -> CrescentToken.ArrayDeclaration.OPEN
-                "]" -> CrescentToken.ArrayDeclaration.CLOSE
+                "[" -> CrescentToken.SquareBracket.OPEN
+                "]" -> CrescentToken.SquareBracket.CLOSE
 
                 // Infix Operators
                 "in" -> CrescentToken.Operator.CONTAINS
@@ -83,6 +84,7 @@ object CrescentLexer {
                 "enum" -> CrescentToken.Type.ENUM
 
                 // Statements
+                "else" -> CrescentToken.Statement.ELSE
                 "import" -> CrescentToken.Statement.IMPORT
                 "if" -> CrescentToken.Statement.IF
                 "when" -> CrescentToken.Statement.WHEN
@@ -128,17 +130,22 @@ object CrescentLexer {
                 "!==" -> CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE
 
                 // Type prefix
-                ":" -> CrescentToken.Operator.VARIABLE_TYPE_PREFIX
+                ":" -> CrescentToken.Operator.TYPE_PREFIX
 
                 // String
-                // TODO: Add support for \"
-                // TODO: Add support for ${}
+                // TODO: Add support for ${} - No this will be done in the parser
                 "\"" -> CrescentToken.String(charIterator.nextUntilAndSkip('"'))
+                "'" -> {
+                    val data = charIterator.nextUntilAndSkip('\'')
+                    checkEquals(data.length, 1)
+                    CrescentToken.Char(data[0])
+                }
 
                 // Comment
                 "#" -> CrescentToken.Comment(charIterator.nextUntil('\n').trim())
 
                 //"\n" -> CrescentToken.Operator.NEW_LINE
+                "is" -> CrescentToken.Operator.INSTANCE_OF
                 "->" -> CrescentToken.Operator.RETURN
                 "?"  -> CrescentToken.Operator.RESULT
                 ","  -> CrescentToken.Operator.COMMA

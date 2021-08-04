@@ -3,7 +3,7 @@ package me.camdenorrb.crescentvm.vm
 /**
  * This class specifies the modes the VM may be able to do
  */
-enum class VMModes {
+enum class VM {
     /**
      * INTERPRETED is for running immediately in the jvm instance using the AST and is the default
      * todo

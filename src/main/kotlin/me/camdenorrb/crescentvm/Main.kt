@@ -2,7 +2,7 @@ package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.machines.CrescentVM
-import me.camdenorrb.crescentvm.vm.VMModes
+import me.camdenorrb.crescentvm.vm.VM
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -34,7 +34,7 @@ object Main {
         }
 
         val assemblies = mutableSetOf<CrescentAST.Node.File>()
-        val vm = CrescentVM(VMModes.JVM_BYTECODE)
+        val vm = CrescentVM(VM.JVM_BYTECODE)
 
         files.forEach { path ->
             val code = path.readBytes().decodeToString()

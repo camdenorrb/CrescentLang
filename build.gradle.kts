@@ -13,6 +13,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.capnproto:runtime:0.1.8")
     implementation("com.guardsquare:proguard-core:7.1.0")
+    testImplementation(kotlin("test-junit"))
 }
 
 tasks {

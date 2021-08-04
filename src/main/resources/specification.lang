@@ -1,0 +1,19 @@
+
+
+ARRAY_GET = []
+
+INVOKE_OPERATORS = ()
+
+
+PRINTLN = println
+
+WHILE = while ($PREDICATE) {}
+
+WHEN = when ($EXPRESSION | $VARIABLE_DECLARATION) {
+    $WHEN_IF -> $CODE_BLOCK
+    $WHEN_ELSE -> $CODE_BLOCK
+}
+
+IF = if ($PREDICATE) {}
+
+ELSE = else {}

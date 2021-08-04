@@ -6,7 +6,7 @@ import java.io.File
 import java.nio.file.Paths
 import kotlin.io.path.readBytes
 
-class CrescentVM(val mode: VMModes = VMModes.INTERPRETED) {
+class CrescentVM(val mode: VM = VM.INTERPRETED) {
 
     fun lex(input: String): List<CrescentToken> {
         return CrescentLexer.invoke(input)
@@ -29,7 +29,7 @@ class CrescentVM(val mode: VMModes = VMModes.INTERPRETED) {
         println("${input.size} assemblies specified!")
         when (mode) {
             //VMModes.INTERPRETED -> invokeInterpreted(input)
-            VMModes.JVM_BYTECODE -> JVMGenerator().generate(input)
+            VM.JVM_BYTECODE -> JVMGenerator().generate(input)
             else -> TODO("Crescent VM $mode")
         }
     }

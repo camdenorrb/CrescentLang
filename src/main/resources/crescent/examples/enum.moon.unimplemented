@@ -11,15 +11,15 @@ fun main {
     val color = Color.random()
 
     # Shows off cool Enum shorthand for when statements
-    when color {
+    when(color) {
 
-        is .RED   -> {}
+        is .RED   -> { println("Meow") }
         is .GREEN -> {}
 
         else -> {}
     }
 
-    when name = color.name {
+    when(name = color.name) {
 
         "Red"   -> println(name)
         "Green" -> {}

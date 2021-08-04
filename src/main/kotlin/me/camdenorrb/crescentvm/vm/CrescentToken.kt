@@ -24,24 +24,43 @@ interface CrescentToken {
         val kotlinString: kotlin.String
     ) : CrescentToken
 
+    data class Char(
+        val kotlinChar: kotlin.Char
+    ) : CrescentToken
+
     data class Comment(
         val string: kotlin.String
     ) : CrescentToken
 
 
     enum class Parenthesis : CrescentToken {
+
         OPEN,
-        CLOSE
+        CLOSE;
+
+        override fun toString(): kotlin.String {
+            return if (this == OPEN) "(" else ")"
+        }
     }
 
     enum class Bracket : CrescentToken {
+
         OPEN,
-        CLOSE
+        CLOSE;
+
+        override fun toString(): kotlin.String {
+            return if (this == OPEN) "{" else "}"
+        }
     }
 
-    enum class ArrayDeclaration : CrescentToken {
+    enum class SquareBracket : CrescentToken {
+
         OPEN,
-        CLOSE
+        CLOSE;
+
+        override fun toString(): kotlin.String {
+            return if (this == OPEN) "[" else "]"
+        }
     }
 
     enum class Variable : CrescentToken {
@@ -63,18 +82,30 @@ interface CrescentToken {
         WHEN,
         FOR,
         IF,
-        FUN
+        FUN,
+        ELSE
     }
 
     enum class Modifier : CrescentToken {
+
         ASYNC,
         OVERRIDE,
         OPERATOR,
         INLINE,
         PUBLIC,
+        INTERNAL,
         PRIVATE,
         STATIC,
-        INFIX
+        INFIX;
+
+        fun isVisibility(): Boolean {
+            return (
+                this == PUBLIC ||
+                this == INTERNAL ||
+                this == PRIVATE
+            )
+        }
+
     }
 
 
@@ -103,12 +134,13 @@ interface CrescentToken {
         NOT_EQUALS_REFERENCE_COMPARE("!=="),
         CONTAINS("in"),
         RANGE(".."),
-        VARIABLE_TYPE_PREFIX(":"),
+        TYPE_PREFIX(":"),
         RETURN("->"),
         RESULT("?"),
         COMMA(","),
         DOT("."),
-        IMPORT_SEPARATOR("::")
+        IMPORT_SEPARATOR("::"),
+        INSTANCE_OF("is")
     }
 
     enum class Primitive : CrescentToken {

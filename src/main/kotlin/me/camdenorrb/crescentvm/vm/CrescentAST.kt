@@ -47,6 +47,10 @@ class CrescentAST {
 
         }
 
+        data class InstanceOf(
+            val expression: Expression
+        ) : Node()
+
         data class Return(
             val expression: Expression
         ) : Node()
@@ -80,9 +84,14 @@ class CrescentAST {
 
         data class Enum(
             val name: kotlin.String,
-            val variables: List<Variable>,
-            val structs: List<Struct>
-        )
+            val parameters: List<Parameter>,
+            val structs: List<EnumEntry>
+        ) : Node()
+
+        data class EnumEntry(
+            val name: kotlin.String,
+            val arguments: List<Argument>
+        ) : Node()
 
         data class FunctionTrait(
             val name: kotlin.String,
@@ -131,7 +140,7 @@ class CrescentAST {
         ) : Node()
 
 
-        sealed class Parameter {
+        sealed class Parameter : Node() {
 
             abstract val name: kotlin.String
 
@@ -174,11 +183,15 @@ class CrescentAST {
         }
 
 
-        sealed class Statement {
+        sealed class Statement : Node() {
 
             data class When(
-                val predicateToBlock: List<Pair<Expression, Expression>>
-            ) : Statement()
+                val predicateToBlock: List<Clause>
+            ) : Statement() {
+
+                data class Clause(val ifExpression: Expression?, val thenExpression: Expression) : Statement()
+
+            }
 
             data class Else(
                 val block: Expression
