@@ -32,7 +32,7 @@ object CrescentLexer {
                 }
 
                 peekNext.isLetter() -> {
-                    charIterator.nextUntil { !it.isLetter() }
+                    charIterator.nextUntil { !it.isLetterOrDigit() }
                 }
 
                 peekNext.equalsAny('(', ')', '{', '}', '[', ']', '\'', '"', '^', '.', '#') -> {
