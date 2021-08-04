@@ -10,7 +10,6 @@ struct Parameter(
     val type: Type
 )
 
-
 impl Function {
 
     override fun toString -> String {
