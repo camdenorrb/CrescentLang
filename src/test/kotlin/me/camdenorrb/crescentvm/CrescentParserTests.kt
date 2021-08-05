@@ -1,11 +1,18 @@
 package me.camdenorrb.crescentvm
 
+import me.camdenorrb.crescentvm.vm.CrescentAST
+import me.camdenorrb.crescentvm.vm.CrescentAST.Node
+import me.camdenorrb.crescentvm.vm.CrescentAST.Node.*
+import me.camdenorrb.crescentvm.vm.CrescentAST.Node.String
 import me.camdenorrb.crescentvm.vm.CrescentLexer
+import me.camdenorrb.crescentvm.vm.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToken
 import org.junit.Test
+import java.io.File
 import kotlin.test.assertContentEquals
+import kotlin.test.assertNotNull
 
-internal class CrescentLexerTests {
+internal class CrescentParserTests {
 
     @Test
     fun helloWorld() {
@@ -18,13 +25,17 @@ internal class CrescentLexerTests {
             """.trimIndent()
         )
 
+
+        val mainFunction = assertNotNull(
+            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            "No main function found"
+        )
+
         assertContentEquals(
             listOf(
-                CrescentToken.Statement.FUN, CrescentToken.Key("main"), CrescentToken.Bracket.OPEN,
-                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Hello World"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Bracket.CLOSE,
+                FunctionCall("println", listOf(Argument(Expression(listOf(String("Hello World"))))))
             ),
-            tokens
+            mainFunction.innerCode.nodes
         )
     }
 
@@ -44,19 +55,33 @@ internal class CrescentLexerTests {
             """.trimIndent()
         )
 
+        val mainFunction = assertNotNull(
+            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            "No main function found"
+        )
+
+        assertContentEquals(
+            listOf(Parameter.Basic("args", Type.Array(Type.Basic("String")))),
+            mainFunction.params
+        )
+
+        println(mainFunction.innerCode.nodes)
+
+        /*
         assertContentEquals(
             listOf(
-                CrescentToken.Statement.FUN, CrescentToken.Key("main"), CrescentToken.Parenthesis.OPEN, CrescentToken.Key("args"), CrescentToken.Operator.TYPE_PREFIX, CrescentToken.SquareBracket.OPEN, CrescentToken.Key("String"), CrescentToken.SquareBracket.CLOSE, CrescentToken.Parenthesis.CLOSE, CrescentToken.Bracket.OPEN,
-                CrescentToken.Statement.IF, CrescentToken.Parenthesis.OPEN, CrescentToken.Key("args"), CrescentToken.SquareBracket.OPEN, CrescentToken.Number(0.0), CrescentToken.SquareBracket.CLOSE, CrescentToken.Operator.EQUALS_COMPARE, CrescentToken.String("true"), CrescentToken.Parenthesis.CLOSE, CrescentToken.Bracket.OPEN,
-                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Meow"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Bracket.CLOSE,
-                CrescentToken.Statement.ELSE, CrescentToken.Bracket.OPEN,
-                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Hiss"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Bracket.CLOSE,
-                CrescentToken.Bracket.CLOSE,
+                Statement.If(
+                    Expression(listOf(Node.)),
+                    listOf(
+                        Argument(
+                            Node.Expression(
+                            listOf(String("Hello World"))
+                        ))
+                    )
+                )
             ),
-            tokens
-        )
+            mainFunction.innerCode.nodes
+        )*/
     }
 
     @Test
@@ -93,6 +118,7 @@ internal class CrescentLexerTests {
             tokens
         )
     }
+
 
     @Test
     fun calculator() {

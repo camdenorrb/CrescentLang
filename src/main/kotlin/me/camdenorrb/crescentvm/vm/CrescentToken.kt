@@ -36,7 +36,8 @@ interface CrescentToken {
     enum class Parenthesis : CrescentToken {
 
         OPEN,
-        CLOSE;
+        CLOSE,
+        ;
 
         override fun toString(): kotlin.String {
             return if (this == OPEN) "(" else ")"
@@ -46,7 +47,8 @@ interface CrescentToken {
     enum class Bracket : CrescentToken {
 
         OPEN,
-        CLOSE;
+        CLOSE,
+        ;
 
         override fun toString(): kotlin.String {
             return if (this == OPEN) "{" else "}"
@@ -56,7 +58,8 @@ interface CrescentToken {
     enum class SquareBracket : CrescentToken {
 
         OPEN,
-        CLOSE;
+        CLOSE,
+        ;
 
         override fun toString(): kotlin.String {
             return if (this == OPEN) "[" else "]"
@@ -65,7 +68,7 @@ interface CrescentToken {
 
     enum class Variable : CrescentToken {
         VAL,
-        VAR
+        VAR,
     }
 
     enum class Type : CrescentToken {
@@ -73,7 +76,8 @@ interface CrescentToken {
         IMPL,
         TRAIT,
         OBJECT,
-        ENUM
+        ENUM,
+        SEALED,
     }
 
     enum class Statement : CrescentToken {
@@ -83,7 +87,7 @@ interface CrescentToken {
         FOR,
         IF,
         FUN,
-        ELSE
+        ELSE,
     }
 
     enum class Modifier : CrescentToken {
@@ -97,7 +101,8 @@ interface CrescentToken {
         INTERNAL,
         PRIVATE,
         STATIC,
-        INFIX;
+        INFIX,
+        ;
 
         fun isVisibility(): Boolean {
             return (
@@ -140,8 +145,9 @@ interface CrescentToken {
         RESULT("?"),
         COMMA(","),
         DOT("."),
+        AS("as"),
         IMPORT_SEPARATOR("::"),
-        INSTANCE_OF("is")
+        INSTANCE_OF("is"),
     }
 
     enum class Primitive : CrescentToken {

@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.vm
 
+
 // https://github.com/cretz/kastree/blob/master/ast/ast-common/src/main/kotlin/kastree/ast/Node.kt
 class CrescentAST {
 
@@ -26,6 +27,7 @@ class CrescentAST {
         data class String(
             val data: kotlin.String
         ) : Node()
+
 
         data class Argument(
             val value: Expression
@@ -108,6 +110,11 @@ class CrescentAST {
             val name: kotlin.String
         ) : Node()
 
+        data class ArrayCall(
+            val name: kotlin.String,
+            val index: Int
+        ) : Node()
+
         data class Variable(
             val name: kotlin.String,
             val isFinal: Boolean,
@@ -122,7 +129,7 @@ class CrescentAST {
             val visibility: Visibility,
             val params: List<Parameter>,
             val returnType: Type,
-            val innerCode: Expression,
+            val innerCode: List<Expression>,
         ) : Node()
 
         // TODO: Make a better toString

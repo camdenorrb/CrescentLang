@@ -486,7 +486,7 @@ object CrescentParser {
 
         while (true) {
 
-            val node = when (val next = tokenIterator.next()) {
+            val node = when (val next = tokenIterator.next().also { println(nodes) }) {
 
                 CrescentToken.Operator.RETURN -> {
 
@@ -541,6 +541,11 @@ object CrescentParser {
                     CrescentAST.Node.Number(next.number)
                 }
 
+                CrescentToken.Statement.IF -> {
+                    nodes += CrescentAST.Node.Statement.If(readExpression(tokenIterator), readExpression(tokenIterator))
+                    break
+                }
+
                 CrescentToken.Statement.ELSE -> {
                     nodes += CrescentAST.Node.Statement.Else(readExpression(tokenIterator))
                     break
@@ -549,6 +554,12 @@ object CrescentParser {
                 is CrescentToken.Key -> {
                     if (tokenIterator.peekNext() == CrescentToken.Parenthesis.OPEN) {
                         CrescentAST.Node.FunctionCall(next.string, readArguments(tokenIterator))
+                    }
+                    else if (tokenIterator.peekNext() == CrescentToken.SquareBracket.OPEN) {
+                        tokenIterator.next()
+                        CrescentAST.Node.ArrayCall(next.string, (tokenIterator.next() as CrescentToken.Number).number.toInt()).also {
+                            tokenIterator.next()
+                        }
                     }
                     else {
                         CrescentAST.Node.VariableCall(next.string)

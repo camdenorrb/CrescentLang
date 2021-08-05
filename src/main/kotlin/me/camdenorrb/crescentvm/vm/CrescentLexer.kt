@@ -71,6 +71,7 @@ object CrescentLexer {
                 // Infix Operators
                 "in" -> CrescentToken.Operator.CONTAINS
                 ".." -> CrescentToken.Operator.RANGE
+                "as" -> CrescentToken.Operator.AS
 
                 // Variables
                 "var" -> CrescentToken.Variable.VAR
@@ -82,6 +83,7 @@ object CrescentLexer {
                 "trait" -> CrescentToken.Type.TRAIT
                 "object" -> CrescentToken.Type.OBJECT
                 "enum" -> CrescentToken.Type.ENUM
+                "sealed" -> CrescentToken.Type.SEALED
 
                 // Statements
                 "else" -> CrescentToken.Statement.ELSE
