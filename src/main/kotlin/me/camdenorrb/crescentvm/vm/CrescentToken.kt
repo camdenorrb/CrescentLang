@@ -89,6 +89,7 @@ interface CrescentToken {
     enum class Modifier : CrescentToken {
 
         ASYNC,
+        CONST,
         OVERRIDE,
         OPERATOR,
         INLINE,

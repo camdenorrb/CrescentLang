@@ -93,6 +93,7 @@ object CrescentLexer {
                 "fun" -> CrescentToken.Statement.FUN
 
                 // Modifiers
+                "const" -> CrescentToken.Modifier.CONST
                 "async" -> CrescentToken.Modifier.ASYNC
                 "override" -> CrescentToken.Modifier.OVERRIDE
                 "operator" -> CrescentToken.Modifier.OPERATOR

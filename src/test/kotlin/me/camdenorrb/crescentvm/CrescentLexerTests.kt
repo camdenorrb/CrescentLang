@@ -5,7 +5,7 @@ import me.camdenorrb.crescentvm.vm.CrescentToken
 import org.junit.Test
 import kotlin.test.assertContentEquals
 
-class CrescentLexerTests {
+internal class CrescentLexerTests {
 
     @Test
     fun helloWorld() {
@@ -162,6 +162,51 @@ class CrescentLexerTests {
                 CrescentToken.Char('/'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.DIV, CrescentToken.Key("input2"),
                 CrescentToken.Bracket.CLOSE,
                 CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.Key("result"), CrescentToken.Parenthesis.CLOSE,
+                CrescentToken.Bracket.CLOSE
+            )
+        )
+    }
+
+    @Test
+    fun constantsAndObject() {
+
+        val tokens = CrescentLexer.invoke(
+            """
+            const thing = "Meow"
+            
+            object Constants {
+            
+                const thing = "Meow"
+            
+            }
+            """.trimIndent()
+        )
+
+        assertContentEquals(tokens,
+            listOf(
+                CrescentToken.Modifier.CONST, CrescentToken.Key("thing"), CrescentToken.Operator.ASSIGN, CrescentToken.String("Meow"),
+                CrescentToken.Type.OBJECT, CrescentToken.Key("Constants"), CrescentToken.Bracket.OPEN,
+                CrescentToken.Modifier.CONST, CrescentToken.Key("thing"), CrescentToken.Operator.ASSIGN, CrescentToken.String("Meow"),
+                CrescentToken.Bracket.CLOSE
+            )
+        )
+    }
+
+    @Test
+    fun math() {
+
+        val tokens = CrescentLexer.invoke(
+            """
+            fun main {
+                println((1 + 1) + 1 / 10 + 1000 * 10 / 10 ^ 10)
+            }
+            """.trimIndent()
+        )
+
+        assertContentEquals(tokens,
+            listOf(
+                CrescentToken.Statement.FUN, CrescentToken.Key("main"), CrescentToken.Bracket.OPEN,
+                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.Parenthesis.OPEN, CrescentToken.Number(1.0), CrescentToken, CrescentToken.Parenthesis.CLOSE,
                 CrescentToken.Bracket.CLOSE
             )
         )
