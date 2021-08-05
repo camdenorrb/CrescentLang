@@ -1,7 +1,5 @@
 package me.camdenorrb.crescentvm
 
-import me.camdenorrb.crescentvm.vm.CrescentAST
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.*
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.String
 import me.camdenorrb.crescentvm.vm.CrescentLexer
@@ -33,9 +31,11 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                FunctionCall("println", listOf(Argument(Expression(listOf(String("Hello World"))))))
+                Expression(listOf(
+                    FunctionCall("println", listOf(Argument(Expression(listOf(String("Hello World"))))))
+                ))
             ),
-            mainFunction.innerCode.nodes
+            mainFunction.innerCode
         )
     }
 
