@@ -3,6 +3,7 @@ package me.camdenorrb.crescentvm.vm
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import java.io.File
+import kotlin.math.exp
 
 // TODO: Maybe support comments
 object CrescentParser {
@@ -287,14 +288,19 @@ object CrescentParser {
             CrescentAST.Node.Type.Unit
         }
 
-        val expression = readExpression(tokenIterator)
+        val expressions = mutableListOf<CrescentAST.Node.Expression>()
+
+        while (tokenIterator.peekNext() != CrescentToken.Bracket.CLOSE) {
+            expressions += readExpression(tokenIterator)
+        }
+
         checkEquals(tokenIterator.next(), CrescentToken.Bracket.CLOSE)
         //println(expression)
 
         // Skip rest until fully implemented
         //tokenIterator.nextUntil { it == CrescentToken.Bracket.CLOSE }
 
-        //println(tokenIterator.peekNext().javaClass.canonicalName)
+        //println(tokenIterator. peekNext().javaClass.canonicalName)
 
         // TODO: Support visibility
         // TODO: Read parameters
@@ -304,7 +310,7 @@ object CrescentParser {
             CrescentAST.Visibility.PUBLIC,
             parameters,
             type,
-            expression
+            expressions
         )
     }
 
@@ -486,7 +492,7 @@ object CrescentParser {
 
         while (true) {
 
-            val node = when (val next = tokenIterator.next().also { println(nodes) }) {
+            val node = when (val next = tokenIterator.next()) {
 
                 CrescentToken.Operator.RETURN -> {
 
@@ -543,11 +549,13 @@ object CrescentParser {
 
                 CrescentToken.Statement.IF -> {
                     nodes += CrescentAST.Node.Statement.If(readExpression(tokenIterator), readExpression(tokenIterator))
+                    checkEquals(tokenIterator.next(), CrescentToken.Bracket.CLOSE)
                     break
                 }
 
                 CrescentToken.Statement.ELSE -> {
                     nodes += CrescentAST.Node.Statement.Else(readExpression(tokenIterator))
+                    checkEquals(tokenIterator.next(), CrescentToken.Bracket.CLOSE)
                     break
                 }
 

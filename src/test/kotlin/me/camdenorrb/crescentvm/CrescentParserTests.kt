@@ -65,7 +65,7 @@ internal class CrescentParserTests {
             mainFunction.params
         )
 
-        println(mainFunction.innerCode.nodes)
+        println(mainFunction.innerCode)
 
         /*
         assertContentEquals(
