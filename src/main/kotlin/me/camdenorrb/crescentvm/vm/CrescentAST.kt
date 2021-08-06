@@ -196,7 +196,7 @@ class CrescentAST {
                 val predicateToBlock: List<Clause>
             ) : Statement() {
 
-                data class Clause(val ifExpression: Expression?, val thenExpression: Expression) : Statement()
+                data class Clause(val ifExpression: Expression?, val thenExpressions: List<Expression>) : Statement()
 
             }
 
