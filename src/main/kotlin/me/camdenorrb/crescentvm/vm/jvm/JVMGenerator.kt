@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.vm.jvm
 
+/*
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentToken
 import proguard.classfile.*
@@ -337,3 +338,4 @@ data class JVMGenerator(val context: CodeContext = CodeContext()) {
         return classBuilder.addAndReturnField(access, variable.name, CodeTranslator.genDescriptor(variable.type, resolvedTypes))
     }
 }
+*/

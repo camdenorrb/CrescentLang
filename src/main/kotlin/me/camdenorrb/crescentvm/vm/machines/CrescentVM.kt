@@ -1,7 +1,7 @@
 package me.camdenorrb.crescentvm.vm.machines
 
 import me.camdenorrb.crescentvm.vm.*
-import me.camdenorrb.crescentvm.vm.jvm.JVMGenerator
+//import me.camdenorrb.crescentvm.vm.jvm.JVMGenerator
 import java.io.File
 import java.nio.file.Paths
 import kotlin.io.path.readBytes
@@ -29,7 +29,7 @@ class CrescentVM(val mode: VM = VM.INTERPRETED) {
         println("${input.size} assemblies specified!")
         when (mode) {
             //VMModes.INTERPRETED -> invokeInterpreted(input)
-            VM.JVM_BYTECODE -> JVMGenerator().generate(input)
+            VM.JVM_BYTECODE -> {}//JVMGenerator().generate(input)
             else -> TODO("Crescent VM $mode")
         }
     }
