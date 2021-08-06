@@ -35,7 +35,7 @@ internal class CrescentParserTests {
                     FunctionCall("println", listOf(Argument(Expression(listOf(String("Hello World"))))))
                 ))
             ),
-            mainFunction.innerCode
+            mainFunction.innerCode.expressions
         )
     }
 

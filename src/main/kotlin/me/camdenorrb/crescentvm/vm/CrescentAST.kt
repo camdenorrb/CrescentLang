@@ -129,7 +129,7 @@ class CrescentAST {
             val visibility: Visibility,
             val params: List<Parameter>,
             val returnType: Type,
-            val innerCode: List<Expression>,
+            val innerCode: CrescentToken.Block,
         ) : Node()
 
         // TODO: Make a better toString
@@ -196,17 +196,17 @@ class CrescentAST {
                 val predicateToBlock: List<Clause>
             ) : Statement() {
 
-                data class Clause(val ifExpression: Expression?, val thenExpressions: List<Expression>) : Statement()
+                data class Clause(val ifExpression: Expression?, val thenBlock: CrescentToken.Block) : Statement()
 
             }
 
             data class Else(
-                val block: Expression
+                val block: CrescentToken.Block
             ) : Statement()
 
             data class If(
                 val predicate: Expression,
-                val block: Expression,
+                val block: CrescentToken.Block,
             ) : Statement()
 
             data class While(
