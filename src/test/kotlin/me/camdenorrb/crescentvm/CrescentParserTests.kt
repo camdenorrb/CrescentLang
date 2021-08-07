@@ -67,6 +67,15 @@ internal class CrescentParserTests {
 
         println(mainFunction.innerCode)
 
+        assertContentEquals(
+            listOf(
+                Expression(listOf(
+                    
+                ))
+            )
+            ,
+            mainFunction.innerCode.expressions
+        )
         /*
         assertContentEquals(
             listOf(
