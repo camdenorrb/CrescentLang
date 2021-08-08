@@ -155,6 +155,9 @@ object CrescentLexer {
                 "."  -> CrescentToken.Operator.DOT
                 "::" -> CrescentToken.Operator.IMPORT_SEPARATOR
 
+                "true" -> CrescentToken.Boolean(true)
+                "false" -> CrescentToken.Boolean(false)
+
                 else -> CrescentToken.Key(key)
             }
         }

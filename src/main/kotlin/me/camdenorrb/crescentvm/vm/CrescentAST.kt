@@ -24,6 +24,11 @@ class CrescentAST {
 
         }
 
+
+        data class Boolean(
+            val data: kotlin.Boolean
+        ) : Node()
+
         data class String(
             val data: kotlin.String
         ) : Node()
@@ -117,7 +122,7 @@ class CrescentAST {
 
         data class Variable(
             val name: kotlin.String,
-            val isFinal: Boolean,
+            val isFinal: kotlin.Boolean,
             val visibility: Visibility,
             val type: Type,
             val value: Node,

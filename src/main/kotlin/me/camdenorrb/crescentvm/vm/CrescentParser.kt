@@ -307,6 +307,8 @@ object CrescentParser {
 
         val expressions = mutableListOf<CrescentAST.Node.Expression>()
 
+        checkEquals(tokenIterator.next(), CrescentToken.Bracket.OPEN)
+
         while (tokenIterator.peekNext() != CrescentToken.Bracket.CLOSE) {
             expressions += readExpression(tokenIterator)
         }
@@ -356,6 +358,7 @@ object CrescentParser {
             else {
                 CrescentAST.Node.Expression(emptyList())
             }
+
 
         return CrescentAST.Node.Variable(name, isFinal, visibility, type, expression)
     }
@@ -539,6 +542,10 @@ object CrescentParser {
                     CrescentAST.Node.String(next.kotlinString)
                 }
 
+                is CrescentToken.Boolean -> {
+                    CrescentAST.Node.Boolean(next.kotlinBoolean)
+                }
+
                 is CrescentToken.Operator -> {
                     operator = next
                     continue
@@ -549,7 +556,11 @@ object CrescentParser {
                 }
 
                 CrescentToken.Statement.IF -> {
-                    nodes += CrescentAST.Node.Statement.If(readExpression(tokenIterator), readBlock(tokenIterator))
+                    checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
+                    nodes += CrescentAST.Node.Statement.If(
+                        readExpression(tokenIterator).also { checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE) },
+                        readBlock(tokenIterator)
+                    )
                     break
                 }
 
@@ -563,7 +574,7 @@ object CrescentParser {
                         CrescentAST.Node.FunctionCall(next.string, readArguments(tokenIterator))
                     }
                     else if (tokenIterator.peekNext() == CrescentToken.SquareBracket.OPEN) {
-                        tokenIterator.next()
+                        checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.OPEN)
                         CrescentAST.Node.ArrayCall(next.string, (tokenIterator.next() as CrescentToken.Number).number.toInt()).also {
                             tokenIterator.next()
                         }
@@ -578,6 +589,7 @@ object CrescentParser {
                     break
                 }
             }
+
 
             // If an inlined operator was the previous node
             if (operator != null && operator != CrescentToken.Operator.DOT) {

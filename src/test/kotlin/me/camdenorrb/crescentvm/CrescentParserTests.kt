@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm
 
+import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.*
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.String
 import me.camdenorrb.crescentvm.vm.CrescentLexer
@@ -35,7 +36,7 @@ internal class CrescentParserTests {
                     FunctionCall("println", listOf(Argument(Expression(listOf(String("Hello World"))))))
                 ))
             ),
-            mainFunction.innerCode.expressions
+            mainFunction.innerCode.expressions,
         )
     }
 
@@ -65,32 +66,28 @@ internal class CrescentParserTests {
             mainFunction.params
         )
 
-        println(mainFunction.innerCode)
-
         assertContentEquals(
             listOf(
                 Expression(listOf(
-                    
-                ))
-            )
-            ,
-            mainFunction.innerCode.expressions
-        )
-        /*
-        assertContentEquals(
-            listOf(
-                Statement.If(
-                    Expression(listOf(Node.)),
-                    listOf(
-                        Argument(
-                            Node.Expression(
-                            listOf(String("Hello World"))
+                    Statement.If(
+                        Expression(listOf(
+                            Operation(CrescentToken.Operator.EQUALS_COMPARE, ArrayCall("args", 0), String("true"))
+                        )),
+                        CrescentToken.Block(listOf(
+                            Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Meow"))))))))
+                        )),
+                    ),
+                )),
+                Expression(listOf(
+                    Statement.Else(
+                        CrescentToken.Block(listOf(
+                            Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Hiss"))))))))
                         ))
                     )
-                )
+                ))
             ),
-            mainFunction.innerCode.nodes
-        )*/
+            mainFunction.innerCode.expressions,
+        )
     }
 
     @Test
@@ -112,19 +109,45 @@ internal class CrescentParserTests {
             """.trimIndent()
         )
 
+        val mainFunction = assertNotNull(
+            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            "No main function found"
+        )
+
+        assertContentEquals(
+            emptyList(),
+            mainFunction.params
+        )
+
+        println(tokens)
+        println(mainFunction.innerCode.expressions)
+
         assertContentEquals(
             listOf(
-                CrescentToken.Statement.FUN, CrescentToken.Key("main"), CrescentToken.Bracket.OPEN,
-                CrescentToken.Variable.VAL, CrescentToken.Key("input"), CrescentToken.Operator.ASSIGN, CrescentToken.Key("readBoolean"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Enter a boolean value [true/false]"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Statement.IF, CrescentToken.Parenthesis.OPEN, CrescentToken.Key("input"), CrescentToken.Parenthesis.CLOSE, CrescentToken.Bracket.OPEN,
-                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Meow"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Bracket.CLOSE,
-                CrescentToken.Statement.ELSE, CrescentToken.Bracket.OPEN,
-                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Hiss"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Bracket.CLOSE,
-                CrescentToken.Bracket.CLOSE,
-            ),
-            tokens
+                Expression(listOf(
+                    Variable("input", true, CrescentAST.Visibility.LOCAL_SCOPE, Type.Implicit, Expression(listOf(
+                        FunctionCall("readBoolean", listOf(Argument(Expression(listOf(String("Enter a boolean value [true/false]"))))))
+                    )))
+                )),
+                Expression(listOf(
+                    Statement.If(
+                        Expression(listOf(
+                            VariableCall("input")
+                        )),
+                        CrescentToken.Block(listOf(
+                            Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Meow"))))))))
+                        )),
+                    ),
+                )),
+                Expression(listOf(
+                    Statement.Else(
+                        CrescentToken.Block(listOf(
+                            Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Hiss"))))))))
+                        ))
+                    )
+                ))
+            ).also { println(it.size) },
+            mainFunction.innerCode.expressions.also { println(it.size) },
         )
     }
 

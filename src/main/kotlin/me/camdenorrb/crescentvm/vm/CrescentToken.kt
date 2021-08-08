@@ -24,6 +24,10 @@ interface CrescentToken {
         val kotlinString: kotlin.String
     ) : CrescentToken
 
+    data class Boolean(
+        val kotlinBoolean: kotlin.Boolean
+    ) : CrescentToken
+
     data class Char(
         val kotlinChar: kotlin.Char
     ) : CrescentToken
@@ -108,7 +112,7 @@ interface CrescentToken {
         INFIX,
         ;
 
-        fun isVisibility(): Boolean {
+        fun isVisibility(): kotlin.Boolean {
             return (
                 this == PUBLIC ||
                 this == INTERNAL ||

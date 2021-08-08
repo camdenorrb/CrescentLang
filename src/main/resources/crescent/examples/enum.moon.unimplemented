@@ -7,7 +7,6 @@ enum Color(name: String) {
 fun main {
 
     # .random() will be built into the Enum type implementation
-
     val color = Color.random()
 
     # Shows off cool Enum shorthand for when statements
