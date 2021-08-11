@@ -650,10 +650,22 @@ object CrescentParser {
                 }
 
                 is CrescentToken.Boolean -> {
+
+                    if (nodes.lastOrNull() != null && operator == null) {
+                        tokenIterator.back()
+                        break
+                    }
+
                     CrescentAST.Node.Boolean(next.kotlinBoolean)
                 }
 
                 is CrescentToken.Number -> {
+
+                    if (nodes.lastOrNull() != null && operator == null) {
+                        tokenIterator.back()
+                        break
+                    }
+
                     CrescentAST.Node.Number(next.number)
                 }
 
@@ -679,6 +691,12 @@ object CrescentParser {
                         }
 
                         else -> {
+
+                            if (nodes.lastOrNull() != null && operator == null) {
+                                tokenIterator.back()
+                                break
+                            }
+
                             CrescentAST.Node.VariableCall(next.string)
                         }
 
