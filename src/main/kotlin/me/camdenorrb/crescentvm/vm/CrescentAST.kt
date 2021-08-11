@@ -27,20 +27,54 @@ class CrescentAST {
 
         data class Boolean(
             val data: kotlin.Boolean
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$data"
+            }
+
+        }
 
         data class String(
             val data: kotlin.String
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "\"$data\""
+            }
+
+        }
+
+        data class Char(
+            val data: kotlin.Char
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "'$data'"
+            }
+
+        }
 
 
         data class Argument(
             val value: Expression
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$value"
+            }
+
+        }
 
         data class Expression(
             val nodes: List<Node>
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$nodes"
+            }
+
+        }
 
         data class Operation(
             val operator: CrescentToken.Operator,
@@ -56,11 +90,23 @@ class CrescentAST {
 
         data class InstanceOf(
             val expression: Expression
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "is"
+            }
+
+        }
 
         data class Return(
             val expression: Expression
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "-> $expression"
+            }
+
+        }
 
         data class Import(
             val path: kotlin.String,
@@ -109,16 +155,34 @@ class CrescentAST {
         data class FunctionCall(
             val name: kotlin.String,
             val arguments: List<Argument>
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$name(${arguments.joinToString { it.value.nodes.joinToString() }})"
+            }
+
+        }
 
         data class VariableCall(
             val name: kotlin.String
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return name
+            }
+
+        }
 
         data class ArrayCall(
             val name: kotlin.String,
             val index: Int
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$name[$index]"
+            }
+
+        }
 
         data class Variable(
             val name: kotlin.String,
@@ -126,7 +190,13 @@ class CrescentAST {
             val visibility: Visibility,
             val type: Type,
             val value: Node,
-        ) : Node()
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "${if (isFinal) "val" else "var"} $name: ${type::class.simpleName} = $value"
+            }
+
+        }
 
         data class Function(
             val name: kotlin.String,
@@ -134,7 +204,7 @@ class CrescentAST {
             val visibility: Visibility,
             val params: List<Parameter>,
             val returnType: Type,
-            val innerCode: CrescentToken.Block,
+            val innerCode: Statement.Block,
         ) : Node()
 
         // TODO: Make a better toString
@@ -198,20 +268,31 @@ class CrescentAST {
         sealed class Statement : Node() {
 
             data class When(
+                val argument: Argument,
                 val predicateToBlock: List<Clause>
             ) : Statement() {
 
-                data class Clause(val ifExpression: Expression?, val thenBlock: CrescentToken.Block) : Statement()
+                override fun toString(): kotlin.String {
+                    return "when (${argument.value.nodes.joinToString()}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
+                }
+
+                data class Clause(val ifExpression: Expression?, val thenBlock: Block) : Statement() {
+
+                    override fun toString(): kotlin.String {
+                        return "$ifExpression $thenBlock"
+                    }
+
+                }
 
             }
 
             data class Else(
-                val block: CrescentToken.Block
+                val block: Block
             ) : Statement()
 
             data class If(
                 val predicate: Expression,
-                val block: CrescentToken.Block,
+                val block: Block,
             ) : Statement()
 
             data class While(
@@ -224,6 +305,16 @@ class CrescentAST {
                 val predicate: Expression,
                 val block: Expression
             ) : Statement()
+
+            data class Block(
+                val expressions: List<Expression>
+            ) : Statement() {
+
+                override fun toString(): kotlin.String {
+                    return "{ ${expressions.joinToString { it.nodes.joinToString() }} }"
+                }
+
+            }
 
         }
 

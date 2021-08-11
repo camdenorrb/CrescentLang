@@ -36,10 +36,6 @@ interface CrescentToken {
         val string: kotlin.String
     ) : CrescentToken
 
-    data class Block(
-        val expressions: List<CrescentAST.Node.Expression>
-    ) : CrescentToken
-
 
     enum class Parenthesis : CrescentToken {
 

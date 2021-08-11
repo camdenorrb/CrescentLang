@@ -73,14 +73,14 @@ internal class CrescentParserTests {
                         Expression(listOf(
                             Operation(CrescentToken.Operator.EQUALS_COMPARE, ArrayCall("args", 0), String("true"))
                         )),
-                        CrescentToken.Block(listOf(
+                        Statement.Block(listOf(
                             Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Meow"))))))))
                         )),
                     ),
                 )),
                 Expression(listOf(
                     Statement.Else(
-                        CrescentToken.Block(listOf(
+                        Statement.Block(listOf(
                             Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Hiss"))))))))
                         ))
                     )
@@ -119,9 +119,6 @@ internal class CrescentParserTests {
             mainFunction.params
         )
 
-        println(tokens)
-        println(mainFunction.innerCode.expressions)
-
         assertContentEquals(
             listOf(
                 Expression(listOf(
@@ -134,20 +131,20 @@ internal class CrescentParserTests {
                         Expression(listOf(
                             VariableCall("input")
                         )),
-                        CrescentToken.Block(listOf(
+                        Statement.Block(listOf(
                             Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Meow"))))))))
                         )),
                     ),
                 )),
                 Expression(listOf(
                     Statement.Else(
-                        CrescentToken.Block(listOf(
+                        Statement.Block(listOf(
                             Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Hiss"))))))))
                         ))
                     )
                 ))
-            ).also { println(it.size) },
-            mainFunction.innerCode.expressions.also { println(it.size) },
+            ),
+            mainFunction.innerCode.expressions,
         )
     }
 
@@ -161,7 +158,7 @@ internal class CrescentParserTests {
             
                 val input1 = readDouble("Enter your first number")
                 val input2 = readDouble("Enter your second number")
-                val operation = readLine("Enter a operation [+, -, *, /]")
+                val operation = readLine("Enter an operation [+, -, *, /]")
             
                 val result = when(operation) {
                     '+' -> input1 + input2
@@ -175,23 +172,70 @@ internal class CrescentParserTests {
             """.trimIndent()
         )
 
+        val mainFunction = assertNotNull(
+            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            "No main function found"
+        )
+
+        assertContentEquals(
+            emptyList(),
+            mainFunction.params
+        )
+
+        mainFunction.innerCode.expressions.forEach {
+            println(it)
+        }
+
+
         assertContentEquals(
             listOf(
-                CrescentToken.Statement.FUN, CrescentToken.Key("main"), CrescentToken.Bracket.OPEN,
-                CrescentToken.Variable.VAL, CrescentToken.Key("input1"), CrescentToken.Operator.ASSIGN, CrescentToken.Key("readDouble"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Enter your first number"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Variable.VAL, CrescentToken.Key("input2"), CrescentToken.Operator.ASSIGN, CrescentToken.Key("readDouble"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Enter your second number"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Variable.VAL, CrescentToken.Key("operation"), CrescentToken.Operator.ASSIGN, CrescentToken.Key("readLine"), CrescentToken.Parenthesis.OPEN, CrescentToken.String("Enter a operation [+, -, *, /]"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Variable.VAL, CrescentToken.Key("result"), CrescentToken.Operator.ASSIGN, CrescentToken.Statement.WHEN, CrescentToken.Parenthesis.OPEN, CrescentToken.Key("operation"), CrescentToken.Parenthesis.CLOSE, CrescentToken.Bracket.OPEN,
-                CrescentToken.Char('+'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.ADD, CrescentToken.Key("input2"),
-                CrescentToken.Char('-'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.SUB, CrescentToken.Key("input2"),
-                CrescentToken.Char('*'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.MUL, CrescentToken.Key("input2"),
-                CrescentToken.Char('/'), CrescentToken.Operator.RETURN, CrescentToken.Key("input1"), CrescentToken.Operator.DIV, CrescentToken.Key("input2"),
-                CrescentToken.Bracket.CLOSE,
-                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN, CrescentToken.Key("result"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Bracket.CLOSE,
+                Expression(listOf(
+                    Variable("input1", true, CrescentAST.Visibility.LOCAL_SCOPE, Type.Implicit, Expression(listOf(
+                        FunctionCall("readDouble", listOf(Argument(Expression(listOf(String("Enter your first number"))))))
+                    )))
+                )),
+                Expression(listOf(
+                    Variable("input2", true, CrescentAST.Visibility.LOCAL_SCOPE, Type.Implicit, Expression(listOf(
+                        FunctionCall("readDouble", listOf(Argument(Expression(listOf(String("Enter your second number"))))))
+                    )))
+                )),
+                Expression(listOf(
+                    Variable("operation", true, CrescentAST.Visibility.LOCAL_SCOPE, Type.Implicit, Expression(listOf(
+                        FunctionCall("readLine", listOf(Argument(Expression(listOf(String("Enter an operation [+, -, *, /]"))))))
+                    )))
+                )),
+                Variable("result", true, CrescentAST.Visibility.LOCAL_SCOPE, Type.Implicit,
+                    Expression(listOf(
+                        Statement.When(
+                            Argument(Expression(listOf(VariableCall("operation")))),
+                            listOf(
+                                Statement.When.Clause(
+                                    Expression(listOf(Char('+'))),
+                                    Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(CrescentToken.Operator.ADD, VariableCall("input1"), VariableCall("input2")))))))))
+                                ),
+                                Statement.When.Clause(
+                                    Expression(listOf(Char('-'))),
+                                    Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(CrescentToken.Operator.SUB, VariableCall("input1"), VariableCall("input2")))))))))
+                                ),
+                                Statement.When.Clause(
+                                    Expression(listOf(Char('*'))),
+                                    Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(CrescentToken.Operator.MUL, VariableCall("input1"), VariableCall("input2")))))))))
+                                ),
+                                Statement.When.Clause(
+                                    Expression(listOf(Char('/'))),
+                                    Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(CrescentToken.Operator.DIV, VariableCall("input1"), VariableCall("input2")))))))))
+                                )
+                            )
+                        ),
+                    ))
+                ),
+                Expression(listOf(
+                    FunctionCall("println", listOf(Argument(Expression(listOf(VariableCall("result"))))))
+                ))
             ),
-            tokens
+            mainFunction.innerCode.expressions,
         )
+        //println(tokens)
     }
 
     @Test
