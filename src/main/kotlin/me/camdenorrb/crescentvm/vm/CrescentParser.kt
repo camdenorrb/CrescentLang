@@ -10,12 +10,17 @@ object CrescentParser {
 
     fun invoke(file: File, tokens: List<CrescentToken>): CrescentAST.Node.File {
 
+        val impls = mutableListOf<CrescentAST.Node.Impl>()
+        val enums = mutableListOf<CrescentAST.Node.Enum>()
+        val traits = mutableListOf<CrescentAST.Node.Trait>()
+
         val imports = mutableListOf<CrescentAST.Node.Import>()
         val structs = mutableListOf<CrescentAST.Node.Struct>()
-        val impls = mutableListOf<CrescentAST.Node.Impl>()
-        val traits = mutableListOf<CrescentAST.Node.Trait>()
         val objects = mutableListOf<CrescentAST.Node.Object>()
-        val enums = mutableListOf<CrescentAST.Node.Enum>()
+
+        val functions = mutableListOf<CrescentAST.Node.Function>()
+        val variables = mutableListOf<CrescentAST.Node.Variable>()
+        val constants = mutableListOf<CrescentAST.Node.Constant>()
 
         var mainFunction: CrescentAST.Node.Function? = null
         val tokenIterator = PeekingTokenIterator(tokens)
@@ -49,6 +54,42 @@ object CrescentParser {
 
                 CrescentToken.Type.ENUM -> {
                     enums += readEnum(tokenIterator)
+                }
+
+                CrescentToken.Variable.VAL, CrescentToken.Variable.VAR -> {
+
+                    val isFinal = token == CrescentToken.Variable.VAL
+
+                    val modifiers = tokenIterator.peekBackUntil {
+                        it !is CrescentToken.Modifier
+                    }
+
+                    val visibility = when (modifiers.find { (it as CrescentToken.Modifier).isVisibility() } ?: CrescentToken.Modifier.PUBLIC) {
+
+                        CrescentToken.Modifier.PUBLIC   -> CrescentAST.Visibility.PUBLIC
+                        CrescentToken.Modifier.INTERNAL -> CrescentAST.Visibility.INTERNAL
+                        CrescentToken.Modifier.PRIVATE  -> CrescentAST.Visibility.PRIVATE
+
+                        else -> error("Visibility isn't valid?")
+                    }
+
+                    variables += readVariable(tokenIterator, visibility, isFinal)
+                }
+
+                CrescentToken.Statement.FUN -> {
+
+                    val function = readFunction(tokenIterator)
+
+                    if (function.name == "main") {
+
+                        check(mainFunction == null) {
+                            "More than one main function???"
+                        }
+
+                        mainFunction = function
+                    }
+
+                    functions += function
                 }
 
                 CrescentToken.Statement.IMPORT -> {
@@ -87,15 +128,6 @@ object CrescentParser {
                     imports += CrescentAST.Node.Import(path, type)
                 }
 
-                CrescentToken.Statement.FUN -> {
-
-                    check(mainFunction == null) {
-                        "More than one main function???"
-                    }
-
-                    mainFunction = readFunction(tokenIterator, emptyList())
-                }
-
                 else -> error("Unexpected token: $token")
             }
         }
@@ -109,6 +141,9 @@ object CrescentParser {
             traits,
             objects,
             enums,
+            variables,
+            constants,
+            functions,
             mainFunction
         )
     }
@@ -198,12 +233,7 @@ object CrescentParser {
 
 
                 CrescentToken.Statement.FUN -> {
-
-                    val modifiers = tokenIterator
-                        .peekBackUntil { it !is CrescentToken.Modifier && it != CrescentToken.Statement.FUN }
-                        .mapNotNull { it as? CrescentToken.Modifier }
-
-                    functions += readFunction(tokenIterator, modifiers)
+                    functions += readFunction(tokenIterator)
                 }
 
                 else -> error("Unexpected token $token")
@@ -219,6 +249,7 @@ object CrescentParser {
 
         val variables = mutableListOf<CrescentAST.Node.Variable>()
         val functions = mutableListOf<CrescentAST.Node.Function>()
+        val constants = mutableListOf<CrescentAST.Node.Constant>()
 
         readNextUntilClosed(tokenIterator) { token ->
 
@@ -235,19 +266,14 @@ object CrescentParser {
                 }
 
                 CrescentToken.Statement.FUN -> {
-
-                    val modifiers = tokenIterator
-                        .peekBackUntil { it !is CrescentToken.Modifier && it != CrescentToken.Statement.FUN }
-                        .mapNotNull { it as? CrescentToken.Modifier }
-
-                    functions += readFunction(tokenIterator, modifiers)
+                    functions += readFunction(tokenIterator)
                 }
 
                 else -> error("Unexpected token $token")
             }
         }
 
-        return CrescentAST.Node.Object(name, variables, functions)
+        return CrescentAST.Node.Object(name, variables, functions, constants)
 
     }
 
@@ -275,8 +301,12 @@ object CrescentParser {
     // TODO: Maybe just take a list of modifier tokens
     fun readFunction(
         tokenIterator: PeekingTokenIterator,
-        modifiers: List<CrescentToken.Modifier>
+        //modifiers: List<CrescentToken.Modifier>
     ): CrescentAST.Node.Function {
+
+        val modifiers = tokenIterator
+            .peekBackUntil { it !is CrescentToken.Modifier && it != CrescentToken.Statement.FUN }
+            .mapNotNull { it as? CrescentToken.Modifier }
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val parameters = readParameters(tokenIterator)
@@ -726,170 +756,6 @@ object CrescentParser {
 
         return CrescentAST.Node.Expression(nodes)
     }
-    /*
-    // TODO: Provide a context
-    fun readExpression(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Expression {
-
-        val nodes = mutableListOf<CrescentAST.Node>()
-        var operator: CrescentToken.Operator? = null
-
-        if (tokenIterator.peekNext() == CrescentToken.Bracket.OPEN) {
-            tokenIterator.next()
-        }
-
-        while (true) {
-
-            val node = when (val next = tokenIterator.next()) {
-
-                CrescentToken.Operator.RETURN -> {
-
-                    // Add node if nothing before
-
-                    if (nodes.isEmpty()) {
-                        nodes += CrescentAST.Node.Return(readExpression(tokenIterator))
-                    }
-                    else {
-                        tokenIterator.back()
-                    }
-
-                    break
-                }
-
-                CrescentToken.Statement.WHEN -> {
-
-                    if (nodes.isNotEmpty()) {
-                        tokenIterator.back()
-                        break
-                    }
-
-                    nodes += readWhen(tokenIterator) as CrescentAST.Node
-                    break
-                }
-
-                CrescentToken.Variable.VAL -> {
-
-                    if (nodes.isNotEmpty()) {
-                        tokenIterator.back()
-                        break
-                    }
-
-                    nodes += readVariable(tokenIterator, CrescentAST.Visibility.LOCAL_SCOPE, isFinal = true)
-                    break
-                }
-
-                CrescentToken.Variable.VAR -> {
-                    nodes += readVariable(tokenIterator, CrescentAST.Visibility.LOCAL_SCOPE, isFinal = false)
-                    break
-                }
-
-                // TODO: This should be done differently, as in this function should consume the closing tokens
-                CrescentToken.Parenthesis.OPEN -> {
-                    readExpression(tokenIterator).also {
-                        tokenIterator.next()
-                    }
-                }
-
-                CrescentToken.Operator.INSTANCE_OF -> {
-                    nodes += CrescentAST.Node.InstanceOf(readExpression(tokenIterator))
-                    break
-                }
-
-                is CrescentToken.Comment -> {
-                    /*NOOP*/
-                    continue
-                }
-
-                is CrescentToken.String -> {
-                    CrescentAST.Node.String(next.kotlinString)
-                }
-
-                is CrescentToken.Char -> {
-                    CrescentAST.Node.Char(next.kotlinChar)
-                }
-
-                is CrescentToken.Boolean -> {
-                    CrescentAST.Node.Boolean(next.kotlinBoolean)
-                }
-
-                is CrescentToken.Operator -> {
-                    operator = next
-                    continue
-                }
-
-                is CrescentToken.Number -> {
-                    CrescentAST.Node.Number(next.number)
-                }
-
-                CrescentToken.Statement.IF -> {
-
-                    if (nodes.isNotEmpty()) {
-                        tokenIterator.back()
-                        break
-                    }
-
-                    checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
-                    nodes += CrescentAST.Node.Statement.If(
-                        readExpression(tokenIterator).also {
-                            checkEquals(tokenIterator.next(),
-                                CrescentToken.Parenthesis.CLOSE)
-                        },
-                        readBlock(tokenIterator)
-                    )
-                    break
-                }
-
-                CrescentToken.Statement.ELSE -> {
-
-                    if (nodes.isNotEmpty()) {
-                        tokenIterator.back()
-                        break
-                    }
-
-                    nodes += CrescentAST.Node.Statement.Else(readBlock(tokenIterator))
-                    break
-                }
-
-                is CrescentToken.Key -> {
-                    when (tokenIterator.peekNext()) {
-                        CrescentToken.Parenthesis.OPEN -> {
-                            CrescentAST.Node.FunctionCall(next.string, readArguments(tokenIterator))
-                        }
-                        CrescentToken.SquareBracket.OPEN -> {
-                            checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.OPEN)
-                            CrescentAST.Node.ArrayCall(next.string,
-                                (tokenIterator.next() as CrescentToken.Number).number.toInt()).also {
-                                tokenIterator.next()
-                            }
-                        }
-                        else -> {
-                            CrescentAST.Node.VariableCall(next.string)
-                        }
-                    }
-                }
-
-                else -> {
-                    tokenIterator.back()
-                    break
-                }
-            }
-
-            // If an inlined operator was the previous node
-            if (operator != null && operator != CrescentToken.Operator.DOT) {
-                nodes += CrescentAST.Node.Operation(operator, nodes.removeLast(), node)
-                operator = null
-            }
-            else {
-                nodes += node
-            }
-
-        }
-
-        return CrescentAST.Node.Expression(nodes)
-    }
-    */
-
-
-
 
     inline fun readNextUntilClosed(tokenIterator: PeekingTokenIterator, block: (token: CrescentToken) -> Unit) {
 

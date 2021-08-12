@@ -9,7 +9,9 @@ import me.camdenorrb.crescentvm.vm.CrescentToken
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertContentEquals
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 internal class CrescentParserTests {
 
@@ -254,14 +256,44 @@ internal class CrescentParserTests {
             """.trimIndent()
         )
 
+        val crescentFile = CrescentParser.invoke(File("example.crescent"), tokens)
+
+        assertEquals(
+            File(
+                name = crescentFile.name,
+                path = crescentFile.path,
+                imports = emptyList(),
+                structs = emptyList(),
+                impls = emptyList(),
+                traits = emptyList(),
+                objects = crescentFile.objects.take(1),
+                enums = emptyList(),
+                variables = emptyList(),
+                constants = crescentFile.constants.take(1),
+                functions = emptyList(),
+                mainFunction = null
+            ),
+            crescentFile,
+            "Crescent file isn't structured as expected"
+        )
+
+
+        assertContentEquals(
+            listOf(Constant("thing", CrescentAST.Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("Meow"))))),
+            crescentFile.constants,
+            "Variables not as expected"
+        )
+
+        val constantsObject = assertNotNull(
+            crescentFile.objects.find { it.name == "Constants" },
+            "Could not find Constants object"
+        )
+
         assertContentEquals(
             listOf(
-                CrescentToken.Modifier.CONST, CrescentToken.Key("thing"), CrescentToken.Operator.ASSIGN, CrescentToken.String("Meow"),
-                CrescentToken.Type.OBJECT, CrescentToken.Key("Constants"), CrescentToken.Bracket.OPEN,
-                CrescentToken.Modifier.CONST, CrescentToken.Key("thing"), CrescentToken.Operator.ASSIGN, CrescentToken.String("Meow"),
-                CrescentToken.Bracket.CLOSE,
+                Constant("thing", CrescentAST.Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("Meow"))))
             ),
-            tokens
+            constantsObject.constants,
         )
     }
 

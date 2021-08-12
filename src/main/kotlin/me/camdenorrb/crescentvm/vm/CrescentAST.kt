@@ -15,7 +15,7 @@ class CrescentAST {
     sealed class Node {
 
         data class Number(
-            val number: kotlin.Number
+            val number: kotlin.Number,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -24,9 +24,8 @@ class CrescentAST {
 
         }
 
-
         data class Boolean(
-            val data: kotlin.Boolean
+            val data: kotlin.Boolean,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -36,7 +35,7 @@ class CrescentAST {
         }
 
         data class String(
-            val data: kotlin.String
+            val data: kotlin.String,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -46,7 +45,7 @@ class CrescentAST {
         }
 
         data class Char(
-            val data: kotlin.Char
+            val data: kotlin.Char,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -57,7 +56,7 @@ class CrescentAST {
 
 
         data class Argument(
-            val value: Expression
+            val value: Expression,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -66,8 +65,9 @@ class CrescentAST {
 
         }
 
+        // TODO: Get rid of Expression and just take in nodes instead
         data class Expression(
-            val nodes: List<Node>
+            val nodes: List<Node>,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -79,7 +79,7 @@ class CrescentAST {
         data class Operation(
             val operator: CrescentToken.Operator,
             val first: Node,
-            val second: Node
+            val second: Node,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -89,7 +89,7 @@ class CrescentAST {
         }
 
         data class InstanceOf(
-            val expression: Expression
+            val expression: Expression,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -99,7 +99,7 @@ class CrescentAST {
         }
 
         data class Return(
-            val expression: Expression
+            val expression: Expression,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -110,51 +110,52 @@ class CrescentAST {
 
         data class Import(
             val path: kotlin.String,
-            val typeName: kotlin.String
+            val typeName: kotlin.String,
         ) : Node()
 
         data class Struct(
             val name: kotlin.String,
-            val variables: List<Variable>
+            val variables: List<Variable>,
         ) : Node()
 
         data class Trait(
             val name: kotlin.String,
-            val functionTraits: List<FunctionTrait>
+            val functionTraits: List<FunctionTrait>,
         ) : Node()
 
         data class Object(
             val name: kotlin.String,
             val variables: List<Variable>,
             val functions: List<Function>,
+            val constants: List<Constant>,
         ) : Node()
 
         data class Impl(
             val type: Type,
             val functions: List<Function>,
-            val extends: List<Type>
+            val extends: List<Type>,
         ) : Node()
 
         data class Enum(
             val name: kotlin.String,
             val parameters: List<Parameter>,
-            val structs: List<EnumEntry>
+            val structs: List<EnumEntry>,
         ) : Node()
 
         data class EnumEntry(
             val name: kotlin.String,
-            val arguments: List<Argument>
+            val arguments: List<Argument>,
         ) : Node()
 
         data class FunctionTrait(
             val name: kotlin.String,
             val params: List<Parameter>,
-            val returnType: Type
+            val returnType: Type,
         ) : Node()
 
         data class FunctionCall(
             val name: kotlin.String,
-            val arguments: List<Argument>
+            val arguments: List<Argument>,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -164,7 +165,7 @@ class CrescentAST {
         }
 
         data class VariableCall(
-            val name: kotlin.String
+            val name: kotlin.String,
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -175,11 +176,24 @@ class CrescentAST {
 
         data class ArrayCall(
             val name: kotlin.String,
-            val index: Int
+            val index: Int,
         ) : Node() {
 
             override fun toString(): kotlin.String {
                 return "$name[$index]"
+            }
+
+        }
+
+        data class Constant(
+            val name: kotlin.String,
+            val visibility: Visibility,
+            val type: Type,
+            val value: Node,
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "const $name: ${type::class.simpleName} = $value"
             }
 
         }
@@ -218,7 +232,10 @@ class CrescentAST {
             val traits: List<Trait>,
             val objects: List<Object>,
             val enums: List<Enum>,
-            val mainFunction: Function?
+            val variables: List<Variable>,
+            val constants: List<Constant>,
+            val functions: List<Function>,
+            val mainFunction: Function?,
         ) : Node()
 
 
@@ -229,12 +246,12 @@ class CrescentAST {
 
             data class Basic(
                 override val name: kotlin.String,
-                val type: Type
+                val type: Type,
             ) : Parameter()
 
             data class WithDefault(
                 override val name: kotlin.String,
-                val defaultValue: Expression
+                val defaultValue: Expression,
             ) : Parameter()
 
         }
@@ -259,7 +276,7 @@ class CrescentAST {
 
             data class Generic(
                 val type: Basic,
-                val parameters: List<Type>
+                val parameters: List<Type>,
             ) : Type()
 
         }
@@ -269,7 +286,7 @@ class CrescentAST {
 
             data class When(
                 val argument: Argument,
-                val predicateToBlock: List<Clause>
+                val predicateToBlock: List<Clause>,
             ) : Statement() {
 
                 override fun toString(): kotlin.String {
@@ -287,7 +304,7 @@ class CrescentAST {
             }
 
             data class Else(
-                val block: Block
+                val block: Block,
             ) : Statement()
 
             data class If(
@@ -297,17 +314,17 @@ class CrescentAST {
 
             data class While(
                 val predicate: Expression,
-                val block: Expression
+                val block: Expression,
             ) : Statement()
 
             data class For(
                 val variable: Variable,
                 val predicate: Expression,
-                val block: Expression
+                val block: Expression,
             ) : Statement()
 
             data class Block(
-                val expressions: List<Expression>
+                val expressions: List<Expression>,
             ) : Statement() {
 
                 override fun toString(): kotlin.String {
