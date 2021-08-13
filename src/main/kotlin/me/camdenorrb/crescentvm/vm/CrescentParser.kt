@@ -56,6 +56,11 @@ object CrescentParser {
                     enums += readEnum(tokenIterator)
                 }
 
+                CrescentToken.Variable.CONST -> {
+                    val visibility = tokenIterator.peekBack() as? CrescentAST.Visibility ?: CrescentAST.Visibility.PUBLIC
+                    constants += readConstant(tokenIterator, visibility)
+                }
+
                 CrescentToken.Variable.VAL, CrescentToken.Variable.VAR -> {
 
                     val isFinal = token == CrescentToken.Variable.VAL
@@ -255,14 +260,18 @@ object CrescentParser {
 
             when (token) {
 
-                CrescentToken.Parenthesis.OPEN, CrescentToken.Parenthesis.CLOSE, is CrescentToken.Modifier -> {
+                CrescentToken.Bracket.OPEN, CrescentToken.Parenthesis.OPEN, CrescentToken.Parenthesis.CLOSE, is CrescentToken.Modifier -> {
                     /*NOOP*/
                 }
 
                 CrescentToken.Variable.VAL -> {
-                    val visibility =
-                        tokenIterator.peekBack() as? CrescentAST.Visibility ?: CrescentAST.Visibility.PUBLIC
+                    val visibility = tokenIterator.peekBack() as? CrescentAST.Visibility ?: CrescentAST.Visibility.PUBLIC
                     variables += readVariable(tokenIterator, visibility, isFinal = true)
+                }
+
+                CrescentToken.Variable.CONST -> {
+                    val visibility = tokenIterator.peekBack() as? CrescentAST.Visibility ?: CrescentAST.Visibility.PUBLIC
+                    constants += readConstant(tokenIterator, visibility)
                 }
 
                 CrescentToken.Statement.FUN -> {
@@ -361,6 +370,35 @@ object CrescentParser {
         }
 
         return CrescentAST.Node.FunctionTrait(name, parameters, type)
+    }
+
+    fun readConstant(
+        tokenIterator: PeekingTokenIterator,
+        visibility: CrescentAST.Visibility,
+    ): CrescentAST.Node.Constant {
+
+        val name = (tokenIterator.next() as CrescentToken.Key).string
+
+        val type =
+            if (tokenIterator.peekNext() == CrescentToken.Operator.TYPE_PREFIX) {
+                tokenIterator.next()
+                readType(tokenIterator)
+            }
+            else {
+                CrescentAST.Node.Type.Implicit
+            }
+
+        val expression =
+            if (tokenIterator.peekNext() == CrescentToken.Operator.ASSIGN) {
+                checkEquals(tokenIterator.next(), CrescentToken.Operator.ASSIGN)
+                readExpression(tokenIterator)
+            }
+            else {
+                CrescentAST.Node.Expression(emptyList())
+            }
+
+
+        return CrescentAST.Node.Constant(name, visibility, type, expression)
     }
 
     fun readVariable(
@@ -702,6 +740,11 @@ object CrescentParser {
                 is CrescentToken.Operator -> {
                     operator = next
                     continue
+                }
+
+                is CrescentToken.Type -> {
+                    tokenIterator.back()
+                    break
                 }
 
                 is CrescentToken.Key -> {

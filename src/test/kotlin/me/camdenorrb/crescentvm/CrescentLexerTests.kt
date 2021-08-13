@@ -155,9 +155,9 @@ internal class CrescentLexerTests {
 
         assertContentEquals(
             listOf(
-                Modifier.CONST, Key("thing"), Operator.ASSIGN, String("Meow"),
+                Variable.CONST, Key("thing"), Operator.ASSIGN, String("Meow"),
                 Type.OBJECT, Key("Constants"), Bracket.OPEN,
-                Modifier.CONST, Key("thing"), Operator.ASSIGN, String("Meow"),
+                Variable.CONST, Key("thing"), Operator.ASSIGN, String("Meow"),
                 Bracket.CLOSE,
             ),
             tokens

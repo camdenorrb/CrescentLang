@@ -76,6 +76,7 @@ object CrescentLexer {
                 // Variables
                 "var" -> CrescentToken.Variable.VAR
                 "val" -> CrescentToken.Variable.VAL
+                "const" -> CrescentToken.Variable.CONST
 
                 // Types
                 "struct" -> CrescentToken.Type.STRUCT
@@ -95,7 +96,6 @@ object CrescentLexer {
                 "fun" -> CrescentToken.Statement.FUN
 
                 // Modifiers
-                "const" -> CrescentToken.Modifier.CONST
                 "async" -> CrescentToken.Modifier.ASYNC
                 "override" -> CrescentToken.Modifier.OVERRIDE
                 "operator" -> CrescentToken.Modifier.OPERATOR

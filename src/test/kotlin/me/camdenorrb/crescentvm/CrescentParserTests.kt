@@ -277,7 +277,6 @@ internal class CrescentParserTests {
             "Crescent file isn't structured as expected"
         )
 
-
         assertContentEquals(
             listOf(Constant("thing", CrescentAST.Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("Meow"))))),
             crescentFile.constants,

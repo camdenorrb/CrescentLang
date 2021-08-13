@@ -73,6 +73,7 @@ interface CrescentToken {
     enum class Variable : CrescentToken {
         VAL,
         VAR,
+        CONST,
     }
 
     enum class Type : CrescentToken {
@@ -95,9 +96,7 @@ interface CrescentToken {
     }
 
     enum class Modifier : CrescentToken {
-
         ASYNC,
-        CONST,
         OVERRIDE,
         OPERATOR,
         INLINE,
