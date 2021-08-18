@@ -6,12 +6,12 @@ import me.camdenorrb.crescentvm.vm.CrescentAST.Node.String
 import me.camdenorrb.crescentvm.vm.CrescentLexer
 import me.camdenorrb.crescentvm.vm.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToken
+import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
 import org.junit.Test
 import java.io.File
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 
 internal class CrescentParserTests {
 
@@ -73,7 +73,7 @@ internal class CrescentParserTests {
                 Expression(listOf(
                     Statement.If(
                         Expression(listOf(
-                            Operation(CrescentToken.Operator.EQUALS_COMPARE, ArrayCall("args", 0), String("true"))
+                            Operation(ArrayCall("args", 0), EQUALS_COMPARE, String("true"))
                         )),
                         Statement.Block(listOf(
                             Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Meow"))))))))
@@ -215,19 +215,31 @@ internal class CrescentParserTests {
                                 listOf(
                                     Statement.When.Clause(
                                         Expression(listOf(Char('+'))),
-                                        Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(CrescentToken.Operator.ADD, VariableCall("input1"), VariableCall("input2")))))))))
+                                        Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(
+                                            VariableCall("input1"),
+                                            ADD,
+                                            VariableCall("input2")))))))))
                                     ),
                                     Statement.When.Clause(
                                         Expression(listOf(Char('-'))),
-                                        Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(CrescentToken.Operator.SUB, VariableCall("input1"), VariableCall("input2")))))))))
+                                        Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(
+                                            VariableCall("input1"),
+                                            SUB,
+                                            VariableCall("input2")))))))))
                                     ),
                                     Statement.When.Clause(
                                         Expression(listOf(Char('*'))),
-                                        Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(CrescentToken.Operator.MUL, VariableCall("input1"), VariableCall("input2")))))))))
+                                        Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(
+                                            VariableCall("input1"),
+                                            MUL,
+                                            VariableCall("input2")))))))))
                                     ),
                                     Statement.When.Clause(
                                         Expression(listOf(Char('/'))),
-                                        Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(CrescentToken.Operator.DIV, VariableCall("input1"), VariableCall("input2")))))))))
+                                        Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(
+                                            VariableCall("input1"),
+                                            DIV,
+                                            VariableCall("input2")))))))))
                                     )
                                 )
                             ),
@@ -302,22 +314,28 @@ internal class CrescentParserTests {
         val tokens = CrescentLexer.invoke(
             """
             fun main {
-                println((1 + 1) + 1 / 10 + 1000 * 10 / 10 ^ 10)
+                println((1 + 1) + 2 / 10 + 1000 * 10 / 10 ^ 10)
             }
             """.trimIndent()
         )
 
+        val mainFunction = assertNotNull(
+            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            "No main function found"
+        )
+
+        assertContentEquals(
+            emptyList(),
+            mainFunction.params
+        )
+
         assertContentEquals(
             listOf(
-                CrescentToken.Statement.FUN, CrescentToken.Key("main"), CrescentToken.Bracket.OPEN,
-                CrescentToken.Key("println"), CrescentToken.Parenthesis.OPEN,
-                CrescentToken.Parenthesis.OPEN, CrescentToken.Number(1.0), CrescentToken.Operator.ADD, CrescentToken.Number(1.0), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Operator.ADD, CrescentToken.Number(1.0), CrescentToken.Operator.DIV, CrescentToken.Number(10.0), CrescentToken.Operator.ADD, CrescentToken.Number(1000.0), CrescentToken.Operator.MUL, CrescentToken.Number(10.0),
-                CrescentToken.Operator.DIV, CrescentToken.Number(10.0), CrescentToken.Operator.POW, CrescentToken.Number(10.0),
-                CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Bracket.CLOSE,
+                Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(
+                    Operation(Operation(Operation(Operation(Operation(Operation(Expression(listOf(Operation(Number(1.0), ADD, Number(1.0)))), ADD, Number(2.0)), DIV, Number(10.0)), ADD, Number(1000.0)), MUL, Number(10.0)), DIV, Number(10.0)), POW, Number(10.0))
+                )))))))
             ),
-            tokens
+            mainFunction.innerCode.expressions,
         )
     }
 
@@ -336,8 +354,8 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 CrescentToken.Type.SEALED, CrescentToken.Key("Example"), CrescentToken.Bracket.OPEN,
-                CrescentToken.Type.STRUCT, CrescentToken.Key("Thing1"), CrescentToken.Parenthesis.OPEN, CrescentToken.Variable.VAL, CrescentToken.Key("name"), CrescentToken.Operator.TYPE_PREFIX, CrescentToken.Key("String"), CrescentToken.Parenthesis.CLOSE,
-                CrescentToken.Type.STRUCT, CrescentToken.Key("Thing2"), CrescentToken.Parenthesis.OPEN, CrescentToken.Variable.VAL, CrescentToken.Key("id"), CrescentToken.Operator.TYPE_PREFIX, CrescentToken.Key("i32"), CrescentToken.Parenthesis.CLOSE,
+                CrescentToken.Type.STRUCT, CrescentToken.Key("Thing1"), CrescentToken.Parenthesis.OPEN, CrescentToken.Variable.VAL, CrescentToken.Key("name"), TYPE_PREFIX, CrescentToken.Key("String"), CrescentToken.Parenthesis.CLOSE,
+                CrescentToken.Type.STRUCT, CrescentToken.Key("Thing2"), CrescentToken.Parenthesis.OPEN, CrescentToken.Variable.VAL, CrescentToken.Key("id"), TYPE_PREFIX, CrescentToken.Key("i32"), CrescentToken.Parenthesis.CLOSE,
                 CrescentToken.Bracket.CLOSE,
             ),
             tokens
@@ -374,11 +392,11 @@ internal class CrescentParserTests {
                 CrescentToken.Comment("Meow"),
                 CrescentToken.Comment("Meow"),
                 CrescentToken.String("#meow"),
-                CrescentToken.Number(1.0), CrescentToken.Operator.ADD, CrescentToken.Comment("Meow"),
-                CrescentToken.Number(1.0), CrescentToken.Operator.SUB, CrescentToken.Comment("Meow"),
-                CrescentToken.Number(1.0), CrescentToken.Operator.DIV, CrescentToken.Comment("Meow"),
-                CrescentToken.Number(1.0), CrescentToken.Operator.MUL, CrescentToken.Comment("Meow"),
-                CrescentToken.Number(1.0), CrescentToken.Operator.ASSIGN, CrescentToken.Comment("Meow"),
+                CrescentToken.Number(1.0), ADD, CrescentToken.Comment("Meow"),
+                CrescentToken.Number(1.0), SUB, CrescentToken.Comment("Meow"),
+                CrescentToken.Number(1.0), DIV, CrescentToken.Comment("Meow"),
+                CrescentToken.Number(1.0), MUL, CrescentToken.Comment("Meow"),
+                CrescentToken.Number(1.0), ASSIGN, CrescentToken.Comment("Meow"),
                 CrescentToken.Comment("}")
             ),
             tokens
@@ -403,10 +421,10 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 CrescentToken.Comment("Current idea, Package -> Type"),
-                CrescentToken.Statement.IMPORT, CrescentToken.Key("crescent"), CrescentToken.Operator.DOT, CrescentToken.Key("examples"), CrescentToken.Operator.IMPORT_SEPARATOR, CrescentToken.Key("Thing"),
-                CrescentToken.Statement.IMPORT, CrescentToken.Key("crescent"), CrescentToken.Operator.DOT, CrescentToken.Key("examples"), CrescentToken.Operator.AS, CrescentToken.Key("examples"),
+                CrescentToken.Statement.IMPORT, CrescentToken.Key("crescent"), DOT, CrescentToken.Key("examples"), IMPORT_SEPARATOR, CrescentToken.Key("Thing"),
+                CrescentToken.Statement.IMPORT, CrescentToken.Key("crescent"), DOT, CrescentToken.Key("examples"), AS, CrescentToken.Key("examples"),
                 CrescentToken.Comment("Short hand method (If in same package)"),
-                CrescentToken.Statement.IMPORT, CrescentToken.Operator.IMPORT_SEPARATOR, CrescentToken.Key("Thing")
+                CrescentToken.Statement.IMPORT, IMPORT_SEPARATOR, CrescentToken.Key("Thing")
             ),
             tokens
         )

@@ -77,8 +77,8 @@ class CrescentAST {
         }
 
         data class Operation(
-            val operator: CrescentToken.Operator,
             val first: Node,
+            val operator: CrescentToken.Operator,
             val second: Node,
         ) : Node() {
 

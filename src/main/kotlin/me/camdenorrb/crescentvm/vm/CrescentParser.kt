@@ -3,7 +3,6 @@ package me.camdenorrb.crescentvm.vm
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import java.io.File
-import kotlin.math.exp
 
 // TODO: Maybe support comments
 object CrescentParser {
@@ -496,13 +495,7 @@ object CrescentParser {
             // Unskip the read token from readNextUntilClosed(tokenIterator)
             tokenIterator.back()
 
-            //println(tokenIterator.peekNext())
-
             val ifExpression = readExpression(tokenIterator)
-
-            //println(ifExpression)
-
-            //println(ifExpression)
             val firstNode = ifExpression.nodes.first()
 
             // If is else statement, no ifExpression
@@ -510,14 +503,6 @@ object CrescentParser {
                 clauses += CrescentAST.Node.Statement.When.Clause(null, firstNode.block)
                 return@readNextUntilClosed
             }
-
-            //println(tokenIterator.peekNext())
-
-            /*
-            if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
-                tokenIterator.next()
-            }
-            */
 
 
             val thenExpressions =
@@ -528,12 +513,7 @@ object CrescentParser {
                     CrescentAST.Node.Statement.Block(listOf(readExpression(tokenIterator)))
                 }
 
-            //println(ifExpression)
-            //tokenIterator.peekNext()
-
             clauses += CrescentAST.Node.Statement.When.Clause(ifExpression, thenExpressions)
-
-            //println(thenExpression)
         }
 
         return CrescentAST.Node.Statement.When(CrescentAST.Node.Argument(argument), clauses)
@@ -640,15 +620,9 @@ object CrescentParser {
 
                 // TODO: This should be done differently, as in this function should consume the closing tokens
                 CrescentToken.Parenthesis.OPEN -> {
-
-                    if (nodes.isEmpty()) {
-                        nodes += readExpression(tokenIterator)
+                    readExpression(tokenIterator).also {
+                        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
                     }
-                    else {
-                        tokenIterator.back()
-                    }
-
-                    break
                 }
 
                 CrescentToken.Operator.INSTANCE_OF -> {
@@ -788,13 +762,12 @@ object CrescentParser {
 
             // If an inlined operator was the previous node
             if (operator != null && operator != CrescentToken.Operator.DOT) {
-                nodes += CrescentAST.Node.Operation(operator, nodes.removeLast(), node)
+                nodes += CrescentAST.Node.Operation(nodes.removeLast(), operator, node)
                 operator = null
             }
             else {
                 nodes += node
             }
-
         }
 
         return CrescentAST.Node.Expression(nodes)

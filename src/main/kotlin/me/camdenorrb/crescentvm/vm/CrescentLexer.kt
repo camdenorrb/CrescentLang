@@ -35,6 +35,19 @@ object CrescentLexer {
                     charIterator.nextUntil { !it.isLetterOrDigit() }
                 }
 
+                peekNext.equalsAny('+', '-', '/', '*', '=') -> {
+
+                    val next = charIterator.next()
+                    val peek = charIterator.peekNext()
+
+                    if ((next == '-' && peek == '>') || peek == '=') {
+                        "$next${charIterator.next()}"
+                    }
+                    else {
+                        "$next"
+                    }
+                }
+
                 peekNext.equalsAny('(', ')', '{', '}', '[', ']', '\'', '"', '^', '.', '#') -> {
                     charIterator.next().toString()
                 }

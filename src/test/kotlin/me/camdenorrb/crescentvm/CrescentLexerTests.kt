@@ -119,6 +119,8 @@ internal class CrescentLexerTests {
             """.trimIndent()
         )
 
+        println(tokens)
+
         assertContentEquals(
             listOf(
                 Statement.FUN, Key("main"), Bracket.OPEN,
@@ -303,8 +305,6 @@ internal class CrescentLexerTests {
             #}
             """.trimIndent()
         )
-
-        println(tokens)
 
         assertContentEquals(
             listOf(
