@@ -111,12 +111,18 @@ class CrescentAST {
         data class Import(
             val path: kotlin.String,
             val typeName: kotlin.String,
+            val alias: kotlin.String? = null,
         ) : Node()
 
         data class Struct(
             val name: kotlin.String,
             val variables: List<Variable>,
         ) : Node()
+
+        data class Sealed(
+            val name: kotlin.String,
+            val structs: List<Struct>
+        )
 
         data class Trait(
             val name: kotlin.String,
@@ -228,6 +234,7 @@ class CrescentAST {
             val path: kotlin.String,
             val imports: List<Import>,
             val structs: List<Struct>,
+            val sealeds: List<Sealed>,
             val impls: List<Impl>,
             val traits: List<Trait>,
             val objects: List<Object>,

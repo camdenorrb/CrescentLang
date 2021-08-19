@@ -13,6 +13,7 @@ object CrescentParser {
         val enums = mutableListOf<CrescentAST.Node.Enum>()
         val traits = mutableListOf<CrescentAST.Node.Trait>()
 
+        val sealeds = mutableListOf<CrescentAST.Node.Sealed>()
         val imports = mutableListOf<CrescentAST.Node.Import>()
         val structs = mutableListOf<CrescentAST.Node.Struct>()
         val objects = mutableListOf<CrescentAST.Node.Object>()
@@ -58,6 +59,10 @@ object CrescentParser {
                 CrescentToken.Variable.CONST -> {
                     val visibility = tokenIterator.peekBack() as? CrescentAST.Visibility ?: CrescentAST.Visibility.PUBLIC
                     constants += readConstant(tokenIterator, visibility)
+                }
+
+                CrescentToken.Type.SEALED -> {
+                    sealeds += readSealed(tokenIterator)
                 }
 
                 CrescentToken.Variable.VAL, CrescentToken.Variable.VAR -> {
@@ -137,19 +142,38 @@ object CrescentParser {
         }
 
         return CrescentAST.Node.File(
-            file.nameWithoutExtension,
-            file.path,
-            imports,
-            structs,
-            impls,
-            traits,
-            objects,
-            enums,
-            variables,
-            constants,
-            functions,
-            mainFunction
+            name = file.nameWithoutExtension,
+            path = file.path,
+            imports = imports,
+            structs = structs,
+            sealeds = sealeds,
+            impls = impls,
+            traits = traits,
+            objects = objects,
+            enums = enums,
+            variables = variables,
+            constants = constants,
+            functions = functions,
+            mainFunction = mainFunction,
         )
+    }
+
+    fun readSealed(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Sealed {
+
+        val name = (tokenIterator.next() as CrescentToken.Key).string
+        val structs = mutableListOf<CrescentAST.Node.Struct>()
+
+        readNextUntilClosed(tokenIterator) { token ->
+
+            if (token == CrescentToken.Type.STRUCT || token == CrescentToken.Bracket.OPEN) {
+                return@readNextUntilClosed
+            }
+
+            tokenIterator.back()
+            structs += readStruct(tokenIterator)
+        }
+
+        return CrescentAST.Node.Sealed(name, structs)
     }
 
     fun readStruct(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Struct {
@@ -347,11 +371,18 @@ object CrescentParser {
 
         checkEquals(tokenIterator.next(), CrescentToken.Bracket.OPEN)
 
-        while (tokenIterator.peekNext() != CrescentToken.Bracket.CLOSE) {
-            expressions += readExpression(tokenIterator)
+        while (tokenIterator.hasNext() && tokenIterator.peekNext() != CrescentToken.Bracket.CLOSE) {
+
+            val expression = readExpression(tokenIterator)
+
+            if (expression.nodes.isNotEmpty()) {
+                expressions += expression
+            }
         }
 
-        checkEquals(tokenIterator.next(), CrescentToken.Bracket.CLOSE)
+        if (tokenIterator.hasNext()) {
+            checkEquals(tokenIterator.next(), CrescentToken.Bracket.CLOSE)
+        }
 
         return CrescentAST.Node.Statement.Block(expressions)
     }
@@ -566,7 +597,7 @@ object CrescentParser {
             tokenIterator.next()
         }
 
-        while (true) {
+        while (tokenIterator.hasNext()) {
 
             val node = when (val next = tokenIterator.next()) {
 
@@ -669,7 +700,7 @@ object CrescentParser {
 
                 is CrescentToken.Comment -> {
                     /*NOOP*/
-                    continue
+                    break
                 }
 
                 is CrescentToken.String -> {
