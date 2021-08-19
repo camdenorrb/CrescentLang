@@ -119,7 +119,7 @@ internal class CrescentLexerTests {
             """.trimIndent()
         )
 
-        println(tokens)
+        //println(tokens)
 
         assertContentEquals(
             listOf(

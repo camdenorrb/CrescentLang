@@ -1,10 +1,10 @@
 package me.camdenorrb.crescentvm.vm.machines
 
 import me.camdenorrb.crescentvm.vm.*
-//import me.camdenorrb.crescentvm.vm.jvm.JVMGenerator
-import java.io.File
-import java.nio.file.Paths
-import kotlin.io.path.readBytes
+import java.nio.file.Path
+import java.util.*
+import kotlin.io.path.pathString
+import kotlin.io.path.readText
 
 class CrescentVM(val mode: VM = VM.INTERPRETED) {
 
@@ -12,17 +12,25 @@ class CrescentVM(val mode: VM = VM.INTERPRETED) {
         return CrescentLexer.invoke(input)
     }
 
-    fun parse(file: File, input: List<CrescentToken>, imported: MutableSet<CrescentAST.Node.File>) {
-        val tmp = CrescentParser.invoke(file, input)
-        imported.add(tmp)
-        tmp.imports.forEach {
-            val path = if (it.path.isEmpty()) {
-                Paths.get(file.parent, "${it.typeName}.moon")
-            } else {
-                Paths.get(file.parent, it.path, "${it.typeName}.moon")
+    fun parse(filePath: Path, input: List<CrescentToken>): Set<CrescentAST.Node.File> {
+
+        val queue = LinkedList<CrescentAST.Node.File>()
+        val imported = mutableSetOf<CrescentAST.Node.File>()
+
+        queue.add(CrescentParser.invoke(filePath, input))
+
+        while (queue.isNotEmpty()) {
+            queue.pop().imports.forEach { import ->
+
+                val importPath = Path.of(filePath.parent.pathString, import.path, "${import.typeName}.moon")
+                val importParsed = CrescentParser.invoke(importPath, lex(importPath.readText()))
+
+                imported.add(importParsed)
+                queue.push(importParsed)
             }
-            parse(path.toFile(), lex(path.readBytes().decodeToString()), imported)
         }
+
+        return imported
     }
 
     fun invoke(input: Set<CrescentAST.Node.File>) {

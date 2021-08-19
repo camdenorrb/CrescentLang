@@ -40,7 +40,7 @@ object Main {
             val code = path.readBytes().decodeToString()
             val tokens = vm.lex(code)
             println(tokens)
-            vm.parse(path.toFile(), tokens, assemblies)
+            assemblies.addAll(vm.parse(path, tokens))
         }
 
         vm.invoke(assemblies)

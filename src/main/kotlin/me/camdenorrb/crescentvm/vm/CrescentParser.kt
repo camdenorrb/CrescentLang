@@ -3,11 +3,13 @@ package me.camdenorrb.crescentvm.vm
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import java.io.File
+import java.nio.file.Path
+import kotlin.io.path.nameWithoutExtension
 
 // TODO: Maybe support comments
 object CrescentParser {
 
-    fun invoke(file: File, tokens: List<CrescentToken>): CrescentAST.Node.File {
+    fun invoke(filePath: Path, tokens: List<CrescentToken>): CrescentAST.Node.File {
 
         val impls = mutableListOf<CrescentAST.Node.Impl>()
         val enums = mutableListOf<CrescentAST.Node.Enum>()
@@ -34,6 +36,7 @@ object CrescentParser {
 
                 is CrescentToken.Comment -> {
                     /*NOOP*/
+                    continue
                 }
 
                 CrescentToken.Type.STRUCT -> {
@@ -142,8 +145,7 @@ object CrescentParser {
         }
 
         return CrescentAST.Node.File(
-            name = file.nameWithoutExtension,
-            path = file.path,
+            path = filePath,
             imports = imports,
             structs = structs,
             sealeds = sealeds,
@@ -331,10 +333,7 @@ object CrescentParser {
     }
 
     // TODO: Maybe just take a list of modifier tokens
-    fun readFunction(
-        tokenIterator: PeekingTokenIterator,
-        //modifiers: List<CrescentToken.Modifier>
-    ): CrescentAST.Node.Function {
+    fun readFunction(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Function {
 
         val modifiers = tokenIterator
             .peekBackUntil { it !is CrescentToken.Modifier && it != CrescentToken.Statement.FUN }
@@ -699,7 +698,7 @@ object CrescentParser {
                 }
 
                 is CrescentToken.Comment -> {
-                    /*NOOP*/
+                    // End the current expression
                     break
                 }
 
@@ -709,15 +708,10 @@ object CrescentParser {
 
                 is CrescentToken.Char -> {
 
-                    //println("Last: ${nodes.lastOrNull()?.let { it::class }}")
-
                     if (nodes.lastOrNull() != null && operator == null) {
                         tokenIterator.back()
                         break
                     }
-
-
-                    //println(next.kotlinChar)
 
                     CrescentAST.Node.Char(next.kotlinChar)
                 }

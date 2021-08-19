@@ -9,6 +9,7 @@ import me.camdenorrb.crescentvm.vm.CrescentToken
 import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
 import org.junit.Test
 import java.io.File
+import java.nio.file.Path
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -28,7 +29,7 @@ internal class CrescentParserTests {
 
 
         val mainFunction = assertNotNull(
-            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
             "No main function found"
         )
 
@@ -59,7 +60,7 @@ internal class CrescentParserTests {
         )
 
         val mainFunction = assertNotNull(
-            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
             "No main function found"
         )
 
@@ -112,7 +113,7 @@ internal class CrescentParserTests {
         )
 
         val mainFunction = assertNotNull(
-            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
             "No main function found"
         )
 
@@ -175,7 +176,7 @@ internal class CrescentParserTests {
         )
 
         val mainFunction = assertNotNull(
-            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
             "No main function found"
         )
 
@@ -268,11 +269,10 @@ internal class CrescentParserTests {
             """.trimIndent()
         )
 
-        val crescentFile = CrescentParser.invoke(File("example.crescent"), tokens)
+        val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
         assertEquals(
             File(
-                name = crescentFile.name,
                 path = crescentFile.path,
                 imports = emptyList(),
                 structs = emptyList(),
@@ -321,7 +321,7 @@ internal class CrescentParserTests {
         )
 
         val mainFunction = assertNotNull(
-            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
             "No main function found"
         )
 
@@ -352,11 +352,10 @@ internal class CrescentParserTests {
             """.trimIndent()
         )
 
-        val crescentFile = CrescentParser.invoke(File("example.crescent"), tokens)
+        val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
         assertEquals(
             File(
-                name = crescentFile.name,
                 path = crescentFile.path,
                 imports = emptyList(),
                 structs = emptyList(),
@@ -408,16 +407,15 @@ internal class CrescentParserTests {
             """.trimIndent()
         )
 
-        val crescentFile = CrescentParser.invoke(File("example.crescent"), tokens)
+        val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
         val mainFunction = assertNotNull(
-            CrescentParser.invoke(File("example.crescent"), tokens).mainFunction,
+            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
             "No main function found"
         )
 
         assertEquals(
             File(
-                name = crescentFile.name,
                 path = crescentFile.path,
                 imports = emptyList(),
                 structs = emptyList(),
@@ -465,11 +463,10 @@ internal class CrescentParserTests {
         )
 
 
-        val crescentFile = CrescentParser.invoke(File("example.crescent"), tokens)
+        val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
         assertEquals(
             File(
-                name = crescentFile.name,
                 path = crescentFile.path,
                 imports = crescentFile.imports.take(3),
                 structs = emptyList(),

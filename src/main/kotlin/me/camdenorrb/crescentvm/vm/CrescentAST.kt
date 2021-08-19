@@ -1,5 +1,7 @@
 package me.camdenorrb.crescentvm.vm
 
+import java.nio.file.Path
+
 
 // https://github.com/cretz/kastree/blob/master/ast/ast-common/src/main/kotlin/kastree/ast/Node.kt
 class CrescentAST {
@@ -230,8 +232,7 @@ class CrescentAST {
         // TODO: Make a better toString
         // TODO: Support project level functions
         data class File(
-            val name: kotlin.String,
-            val path: kotlin.String,
+            val path: Path,
             val imports: List<Import>,
             val structs: List<Struct>,
             val sealeds: List<Sealed>,
