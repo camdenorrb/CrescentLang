@@ -1,6 +1,5 @@
 package me.camdenorrb.crescentvm.vm
 
-import me.camdenorrb.crescentvm.extensions.equalsAny
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 
@@ -14,6 +13,9 @@ object CrescentLexer {
 
         while (true) {
 
+            // MicroOptimization to avoid toDoubleOrNull
+            var isANumber = false
+
             // Skip to next key
             charIterator.nextUntil {
                 !it.isWhitespace()
@@ -25,17 +27,9 @@ object CrescentLexer {
 
             val peekNext = charIterator.peekNext()
 
-            val key = when {
+            val key = when(peekNext) {
 
-                peekNext.isDigit() -> {
-                    charIterator.nextUntil { !it.isDigit() && it != '.' }
-                }
-
-                peekNext.isLetter() -> {
-                    charIterator.nextUntil { !it.isLetterOrDigit() }
-                }
-
-                peekNext.equalsAny('+', '-', '/', '*', '=') -> {
+                '!', '+', '-', '/', '%', '^', '*', '=' -> {
 
                     val next = charIterator.next()
                     val peek = charIterator.peekNext()
@@ -48,21 +42,28 @@ object CrescentLexer {
                     }
                 }
 
-                peekNext.equalsAny('(', ')', '{', '}', '[', ']', '\'', '"', '^', '.', '#') -> {
+                '(', ')', '{', '}', '[', ']', '\'', '"', '.', '#' -> {
                     charIterator.next().toString()
                 }
 
                 // Is symbol
                 else -> {
-                    charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
+                    when {
+
+                        peekNext.isDigit() -> {
+                            isANumber = true
+                            charIterator.nextUntil { !it.isDigit() && it != '.' }
+                        }
+                        peekNext.isLetter() -> charIterator.nextUntil { !it.isLetterOrDigit() }
+
+                        else -> charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
+                    }
                 }
 
             }
 
-            val asNumber = key.toDoubleOrNull()
-
-            if (asNumber != null) {
-                tokens += CrescentToken.Number(asNumber)
+            if (isANumber) {
+                tokens += CrescentToken.Number(key.toDouble())
                 continue
             }
 
@@ -132,6 +133,7 @@ object CrescentLexer {
                 "*=" -> CrescentToken.Operator.MUL_ASSIGN
                 "/=" -> CrescentToken.Operator.DIV_ASSIGN
                 "%=" -> CrescentToken.Operator.REM_ASSIGN
+                "^=" -> CrescentToken.Operator.POW_ASSIGN
 
                 // Compare
                 "||" -> CrescentToken.Operator.OR_COMPARE
@@ -150,15 +152,15 @@ object CrescentLexer {
 
                 // String
                 // TODO: Add support for ${} - No this will be done in the parser
-                "\"" -> CrescentToken.String(charIterator.nextUntilAndSkip('"'))
+                "\"" -> CrescentToken.String(charIterator.nextUntilAndSkip(setOf('"')))
                 "'" -> {
-                    val data = charIterator.nextUntilAndSkip('\'')
+                    val data = charIterator.nextUntilAndSkip(setOf('\''))
                     checkEquals(data.length, 1)
                     CrescentToken.Char(data[0])
                 }
 
                 // Comment
-                "#" -> CrescentToken.Comment(charIterator.nextUntil('\n').trim())
+                "#" -> CrescentToken.Comment(charIterator.nextUntil(setOf('\n')).trim())
 
                 //"\n" -> CrescentToken.Operator.NEW_LINE
                 "is" -> CrescentToken.Operator.INSTANCE_OF

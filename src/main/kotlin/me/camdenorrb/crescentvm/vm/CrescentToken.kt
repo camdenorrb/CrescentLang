@@ -133,6 +133,7 @@ interface CrescentToken {
         MUL_ASSIGN("*="),
         DIV_ASSIGN("/="),
         REM_ASSIGN("%="),
+        POW_ASSIGN("%="),
         OR_COMPARE("||"),
         AND_COMPARE("&&"),
         EQUALS_COMPARE("=="),

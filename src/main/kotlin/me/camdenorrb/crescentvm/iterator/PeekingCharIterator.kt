@@ -18,14 +18,27 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
 
 
     fun next(size: Int): String {
-        return input.substring(index, index + size).also {
-            index += 5
-        }
+        index += size
+        return input.substring(index - size, index)
     }
 
+    fun nextUntil(chars: Set<Char>): String {
+        return buildString {
+            while (hasNext()) {
 
-    fun nextUntil(vararg chars: Char): String {
+                val next = input[index]
 
+                if (chars.contains(next)) {
+                    break
+                }
+
+                append(next)
+                index++
+            }
+        }
+
+        /*
+        input
         val minIndex = input.indexOfAny(chars, index).takeUnless { it == -1 }
             ?: input.length
 
@@ -33,29 +46,22 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
 
         index = minIndex
 
-        return output
+        return output*/
     }
 
     inline fun nextUntil(predicate: (Char) -> Boolean): String {
         return buildString {
-            while (index < input.length) {
-
-                val nextChar = input[index]
-
-                if (predicate(nextChar)) {
-                    break
-                }
-
+            while (index < input.length && !predicate(input[index])) {
+                append(input[index])
                 index++
-                append(nextChar)
             }
         }
     }
 
 
-    fun nextUntilAndSkip(vararg chars: Char): String {
+    fun nextUntilAndSkip(chars: Set<Char>): String {
 
-        val result = nextUntil(*chars)
+        val result = nextUntil(chars)
         next()
 
         return result

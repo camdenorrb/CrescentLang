@@ -8,9 +8,11 @@ import java.io.OutputStream
 import java.nio.ByteBuffer
 
 sealed class PoderTechConstant : Constant {
+
     companion object {
-        const val TYPE_STRING: Byte = 0.toByte()
-        const val TYPE_NUMBER: Byte = 1.toByte()
+
+        const val TYPE_STRING = 0.toByte()
+        const val TYPE_NUMBER = 1.toByte()
 
         fun read(input: ByteBuffer): PoderTechConstant {
             return when (input.get()) {
@@ -23,6 +25,7 @@ sealed class PoderTechConstant : Constant {
                 else -> throw IllegalStateException("Malformed Constant Pool!")
             }
         }
+
     }
 
     abstract fun toStackType(): OnStack
