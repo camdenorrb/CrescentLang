@@ -26,7 +26,6 @@ internal class CrescentParserTests {
             """.trimIndent()
         )
 
-
         val mainFunction = assertNotNull(
             CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
             "No main function found"
@@ -184,12 +183,6 @@ internal class CrescentParserTests {
             mainFunction.params
         )
 
-        /*
-        mainFunction.innerCode.expressions.forEach {
-            println(it)
-        }
-        */
-
         assertContentEquals(
             listOf(
                 Expression(listOf(
@@ -309,6 +302,17 @@ internal class CrescentParserTests {
     }
 
     @Test
+    fun impl() {
+
+        val tokens = CrescentLexer.invoke(TestCode.impl)
+        val parsed = CrescentParser.invoke(Path.of("example.crescent"), tokens)
+
+        println(parsed)
+    }
+
+
+
+    @Test
     fun math() {
 
         val tokens = CrescentLexer.invoke(
@@ -385,6 +389,7 @@ internal class CrescentParserTests {
             sealedExample.structs,
         )
     }
+
 
     @Test
     fun enum() {

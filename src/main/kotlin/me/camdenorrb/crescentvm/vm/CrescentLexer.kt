@@ -114,6 +114,7 @@ object CrescentLexer {
                 "override" -> CrescentToken.Modifier.OVERRIDE
                 "operator" -> CrescentToken.Modifier.OPERATOR
                 "inline" -> CrescentToken.Modifier.INLINE
+                "static" -> CrescentToken.Modifier.STATIC
 
                 // VISIBILITY
                 "public" -> CrescentToken.Visibility.PUBLIC

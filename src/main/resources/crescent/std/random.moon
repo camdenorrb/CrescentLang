@@ -4,6 +4,4 @@ struct Random {
 
 object DefaultRandom : Random {
 
-
-
 }

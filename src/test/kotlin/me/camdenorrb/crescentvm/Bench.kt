@@ -23,7 +23,6 @@ object Bench {
 		benchCode("Enum", TestCode.enum)
 	}
 
-
 	fun benchCode(name: String, code: String) {
 
 		lexerBenchmark.apply {

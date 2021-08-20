@@ -32,6 +32,18 @@ class PeekingTokenIterator(val input: List<CrescentToken>) : Iterator<CrescentTo
     }
 
 
+    inline fun nextUntil(predicate: (CrescentToken) -> Boolean): List<CrescentToken> {
+
+        val tokens = mutableListOf<CrescentToken>()
+
+        while (index < input.size && !predicate(input[index])) {
+            tokens += input[index]
+            index++
+        }
+
+        return tokens
+    }
+
     inline fun peekBackUntil(predicate: (CrescentToken) -> Boolean): List<CrescentToken> {
 
         var currentIndex = index - 1

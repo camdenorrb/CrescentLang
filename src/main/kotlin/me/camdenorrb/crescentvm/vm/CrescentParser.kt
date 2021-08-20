@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.vm
 
+import me.camdenorrb.crescentvm.extensions.nextUntilAndSkip
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import java.nio.file.Path
@@ -279,16 +280,22 @@ object CrescentParser {
 
                 is CrescentToken.Data.Comment -> continue
 
+                CrescentToken.Operator.COMMA -> {
+                    // NOOP
+                }
+
                 is CrescentToken.Visibility -> {
                     variableVisibility = nextToken
                     continue
                 }
 
                 is CrescentToken.Variable -> {
-                    innerVariables += readVariable(
-                        tokenIterator,
-                        variableVisibility,
-                        nextToken == CrescentToken.Variable.VAL
+                    innerVariables.addAll(
+                        readVariables(
+                            tokenIterator,
+                            variableVisibility,
+                            nextToken == CrescentToken.Variable.VAL
+                        )
                     )
                 }
 
@@ -304,9 +311,9 @@ object CrescentParser {
 
     fun readImpl(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Impl {
 
-        val type = readType(tokenIterator)
-        val functions = mutableListOf<CrescentAST.Node.Function>()
+        lateinit var type: CrescentAST.Node.Type
 
+        val functions = mutableListOf<CrescentAST.Node.Function>()
         val modifiers = mutableListOf<CrescentToken.Modifier>()
 
         readNextUntilClosed(tokenIterator) { token ->
@@ -315,6 +322,11 @@ object CrescentParser {
 
                 CrescentToken.Bracket.OPEN, is CrescentToken.Data.Comment, CrescentToken.Parenthesis.OPEN, CrescentToken.Parenthesis.CLOSE -> {
                     /*NOOP*/
+                }
+
+                is CrescentToken.Key, CrescentToken.SquareBracket.OPEN -> {
+                    tokenIterator.back() // UnSkip type start
+                    type = readType(tokenIterator)
                 }
 
                 is CrescentToken.Modifier -> {
@@ -461,6 +473,43 @@ object CrescentParser {
         return CrescentAST.Node.Variable(name, isFinal, visibility, type, expression)
     }
 
+    fun readVariables(
+        tokenIterator: PeekingTokenIterator,
+        visibility: CrescentToken.Visibility,
+        isFinal: Boolean,
+    ): List<CrescentAST.Node.Variable> {
+
+        val names = tokenIterator.nextUntil { it !is CrescentToken.Key }.map {
+            (it as CrescentToken.Key).string
+        }
+
+        check(names.isNotEmpty()) {
+            "Variable has no names?"
+        }
+
+        val type =
+            if (tokenIterator.peekNext() == CrescentToken.Operator.TYPE_PREFIX) {
+                tokenIterator.next()
+                readType(tokenIterator)
+            }
+            else {
+                CrescentAST.Node.Type.Implicit
+            }
+
+        val expression =
+            if (tokenIterator.peekNext() == CrescentToken.Operator.ASSIGN) {
+                checkEquals(tokenIterator.next(), CrescentToken.Operator.ASSIGN)
+                readExpression(tokenIterator)
+            }
+            else {
+                CrescentAST.Node.Expression(emptyList())
+            }
+
+        return names.map { name ->
+            CrescentAST.Node.Variable(name, isFinal, visibility, type, expression)
+        }
+    }
+
     fun readParameters(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Parameter> {
 
         if (tokenIterator.peekNext() != CrescentToken.Parenthesis.OPEN) {
@@ -474,11 +523,16 @@ object CrescentParser {
         // TODO: Support default values
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
 
-            val name = (tokenIterator.next() as CrescentToken.Key).string
+            val names = tokenIterator.nextUntil { it !is CrescentToken.Key }.map {
+                (it as CrescentToken.Key).string
+            }
+
             checkEquals(tokenIterator.next(), CrescentToken.Operator.TYPE_PREFIX)
             val type = readType(tokenIterator)
 
-            parameters += CrescentAST.Node.Parameter.Basic(name, type)
+            names.forEach { name ->
+                parameters += CrescentAST.Node.Parameter.Basic(name, type)
+            }
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)

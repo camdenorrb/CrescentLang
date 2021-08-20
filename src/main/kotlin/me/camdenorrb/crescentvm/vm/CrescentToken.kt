@@ -108,7 +108,7 @@ interface CrescentToken {
         OVERRIDE,
         OPERATOR,
         INLINE,
-        //STATIC,
+        STATIC,
         INFIX,
     }
 
