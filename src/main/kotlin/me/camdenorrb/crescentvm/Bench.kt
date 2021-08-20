@@ -7,6 +7,9 @@ import kotlin.system.measureNanoTime
 
 object Bench {
 
+	val lexerBenchmark = Benchmark("Lexer")
+	val parserBenchmark = Benchmark("Parser")
+
 	val filePath = Path.of("example.crescent")
 
 
@@ -17,29 +20,78 @@ object Bench {
             }
 		"""
 
+	const val ifStatementCode =
+		"""
+            fun main(args: [String]) {
+                if (args[0] == "true") {
+                    println("Meow")
+                }
+                else {
+                    println("Hiss")
+                }
+            }
+        """
+
+	const val enumCode =
+		"""
+            enum Color(name: String) {
+                RED("Red")
+                GREEN("Green")
+                BLUE("Blue")
+            }
+            
+            fun main {
+            
+                # .random() will be built into the Enum type implementation
+            
+                val color = Color.random()
+            
+                # Shows off cool Enum shorthand for when statements
+                when(color) {
+            
+                    is .RED   -> { println("Meow") }
+                    is .GREEN -> {}
+            
+                    else -> {}
+                }
+            
+                when(name = color.name) {
+            
+                    "Red"   -> println(name)
+                    "Green" -> {}
+            
+                    else -> {}
+                }
+            
+            }
+        """
+
 
 	@JvmStatic
 	fun main(args: Array<String>) {
-
-		val lexerBench = Benchmark("Lexer")
-		lexerBench.bench("Hello World") {
-			CrescentLexer.invoke(helloWorldCode)
-		}
-
-		val helloWorldTokens = CrescentLexer.invoke(helloWorldCode)
-
-		val parserBench = Benchmark("Parser")
-		parserBench.bench("Hello World") {
-			CrescentParser.invoke(filePath, helloWorldTokens)
-		}
-
+		benchCode("Hello World", helloWorldCode)
+		benchCode("If Statement", ifStatementCode)
+		benchCode("Enum", enumCode)
 	}
 
-	/*
-	inline fun benchmark(name: String, warmUpCycles: Int = DEFAULT_CYCLES, benchCycles: Int = DEFAULT_CYCLES, block: Benchmark.() -> Unit) {
-		block(Benchmark(name))
+
+	fun benchCode(name: String, code: String) {
+
+		lexerBenchmark.apply {
+			bench(name) {
+				CrescentLexer.invoke(code)
+			}
+		}
+
+		val tokens = CrescentLexer.invoke(code)
+
+		parserBenchmark.apply {
+			bench(name) {
+				CrescentParser.invoke(filePath, tokens)
+			}
+		}
 	}
-	*/
+
 
 	class Benchmark(val name: String) {
 
@@ -80,7 +132,7 @@ object Bench {
 		}
 
 		companion object {
-			const val DEFAULT_CYCLES = 10_000_000
+			const val DEFAULT_CYCLES = 1_000_000
 		}
 
 	}

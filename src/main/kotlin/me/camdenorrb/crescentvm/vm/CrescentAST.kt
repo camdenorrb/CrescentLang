@@ -95,7 +95,7 @@ class CrescentAST {
         ) : Node() {
 
             override fun toString(): kotlin.String {
-                return "is"
+                return "is $expression"
             }
 
         }
@@ -230,7 +230,6 @@ class CrescentAST {
         ) : Node()
 
         // TODO: Make a better toString
-        // TODO: Support project level functions
         data class File(
             val path: Path,
             val imports: List<Import>,

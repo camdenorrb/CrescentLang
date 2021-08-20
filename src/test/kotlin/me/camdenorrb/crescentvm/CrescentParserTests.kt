@@ -388,6 +388,49 @@ internal class CrescentParserTests {
     }
 
     @Test
+    fun enum() {
+
+        val tokens = CrescentLexer.invoke(
+            """
+            enum Color(name: String) {
+                RED("Red")
+                GREEN("Green")
+                BLUE("Blue")
+            }
+            
+            fun main {
+            
+                # .random() will be built into the Enum type implementation
+            
+                val color = Color.random()
+            
+                # Shows off cool Enum shorthand for when statements
+                when(color) {
+            
+                    is .RED   -> { println("Meow") }
+                    is .GREEN -> {}
+            
+                    #else -> {}
+                }
+            
+                when(name = color.name) {
+            
+                    "Red"   -> println(name)
+                    "Green" -> {}
+            
+                    else -> {}
+                }
+            
+            }
+            """.trimIndent()
+        )
+
+        val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
+
+        TODO("Add test things")
+    }
+
+    @Test
     fun comments() {
 
         val tokens = CrescentLexer.invoke(
@@ -410,7 +453,7 @@ internal class CrescentParserTests {
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
         val mainFunction = assertNotNull(
-            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
+            crescentFile.mainFunction,
             "No main function found"
         )
 

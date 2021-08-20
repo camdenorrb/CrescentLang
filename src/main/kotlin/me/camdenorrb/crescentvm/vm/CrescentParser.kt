@@ -526,6 +526,13 @@ object CrescentParser {
             tokenIterator.back()
 
             val ifExpression = readExpression(tokenIterator)
+
+            //println(ifExpression)
+            // Usually happens if there is a comment before last closing }
+            if (ifExpression.nodes.isEmpty()) {
+                return@readNextUntilClosed
+            }
+
             val firstNode = ifExpression.nodes.first()
 
             // If is else statement, no ifExpression
@@ -534,6 +541,7 @@ object CrescentParser {
                 return@readNextUntilClosed
             }
 
+            checkEquals(tokenIterator.peekNext(), CrescentToken.Operator.RETURN)
 
             val thenExpressions =
                 if (tokenIterator.peekNext() == CrescentToken.Bracket.OPEN) {
@@ -688,6 +696,12 @@ object CrescentParser {
                 CrescentToken.Statement.ELSE -> {
 
                     if (nodes.isEmpty()) {
+
+                        // If used like a when statement. TODO: Add more validation
+                        if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
+                            tokenIterator.next()
+                        }
+
                         nodes += CrescentAST.Node.Statement.Else(readBlock(tokenIterator))
                     }
                     else {
@@ -698,11 +712,22 @@ object CrescentParser {
                 }
 
                 is CrescentToken.Comment -> {
-                    // End the current expression
-                    break
+                    if (nodes.isEmpty()) {
+                        continue
+                    }
+                    else {
+                        // End the current expression if nodes before
+                        break
+                    }
                 }
 
                 is CrescentToken.String -> {
+
+                    if (nodes.lastOrNull() != null && operator == null) {
+                        tokenIterator.back()
+                        break
+                    }
+
                     CrescentAST.Node.String(next.kotlinString)
                 }
 
@@ -811,11 +836,11 @@ object CrescentParser {
                     count++
                 }
                 CrescentToken.Bracket.CLOSE -> {
-
-                    count--
-
-                    if (count <= 0) {
-                        break
+                    if (count > 0) {
+                        count--
+                    }
+                    else {
+                       break
                     }
                 }
             }
