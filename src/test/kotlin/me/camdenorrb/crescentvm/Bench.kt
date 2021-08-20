@@ -9,13 +9,11 @@ object Bench {
 
 	const val DEFAULT_CYCLES = 1_000_000
 
-
 	val filePath = Path.of("example.crescent")
 
 	val lexerBenchmark = Benchmark("Lexer")
 
 	val parserBenchmark = Benchmark("Parser")
-
 
 
 	@JvmStatic

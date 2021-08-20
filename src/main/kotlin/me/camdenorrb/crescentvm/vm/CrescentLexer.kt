@@ -11,7 +11,7 @@ object CrescentLexer {
         val tokens = mutableListOf<CrescentToken>()
         val charIterator = PeekingCharIterator(input)
 
-        while (true) {
+        while (charIterator.hasNext()) {
 
             // MicroOptimization to avoid toDoubleOrNull
             var isANumber = false
@@ -25,9 +25,7 @@ object CrescentLexer {
                 break
             }
 
-            val peekNext = charIterator.peekNext()
-
-            val key = when(peekNext) {
+            val key = when(val peekNext = charIterator.peekNext()) {
 
                 '!', '+', '-', '/', '%', '^', '*', '=' -> {
 
@@ -54,6 +52,7 @@ object CrescentLexer {
                             isANumber = true
                             charIterator.nextUntil { !it.isDigit() && it != '.' }
                         }
+
                         peekNext.isLetter() -> charIterator.nextUntil { !it.isLetterOrDigit() }
 
                         else -> charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
@@ -63,7 +62,8 @@ object CrescentLexer {
             }
 
             if (isANumber) {
-                tokens += CrescentToken.Number(key.toDouble())
+                // TODO: Determine type of number
+                tokens += CrescentToken.Data.Number(key.toDouble())
                 continue
             }
 
@@ -113,9 +113,12 @@ object CrescentLexer {
                 "async" -> CrescentToken.Modifier.ASYNC
                 "override" -> CrescentToken.Modifier.OVERRIDE
                 "operator" -> CrescentToken.Modifier.OPERATOR
-                "public" -> CrescentToken.Modifier.PUBLIC
-                "private" -> CrescentToken.Modifier.PRIVATE
                 "inline" -> CrescentToken.Modifier.INLINE
+
+                // VISIBILITY
+                "public" -> CrescentToken.Visibility.PUBLIC
+                "internal" -> CrescentToken.Visibility.INTERNAL
+                "private" -> CrescentToken.Visibility.PRIVATE
 
                 // Arithmetic
                 "!" -> CrescentToken.Operator.NOT
@@ -152,15 +155,15 @@ object CrescentLexer {
 
                 // String
                 // TODO: Add support for ${} - No this will be done in the parser
-                "\"" -> CrescentToken.String(charIterator.nextUntilAndSkip(setOf('"')))
+                "\"" -> CrescentToken.Data.String(charIterator.nextUntilAndSkip('"'))
                 "'" -> {
-                    val data = charIterator.nextUntilAndSkip(setOf('\''))
+                    val data = charIterator.nextUntilAndSkip('\'')
                     checkEquals(data.length, 1)
-                    CrescentToken.Char(data[0])
+                    CrescentToken.Data.Char(data[0])
                 }
 
                 // Comment
-                "#" -> CrescentToken.Comment(charIterator.nextUntil(setOf('\n')).trim())
+                "#" -> CrescentToken.Data.Comment(charIterator.nextUntil('\n').trim())
 
                 //"\n" -> CrescentToken.Operator.NEW_LINE
                 "is" -> CrescentToken.Operator.INSTANCE_OF
@@ -170,8 +173,8 @@ object CrescentLexer {
                 "."  -> CrescentToken.Operator.DOT
                 "::" -> CrescentToken.Operator.IMPORT_SEPARATOR
 
-                "true" -> CrescentToken.Boolean(true)
-                "false" -> CrescentToken.Boolean(false)
+                "true" -> CrescentToken.Data.Boolean(true)
+                "false" -> CrescentToken.Data.Boolean(false)
 
                 else -> CrescentToken.Key(key)
             }

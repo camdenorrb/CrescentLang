@@ -6,14 +6,6 @@ import java.nio.file.Path
 // https://github.com/cretz/kastree/blob/master/ast/ast-common/src/main/kotlin/kastree/ast/Node.kt
 class CrescentAST {
 
-    enum class Visibility {
-        LOCAL_SCOPE,
-        PRIVATE,
-        INTERNAL,
-        PUBLIC
-    }
-
-
     sealed class Node {
 
         data class Number(
@@ -78,6 +70,7 @@ class CrescentAST {
 
         }
 
+        // TODO: Make a class called MathExpression and just store a list of tokens, or just retrieve the list of tokens in the parser and do shunting yard
         data class Operation(
             val first: Node,
             val operator: CrescentToken.Operator,
@@ -113,7 +106,7 @@ class CrescentAST {
         data class Import(
             val path: kotlin.String,
             val typeName: kotlin.String,
-            val alias: kotlin.String? = null,
+            val typeAlias: kotlin.String? = null,
         ) : Node()
 
         data class Struct(
@@ -195,7 +188,7 @@ class CrescentAST {
 
         data class Constant(
             val name: kotlin.String,
-            val visibility: Visibility,
+            val visibility: CrescentToken.Visibility,
             val type: Type,
             val value: Node,
         ) : Node() {
@@ -209,7 +202,7 @@ class CrescentAST {
         data class Variable(
             val name: kotlin.String,
             val isFinal: kotlin.Boolean,
-            val visibility: Visibility,
+            val visibility: CrescentToken.Visibility,
             val type: Type,
             val value: Node,
         ) : Node() {
@@ -223,7 +216,7 @@ class CrescentAST {
         data class Function(
             val name: kotlin.String,
             val modifiers: List<CrescentToken.Modifier>,
-            val visibility: Visibility,
+            val visibility: CrescentToken.Visibility,
             val params: List<Parameter>,
             val returnType: Type,
             val innerCode: Statement.Block,

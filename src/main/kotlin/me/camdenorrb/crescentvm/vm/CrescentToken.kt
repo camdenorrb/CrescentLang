@@ -10,32 +10,34 @@ interface CrescentToken {
     // Used only by the token iterator
     object None : CrescentToken
 
-
     data class Key(
-        val string: kotlin.String
+        val string: String
     ) : CrescentToken
 
-    data class Number(
-        val number: kotlin.Number
-    ) : CrescentToken
+    sealed class Data : CrescentToken {
 
-    // TODO: Take in expressions
-    data class String(
-        val kotlinString: kotlin.String
-    ) : CrescentToken
+        data class Number(
+            val number: kotlin.Number
+        ) : Data()
 
-    data class Boolean(
-        val kotlinBoolean: kotlin.Boolean
-    ) : CrescentToken
+        // TODO: Take in expressions
+        data class String(
+            val kotlinString: kotlin.String
+        ) : Data()
 
-    data class Char(
-        val kotlinChar: kotlin.Char
-    ) : CrescentToken
+        data class Boolean(
+            val kotlinBoolean: kotlin.Boolean
+        ) : Data()
 
-    data class Comment(
-        val string: kotlin.String
-    ) : CrescentToken
+        data class Char(
+            val kotlinChar: kotlin.Char
+        ) : Data()
 
+        data class Comment(
+            val string: kotlin.String
+        ) : Data()
+
+    }
 
     enum class Parenthesis : CrescentToken {
 
@@ -43,7 +45,7 @@ interface CrescentToken {
         CLOSE,
         ;
 
-        override fun toString(): kotlin.String {
+        override fun toString(): String {
             return if (this == OPEN) "(" else ")"
         }
     }
@@ -54,7 +56,7 @@ interface CrescentToken {
         CLOSE,
         ;
 
-        override fun toString(): kotlin.String {
+        override fun toString(): String {
             return if (this == OPEN) "{" else "}"
         }
     }
@@ -65,7 +67,7 @@ interface CrescentToken {
         CLOSE,
         ;
 
-        override fun toString(): kotlin.String {
+        override fun toString(): String {
             return if (this == OPEN) "[" else "]"
         }
     }
@@ -95,30 +97,24 @@ interface CrescentToken {
         ELSE,
     }
 
+    enum class Visibility : CrescentToken {
+        PRIVATE,
+        INTERNAL,
+        PUBLIC,
+    }
+
     enum class Modifier : CrescentToken {
         ASYNC,
         OVERRIDE,
         OPERATOR,
         INLINE,
-        PUBLIC,
-        INTERNAL,
-        PRIVATE,
-        STATIC,
+        //STATIC,
         INFIX,
-        ;
-
-        fun isVisibility(): kotlin.Boolean {
-            return (
-                this == PUBLIC ||
-                this == INTERNAL ||
-                this == PRIVATE
-            )
-        }
-
     }
 
 
-    enum class Operator(val literal: kotlin.String) : CrescentToken {
+    // TODO: Precedence
+    enum class Operator(val literal: String) : CrescentToken {
         //NEW_LINE("\n"),
         NOT("!"),
         ADD("+"),
