@@ -20,7 +20,15 @@ object Bench {
 	fun main(args: Array<String>) {
 		benchCode("Hello World", TestCode.helloWorld)
 		benchCode("If Statement", TestCode.ifStatement)
+		benchCode("If Input Statement", TestCode.ifInputStatement)
+		benchCode("Calculator", TestCode.calculator)
+		benchCode("Constants and Objects", TestCode.constantsAndObject)
+		benchCode("Impl", TestCode.impl)
+		benchCode("Math", TestCode.math)
+		benchCode("Sealed", TestCode.sealed)
 		benchCode("Enum", TestCode.enum)
+		benchCode("Comments", TestCode.comments)
+		benchCode("Imports", TestCode.imports)
 	}
 
 	fun benchCode(name: String, code: String) {

@@ -10,19 +10,12 @@ import me.camdenorrb.crescentvm.vm.CrescentToken.Variable.*
 import org.junit.Test
 import kotlin.test.assertContentEquals
 
-// TODO: Add impl
 internal class CrescentLexerTests {
 
     @Test
     fun helloWorld() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main {
-                println("Hello World")
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.helloWorld)
 
         assertContentEquals(
             listOf(
@@ -37,18 +30,7 @@ internal class CrescentLexerTests {
     @Test
     fun ifStatement() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main(args: [String]) {
-                if (args[0] == "true") {
-                    println("Meow")
-                }
-                else {
-                    println("Hiss")
-                }
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.ifStatement)
 
         assertContentEquals(
             listOf(
@@ -68,21 +50,7 @@ internal class CrescentLexerTests {
     @Test
     fun ifInputStatement() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main {
-
-                val input = readBoolean("Enter a boolean value [true/false]")
-
-                if (input) {
-                    println("Meow")
-                }
-                else {
-                    println("Hiss")
-                }
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.ifInputStatement)
 
         assertContentEquals(
             listOf(
@@ -103,34 +71,14 @@ internal class CrescentLexerTests {
     @Test
     fun calculator() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main {
-            
-                val input1 = readDouble("Enter your first number")
-                val input2 = readDouble("Enter your second number")
-                val operation = readLine("Enter a operation [+, -, *, /]")
-            
-                val result = when(operation) {
-                    '+' -> input1 + input2
-                    '-' -> input1 - input2
-                    '*' -> input1 * input2
-                    '/' -> input1 / input2
-                }
-            
-                println(result)
-            }
-            """.trimIndent()
-        )
-
-        //println(tokens)
+        val tokens = CrescentLexer.invoke(TestCode.calculator)
 
         assertContentEquals(
             listOf(
                 FUN, Key("main"), Bracket.OPEN,
                 VAL, Key("input1"), ASSIGN, Key("readDouble"), Parenthesis.OPEN, Data.String("Enter your first number"), Parenthesis.CLOSE,
                 VAL, Key("input2"), ASSIGN, Key("readDouble"), Parenthesis.OPEN, Data.String("Enter your second number"), Parenthesis.CLOSE,
-                VAL, Key("operation"), ASSIGN, Key("readLine"), Parenthesis.OPEN, Data.String("Enter a operation [+, -, *, /]"), Parenthesis.CLOSE,
+                VAL, Key("operation"), ASSIGN, Key("readLine"), Parenthesis.OPEN, Data.String("Enter an operation [+, -, *, /]"), Parenthesis.CLOSE,
                 VAL, Key("result"), ASSIGN, WHEN, Parenthesis.OPEN, Key("operation"), Parenthesis.CLOSE, Bracket.OPEN,
                 Data.Char('+'), RETURN, Key("input1"), ADD, Key("input2"),
                 Data.Char('-'), RETURN, Key("input1"), SUB, Key("input2"),
@@ -147,17 +95,7 @@ internal class CrescentLexerTests {
     @Test
     fun constantsAndObject() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            const thing = "Meow"
-            
-            object Constants {
-            
-                const thing = "Meow"
-            
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.constantsAndObject)
 
         assertContentEquals(
             listOf(
@@ -205,13 +143,7 @@ internal class CrescentLexerTests {
     @Test
     fun math() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main {
-                println((1 + 1) + 1 / 10 + 1000 * 10 / 10 ^ 10)
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.math)
 
         assertContentEquals(
             listOf(
@@ -230,14 +162,7 @@ internal class CrescentLexerTests {
     @Test
     fun sealed() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            sealed Example {
-                struct Thing1(val name: String)
-                struct Thing2(val id: i32)
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.sealed)
 
         assertContentEquals(
             listOf(
@@ -253,40 +178,7 @@ internal class CrescentLexerTests {
     @Test
     fun enum() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            enum Color(name: String) {
-                RED("Red")
-                GREEN("Green")
-                BLUE("Blue")
-            }
-            
-            fun main {
-            
-                # .random() will be built into the Enum type implementation
-            
-                val color = Color.random()
-            
-                # Shows off cool Enum shorthand for when statements
-                when(color) {
-            
-                    is .RED   -> { println("Meow") }
-                    is .GREEN -> {}
-            
-                    else -> {}
-                }
-            
-                when(name = color.name) {
-            
-                    "Red"   -> println(name)
-                    "Green" -> {}
-            
-                    else -> {}
-                }
-            
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.enum)
 
         assertContentEquals(
             listOf(
@@ -325,22 +217,7 @@ internal class CrescentLexerTests {
     @Test
     fun comments() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            # Project level comment
-            fun main {
-                println#("Meow")
-                #Meow
-                # Meow
-                "#meow"
-                1 +#Meow
-                1 -#Meow
-                1 /#Meow
-                1 *#Meow
-                1 =#Meow
-            #}
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.comments)
 
         assertContentEquals(
             listOf(
@@ -364,23 +241,13 @@ internal class CrescentLexerTests {
     @Test
     fun imports() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            # Current idea, Package -> Type
-            import crescent.examples::Thing
-
-            import crescent.examples as examples
-            
-            # Short hand method (If in same package)
-            import ::Thing
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.imports)
 
         assertContentEquals(
             listOf(
                 Data.Comment("Current idea, Package -> Type"),
                 IMPORT, Key("crescent"), DOT, Key("examples"), IMPORT_SEPARATOR, Key("Thing"),
-                IMPORT, Key("crescent"), DOT, Key("examples"), AS, Key("examples"),
+                Data.Comment("import crescent.examples as examples"),//IMPORT, Key("crescent"), DOT, Key("examples"), AS, Key("examples"),
                 Data.Comment("Short hand method (If in same package)"),
                 IMPORT, IMPORT_SEPARATOR, Key("Thing")
             ),

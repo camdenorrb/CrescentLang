@@ -1,6 +1,5 @@
 package me.camdenorrb.crescentvm
 
-import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.*
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.String
 import me.camdenorrb.crescentvm.vm.CrescentLexer
@@ -19,13 +18,7 @@ internal class CrescentParserTests {
     @Test
     fun helloWorld() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main {
-                println("Hello World")
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.helloWorld)
 
         val mainFunction = assertNotNull(
             CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
@@ -45,18 +38,7 @@ internal class CrescentParserTests {
     @Test
     fun ifStatement() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main(args: [String]) {
-                if (args[0] == "true") {
-                    println("Meow")
-                }
-                else {
-                    println("Hiss")
-                }
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.ifStatement)
 
         val mainFunction = assertNotNull(
             CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
@@ -95,21 +77,7 @@ internal class CrescentParserTests {
     @Test
     fun ifInputStatement() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main {
-
-                val input = readBoolean("Enter a boolean value [true/false]")
-
-                if (input) {
-                    println("Meow")
-                }
-                else {
-                    println("Hiss")
-                }
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.ifInputStatement)
 
         val mainFunction = assertNotNull(
             CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
@@ -154,25 +122,7 @@ internal class CrescentParserTests {
     @Test
     fun calculator() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main {
-            
-                val input1 = readDouble("Enter your first number")
-                val input2 = readDouble("Enter your second number")
-                val operation = readLine("Enter an operation [+, -, *, /]")
-            
-                val result = when(operation) {
-                    '+' -> input1 + input2
-                    '-' -> input1 - input2
-                    '*' -> input1 * input2
-                    '/' -> input1 / input2
-                }
-            
-                println(result)
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.calculator)
 
         val mainFunction = assertNotNull(
             CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
@@ -250,17 +200,7 @@ internal class CrescentParserTests {
     @Test
     fun constantsAndObject() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            const thing = "Meow"
-            
-            object Constants {
-            
-                const thing = "Meow"
-            
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.constantsAndObject)
 
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
@@ -341,7 +281,6 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-
                 Impl(
                     type = Type.Basic("Example"),
                     modifiers = emptyList(),
@@ -383,13 +322,7 @@ internal class CrescentParserTests {
     @Test
     fun math() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            fun main {
-                println((1 + 1) + 1 / 10 + 1000 * 10 / 10 ^ 10)
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.math)
 
         val mainFunction = assertNotNull(
             CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
@@ -414,14 +347,7 @@ internal class CrescentParserTests {
     @Test
     fun sealed() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            sealed Example {
-                struct Thing1(val name: String)
-                struct Thing2(val id: i32)
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.sealed)
 
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
@@ -462,40 +388,7 @@ internal class CrescentParserTests {
     @Test
     fun enum() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            enum Color(name: String) {
-                RED("Red")
-                GREEN("Green")
-                BLUE("Blue")
-            }
-            
-            fun main {
-            
-                # .random() will be built into the Enum type implementation
-            
-                val color = Color.random()
-            
-                # Shows off cool Enum shorthand for when statements
-                when(color) {
-            
-                    is .RED   -> { println("Meow") }
-                    is .GREEN -> {}
-            
-                    #else -> {}
-                }
-            
-                when(name = color.name) {
-            
-                    "Red"   -> println(name)
-                    "Green" -> {}
-            
-                    else -> {}
-                }
-            
-            }
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.enum)
 
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
@@ -505,22 +398,7 @@ internal class CrescentParserTests {
     @Test
     fun comments() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            # Project level comment
-            fun main {
-                println#("Meow")
-                #Meow
-                # Meow
-                "#meow"
-                1 +#Meow
-                1 -#Meow
-                1 /#Meow
-                1 *#Meow
-                1 =#Meow
-            #}
-            """.trimIndent()
-        )
+        val tokens = CrescentLexer.invoke(TestCode.comments)
 
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
@@ -565,18 +443,7 @@ internal class CrescentParserTests {
     @Test
     fun imports() {
 
-        val tokens = CrescentLexer.invoke(
-            """
-            # Current idea, Package -> Type
-            import crescent.examples::Thing
-
-            # import crescent.examples as examples
-            
-            # Short hand method (If in same package)
-            import ::Thing
-            """.trimIndent()
-        )
-
+        val tokens = CrescentLexer.invoke(TestCode.imports)
 
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
