@@ -59,7 +59,6 @@ class CrescentAST {
 
         }
 
-        // TODO: Get rid of Expression and just take in nodes instead
         data class Expression(
             val nodes: List<Node>,
         ) : Node() {
@@ -71,6 +70,7 @@ class CrescentAST {
         }
 
         // TODO: Make a class called MathExpression and just store a list of tokens, or just retrieve the list of tokens in the parser and do shunting yard
+        /*
         data class Operation(
             val first: Node,
             val operator: CrescentToken.Operator,
@@ -79,6 +79,17 @@ class CrescentAST {
 
             override fun toString(): kotlin.String {
                 return "$first ${operator.literal} $second"
+            }
+
+        }
+        */
+
+        data class Operator(
+            val operator: CrescentToken.Operator
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$operator"
             }
 
         }
@@ -167,6 +178,16 @@ class CrescentAST {
         }
 
         data class VariableCall(
+            val name: kotlin.String,
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return name
+            }
+
+        }
+
+        data class ClassCall(
             val name: kotlin.String,
         ) : Node() {
 
@@ -294,6 +315,7 @@ class CrescentAST {
                     return "when (${argument.value.nodes.joinToString()}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
                 }
 
+                // ifExpression is null when it's else
                 data class Clause(val ifExpression: Expression?, val thenBlock: Block) : Statement() {
 
                     override fun toString(): kotlin.String {

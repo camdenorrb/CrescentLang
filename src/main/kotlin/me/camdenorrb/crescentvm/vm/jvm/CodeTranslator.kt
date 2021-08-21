@@ -1,5 +1,7 @@
 package me.camdenorrb.crescentvm.vm.jvm
 
+/*
+
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentToken
 import me.camdenorrb.crescentvm.vm.stack.Variable
@@ -361,3 +363,4 @@ data class CodeTranslator(val context: CodeContext, val codeBuilder: CompactCode
         }
     }
 }
+*/

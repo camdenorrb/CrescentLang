@@ -67,7 +67,6 @@ object CrescentLexer {
                 continue
             }
 
-            // TODO: This should only tokenize symbols, the rest should be a Key token
             tokens += when (key) {
 
                 // Parenthesis
