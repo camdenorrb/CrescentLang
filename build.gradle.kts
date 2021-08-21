@@ -10,10 +10,10 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
-    implementation("org.capnproto:runtime:0.1.8")
-    implementation("com.guardsquare:proguard-core:7.1.0")
-    testImplementation(kotlin("test-junit"))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21")
+    implementation("org.capnproto:runtime:0.1.9")
+    implementation("com.guardsquare:proguard-core:8.0.1")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.5.21")
 }
 
 tasks {
