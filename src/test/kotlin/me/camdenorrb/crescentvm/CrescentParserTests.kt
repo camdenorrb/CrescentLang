@@ -1,18 +1,19 @@
 package me.camdenorrb.crescentvm
 
+import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.*
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.String
 import me.camdenorrb.crescentvm.vm.CrescentLexer
 import me.camdenorrb.crescentvm.vm.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToken
 import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
+import me.camdenorrb.crescentvm.vm.CrescentToken.Visibility
 import org.junit.Test
 import java.nio.file.Path
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
-// TODO: Add impl
 internal class CrescentParserTests {
 
     @Test
@@ -123,7 +124,7 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 Expression(listOf(
-                    Variable("input", true, CrescentToken.Visibility.PUBLIC, Type.Implicit, Expression(listOf(
+                    Variable("input", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
                         FunctionCall("readBoolean", listOf(Argument(Expression(listOf(String("Enter a boolean value [true/false]"))))))
                     )))
                 )),
@@ -186,22 +187,22 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 Expression(listOf(
-                    Variable("input1", true, CrescentToken.Visibility.PUBLIC, Type.Implicit, Expression(listOf(
+                    Variable("input1", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
                         FunctionCall("readDouble", listOf(Argument(Expression(listOf(String("Enter your first number"))))))
                     )))
                 )),
                 Expression(listOf(
-                    Variable("input2", true, CrescentToken.Visibility.PUBLIC, Type.Implicit, Expression(listOf(
+                    Variable("input2", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
                         FunctionCall("readDouble", listOf(Argument(Expression(listOf(String("Enter your second number"))))))
                     )))
                 )),
                 Expression(listOf(
-                    Variable("operation", true, CrescentToken.Visibility.PUBLIC, Type.Implicit, Expression(listOf(
+                    Variable("operation", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
                         FunctionCall("readLine", listOf(Argument(Expression(listOf(String("Enter an operation [+, -, *, /]"))))))
                     )))
                 )),
                 Expression(listOf(
-                    Variable("result", true, CrescentToken.Visibility.PUBLIC, Type.Implicit,
+                    Variable("result", true, Visibility.PUBLIC, Type.Implicit,
                         Expression(listOf(
                             Statement.When(
                                 Argument(Expression(listOf(VariableCall("operation")))),
@@ -283,7 +284,7 @@ internal class CrescentParserTests {
         )
 
         assertContentEquals(
-            listOf(Constant("thing", CrescentToken.Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("Meow"))))),
+            listOf(Constant("thing", Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("Meow"))))),
             crescentFile.constants,
             "Variables not as expected"
         )
@@ -295,7 +296,7 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Constant("thing", CrescentToken.Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("Meow"))))
+                Constant("thing", Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("Meow"))))
             ),
             constantsObject.constants,
         )
@@ -306,6 +307,73 @@ internal class CrescentParserTests {
 
         val tokens = CrescentLexer.invoke(TestCode.impl)
         val parsed = CrescentParser.invoke(Path.of("example.crescent"), tokens)
+
+        assertEquals(
+            File(
+                path = parsed.path,
+                imports = emptyList(),
+                structs = parsed.structs.take(1),
+                impls = parsed.impls.take(2),
+                traits = emptyList(),
+                objects = emptyList(),
+                enums = emptyList(),
+                variables = emptyList(),
+                constants = emptyList(),
+                functions = emptyList(),
+                mainFunction = null,
+                sealeds = emptyList()
+            ),
+            parsed,
+            "Crescent file isn't structured as expected"
+        )
+
+
+        assertContentEquals(
+            listOf(
+                Struct("Example", listOf(
+                    Variable("aNumber", true, Visibility.PUBLIC, Type.Basic("Int"), Expression(emptyList())),
+                    Variable("aValue1", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("")))),
+                    Variable("aValue2", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("")))),
+                ))
+            ),
+            parsed.structs,
+        )
+
+        assertContentEquals(
+            listOf(
+
+                Impl(
+                    type = Type.Basic("Example"),
+                    modifiers = emptyList(),
+                    functions = listOf(
+                        Function(
+                            name = "add",
+                            modifiers = emptyList(),
+                            visibility = Visibility.PUBLIC,
+                            params = listOf(Parameter.Basic("value1", Type.Basic("Int")), Parameter.Basic("value2", Type.Basic("Int"))),
+                            returnType = Type.Basic("Int"),
+                            innerCode = Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(VariableCall("value1"), ADD, VariableCall("value2")))))))))
+                        ),
+                        Function(
+                            name = "sub",
+                            modifiers = emptyList(),
+                            visibility = Visibility.PUBLIC,
+                            params = listOf(Parameter.Basic("value1", Type.Basic("Int")), Parameter.Basic("value2", Type.Basic("Int"))),
+                            returnType = Type.Basic("Int"),
+                            innerCode = Statement.Block(listOf(Expression(listOf(Return(Expression(listOf(Operation(VariableCall("value1"), SUB, VariableCall("value2")))))))))
+                        ),
+                    ),
+                    extends = emptyList(),
+                ),
+                Impl(
+                    type = Type.Basic("Example"),
+                    modifiers = listOf(CrescentToken.Modifier.STATIC),
+                    functions = emptyList(),
+                    extends = emptyList(),
+                ),
+            ),
+            parsed.impls,
+        )
 
         println(parsed)
     }
@@ -383,8 +451,8 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Struct("Thing1", listOf(Variable("name", true, CrescentToken.Visibility.PUBLIC, Type.Basic("String"), Expression(emptyList())))),
-                Struct("Thing2", listOf(Variable("id", true, CrescentToken.Visibility.PUBLIC, Type.Basic("i32"), Expression(emptyList())))),
+                Struct("Thing1", listOf(Variable("name", true, Visibility.PUBLIC, Type.Basic("String"), Expression(emptyList())))),
+                Struct("Thing2", listOf(Variable("id", true, Visibility.PUBLIC, Type.Basic("i32"), Expression(emptyList())))),
             ),
             sealedExample.structs,
         )

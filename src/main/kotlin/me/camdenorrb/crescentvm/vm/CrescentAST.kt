@@ -133,6 +133,7 @@ class CrescentAST {
 
         data class Impl(
             val type: Type,
+            val modifiers: List<CrescentToken.Modifier>,
             val functions: List<Function>,
             val extends: List<Type>,
         ) : Node()

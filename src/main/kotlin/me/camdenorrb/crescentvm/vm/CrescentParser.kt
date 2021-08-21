@@ -315,6 +315,7 @@ object CrescentParser {
 
         val functions = mutableListOf<CrescentAST.Node.Function>()
         val modifiers = mutableListOf<CrescentToken.Modifier>()
+        val implModifiers = mutableListOf<CrescentToken.Modifier>()
 
         readNextUntilClosed(tokenIterator) { token ->
 
@@ -327,6 +328,7 @@ object CrescentParser {
                 is CrescentToken.Key, CrescentToken.SquareBracket.OPEN -> {
                     tokenIterator.back() // UnSkip type start
                     type = readType(tokenIterator)
+                    implModifiers.addAll(modifiers)
                 }
 
                 is CrescentToken.Modifier -> {
@@ -344,7 +346,7 @@ object CrescentParser {
             modifiers.clear()
         }
 
-        return CrescentAST.Node.Impl(type, functions, emptyList())
+        return CrescentAST.Node.Impl(type, implModifiers, functions, emptyList())
     }
 
 
