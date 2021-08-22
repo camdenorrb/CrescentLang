@@ -9,11 +9,11 @@ class CrescentAST {
     sealed class Node {
 
         data class Number(
-            val number: kotlin.Number,
+            val data: kotlin.Number,
         ) : Node() {
 
             override fun toString(): kotlin.String {
-                return "$number"
+                return "$data"
             }
 
         }
@@ -48,6 +48,7 @@ class CrescentAST {
 
         }
 
+        /*
         data class Argument(
             val value: Expression,
         ) : Node() {
@@ -57,9 +58,10 @@ class CrescentAST {
             }
 
         }
+        */
 
         data class GetCall(
-            val arguments: List<Argument>
+            val arguments: List<Expression>
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -69,7 +71,7 @@ class CrescentAST {
         }
 
         data class Call(
-            val arguments: List<Argument>
+            val arguments: List<Expression>
         ) : Node() {
 
             override fun toString(): kotlin.String {
@@ -176,7 +178,7 @@ class CrescentAST {
 
         data class EnumEntry(
             val name: kotlin.String,
-            val arguments: List<Argument>,
+            val arguments: List<Expression>,
         ) : Node()
 
         data class FunctionTrait(
@@ -320,12 +322,12 @@ class CrescentAST {
         sealed class Statement : Node() {
 
             data class When(
-                val argument: Argument,
+                val argument: Expression,
                 val predicateToBlock: List<Clause>,
             ) : Statement() {
 
                 override fun toString(): kotlin.String {
-                    return "when (${argument.value.nodes.joinToString()}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
+                    return "when (${argument.nodes.joinToString()}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
                 }
 
                 // ifExpression is null when it's else

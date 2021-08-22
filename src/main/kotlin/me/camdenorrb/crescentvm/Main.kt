@@ -1,16 +1,19 @@
 package me.camdenorrb.crescentvm
 
-import me.camdenorrb.crescentvm.vm.CrescentAST
-import me.camdenorrb.crescentvm.vm.machines.CrescentVM
-import me.camdenorrb.crescentvm.vm.VM
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.util.stream.Collectors
+import me.camdenorrb.crescentvm.vm.*
 import kotlin.io.path.*
 
 object Main {
 
+    @JvmStatic
+    fun main(args: Array<String>) {
+
+        val path = this::class.java.getResource("/crescent/examples/hello_world.moon")?.toURI()?.toPath()?.toAbsolutePath()
+            ?: error("")
+
+        CrescentVM().invoke(CrescentParser.invoke(path, CrescentLexer.invoke(path.readText())))
+    }
+    /*
     @JvmStatic
     fun main(args: Array<String>) {
 
@@ -46,6 +49,6 @@ object Main {
         }
 
         vm.invoke(assemblies)
-    }
+    }*/
 
 }

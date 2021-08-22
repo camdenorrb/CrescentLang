@@ -2,7 +2,10 @@ package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.vm.CrescentLexer
 import me.camdenorrb.crescentvm.vm.CrescentParser
+import me.camdenorrb.crescentvm.vm.CrescentVM
+import org.junit.Test
 import java.nio.file.Path
+import kotlin.io.path.readText
 import kotlin.system.measureNanoTime
 
 object Bench {
@@ -29,6 +32,8 @@ object Bench {
 		benchCode("Enum", TestCode.enum)
 		benchCode("Comments", TestCode.comments)
 		benchCode("Imports", TestCode.imports)
+
+
 	}
 
 	fun benchCode(name: String, code: String) {
