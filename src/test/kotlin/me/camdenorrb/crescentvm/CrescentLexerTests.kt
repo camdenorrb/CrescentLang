@@ -1,7 +1,7 @@
 package me.camdenorrb.crescentvm
 
+import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.vm.CrescentLexer
-import me.camdenorrb.crescentvm.vm.CrescentToken
 import me.camdenorrb.crescentvm.vm.CrescentToken.*
 import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
 import me.camdenorrb.crescentvm.vm.CrescentToken.Statement.*

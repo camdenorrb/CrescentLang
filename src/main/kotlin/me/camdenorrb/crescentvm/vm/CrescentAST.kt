@@ -61,6 +61,7 @@ class CrescentAST {
         */
 
         data class GetCall(
+            val identifier: kotlin.String,
             val arguments: List<Expression>
         ) : Node() {
 
@@ -70,7 +71,8 @@ class CrescentAST {
 
         }
 
-        data class Call(
+        data class FunctionCall(
+            val identifier: kotlin.String,
             val arguments: List<Expression>
         ) : Node() {
 
@@ -306,15 +308,34 @@ class CrescentAST {
             // Should only be used for function return types
             data class Result(val type: Type) : Type()
 
-            data class Basic(val name: kotlin.String) : Type()
+            data class Basic(val name: kotlin.String) : Type() {
 
-            data class Array(val type: Type) : Type()
+                override fun toString(): kotlin.String {
+                    return name
+                }
 
+            }
 
+            data class Array(val type: Type) : Type() {
+
+                override fun toString(): kotlin.String {
+                    return "[${type}]"
+                }
+
+            }
+
+            /*
             data class Generic(
                 val type: Basic,
                 val parameters: List<Type>,
-            ) : Type()
+            ) : Type() {
+
+                override fun toString(): kotlin.String {
+                    return ""
+                }
+
+            }
+            */
 
         }
 

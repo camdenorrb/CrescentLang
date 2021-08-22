@@ -3,3 +3,10 @@
 struct Any(
     val type: Type
 )
+
+impl Any {
+
+    # Either prints
+    external fun toString : String
+
+}

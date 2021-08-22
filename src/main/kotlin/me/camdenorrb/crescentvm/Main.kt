@@ -11,8 +11,15 @@ object Main {
         val path = this::class.java.getResource("/crescent/examples/hello_world.moon")?.toURI()?.toPath()?.toAbsolutePath()
             ?: error("")
 
-        CrescentVM().invoke(CrescentParser.invoke(path, CrescentLexer.invoke(path.readText())))
+        val file = CrescentParser.invoke(path, CrescentLexer.invoke(path.readText()))
+
+        CrescentVM(
+            listOf(file),
+            file.mainFunction!!
+        ).invoke()
     }
+
+
     /*
     @JvmStatic
     fun main(args: Array<String>) {

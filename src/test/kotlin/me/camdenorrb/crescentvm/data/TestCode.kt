@@ -1,4 +1,4 @@
-package me.camdenorrb.crescentvm
+package me.camdenorrb.crescentvm.data
 
 object TestCode {
 

@@ -548,17 +548,17 @@ object CrescentParser {
         return parameters
     }
 
-    fun readArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Argument> {
+    fun readArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Expression> {
 
         if (tokenIterator.peekNext() != CrescentToken.Parenthesis.OPEN) {
             return emptyList()
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
-        val arguments = mutableListOf<CrescentAST.Node.Argument>()
+        val arguments = mutableListOf<CrescentAST.Node.Expression>()
 
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
-            arguments += CrescentAST.Node.Argument(readExpression(tokenIterator))
+            arguments += readExpression(tokenIterator)
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
@@ -567,17 +567,17 @@ object CrescentParser {
     }
 
     // TODO: Merge with get arguments
-    fun readGetArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Argument> {
+    fun readGetArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Expression> {
 
         if (tokenIterator.peekNext() != CrescentToken.SquareBracket.OPEN) {
             return emptyList()
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.OPEN)
-        val arguments = mutableListOf<CrescentAST.Node.Argument>()
+        val arguments = mutableListOf<CrescentAST.Node.Expression>()
 
         while (tokenIterator.peekNext() != CrescentToken.SquareBracket.CLOSE) {
-            arguments += CrescentAST.Node.Argument(readExpression(tokenIterator))
+            arguments += readExpression(tokenIterator)
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.CLOSE)
@@ -633,7 +633,7 @@ object CrescentParser {
             clauses += CrescentAST.Node.Statement.When.Clause(ifExpression, thenExpressions)
         }
 
-        return CrescentAST.Node.Statement.When(CrescentAST.Node.Argument(argument), clauses)
+        return CrescentAST.Node.Statement.When(argument, clauses)
     }
 
     fun readType(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Type {
@@ -803,7 +803,6 @@ object CrescentParser {
 
                 is CrescentToken.Operator -> {
                     CrescentAST.Node.Operator(next)
-                    //operator = next
                 }
 
                 is CrescentToken.Type -> {
@@ -813,19 +812,22 @@ object CrescentParser {
 
                 is CrescentToken.Key -> {
 
-                    nodes += CrescentAST.Node.Identifier(next.string)
+                    val identifier = next.string
 
                     when (tokenIterator.peekNext()) {
 
                         CrescentToken.Parenthesis.OPEN -> {
-                            CrescentAST.Node.Call(readArguments(tokenIterator))
+                            CrescentAST.Node.FunctionCall(identifier, readArguments(tokenIterator))
                         }
 
                         CrescentToken.SquareBracket.OPEN -> {
-                            CrescentAST.Node.GetCall(readGetArguments(tokenIterator))
+                            CrescentAST.Node.GetCall(identifier, readGetArguments(tokenIterator))
                         }
 
-                        else -> continue
+                        else -> {
+                            CrescentAST.Node.Identifier(identifier)
+                        }
+
                     }
                 }
 

@@ -2,71 +2,99 @@ package me.camdenorrb.crescentvm.vm
 
 import me.camdenorrb.crescentvm.project.checkEquals
 
-class CrescentVM {
+class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: CrescentAST.Node.Function) {
 
-	fun invoke(file: CrescentAST.Node.File) {
-		file.mainFunction?.innerCode?.expressions?.forEach { expression ->
-			runExpression(expression)
-		}
+	val globalFunctions = files.flatMap { it.functions }.associateBy { it.name }
+
+
+	fun invoke() {
+		runFunction(mainFunction)
 	}
 
-	fun runExpression(expression: CrescentAST.Node.Expression): List<CrescentAST.Node> {
+	fun runFunction(function: CrescentAST.Node.Function): CrescentAST.Node {
 
-		val returnValues = mutableListOf<CrescentAST.Node>()
+		// TODO: Have a stack
+		// TODO: Last expression acts as return
+		function.innerCode.expressions.forEach { expression ->
+			runExpression(expression)
+		}
 
-		var lastIdentifier = ""
+		// TODO: Make this meaningful
+		return CrescentAST.Node.Type.Unit
+	}
 
-		expression.nodes.forEach { node ->
+	// TODO: Take in a stack or something
+	fun runExpression(expression: CrescentAST.Node.Expression): CrescentAST.Node {
+
+		expression.nodes.forEachIndexed { index, node ->
 			when (node) {
+
+				is CrescentAST.Node.String -> {
+					// If is last node
+					if (index + 1 == expression.nodes.size) {
+						return node
+					}
+				}
 
 				is CrescentAST.Node.Return -> {
 					return runExpression(node.expression)
 				}
 
-				is CrescentAST.Node.Identifier -> {
-					lastIdentifier = node.name
-				}
-
-				is CrescentAST.Node.Call -> {
-					when (lastIdentifier) {
+				is CrescentAST.Node.FunctionCall -> {
+					when (node.identifier) {
 
 						"println" -> {
 							checkEquals(node.arguments.size, 1)
-							println(node.arguments.joinToString { it.nodes.joinToString { "${convertDataNode(it)}" } })
+							println(runExpression(node.arguments[0]).asString())
 						}
 
-						else -> {}
+						else -> {
+
+							val function = checkNotNull(globalFunctions[node.identifier]) {
+								"Unknown function: ${node.identifier}(${node.arguments.map { runExpression(it) }})"
+							}
+
+							return runFunction(function)
+						}
+
 					}
 				}
 
 				else -> {}
-
 			}
 		}
 
-		return returnValues
+		return CrescentAST.Node.Type.Unit
 	}
 
-	fun convertDataNode(node: CrescentAST.Node): Any {
-		return when (node) {
-
-			is CrescentAST.Node.Char -> {
-				node.data
-			}
+	fun CrescentAST.Node.asString(): String {
+		return when (this) {
 
 			is CrescentAST.Node.String -> {
-				node.data
+				this.data
+			}
+
+			is CrescentAST.Node.Type -> {
+				"$this"
+			}
+
+			is CrescentAST.Node.Char -> {
+				"${this.data}"
 			}
 
 			is CrescentAST.Node.Number -> {
-				node.data
+				"${this.data}"
 			}
 
 			is CrescentAST.Node.Boolean -> {
-				node.data
+				"${this.data}"
 			}
 
-			else -> error("Unknown node $node")
+			else -> {
+				// TODO: Attempt to find a toString()
+				error("Unknown node $this")
+			}
+
 		}
 	}
 

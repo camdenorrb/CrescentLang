@@ -1,7 +1,5 @@
 package me.camdenorrb.crescentvm.iterator
 
-import java.lang.StringBuilder
-
 class PeekingCharIterator(val input: String): Iterator<Char> {
 
     @PublishedApi
