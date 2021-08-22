@@ -5,13 +5,25 @@ import kotlin.io.path.*
 
 object Main {
 
+
     @JvmStatic
     fun main(args: Array<String>) {
 
-        val path = this::class.java.getResource("/crescent/examples/hello_world.moon")?.toURI()?.toPath()?.toAbsolutePath()
+        /*
+        val path = this::class.java.getResource("/crescent/examples/hello_world.moon")?.toURI()?.toPath()
             ?: error("")
+        */
 
-        val file = CrescentParser.invoke(path, CrescentLexer.invoke(path.readText()))
+        /*path.readText()*/
+
+        val code =
+            """
+                fun main {
+                    println("Hello World")
+                }
+            """
+
+        val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
 
         CrescentVM(
             listOf(file),
