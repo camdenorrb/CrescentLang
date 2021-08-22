@@ -1,9 +1,9 @@
 package me.camdenorrb.crescentvm.iterator
 
-import me.camdenorrb.crescentvm.vm.CrescentToken
+import me.camdenorrb.crescentvm.vm.CrescentAST
 
 // TODO: Make a peeking iterator interface
-class PeekingNodeIterator(val input: List<CrescentToken>) : Iterator<CrescentToken> {
+class PeekingNodeIterator(val input: List<CrescentAST.Node>) : Iterator<CrescentAST.Node> {
 
 	@PublishedApi
 	internal var index = 0
@@ -13,51 +13,51 @@ class PeekingNodeIterator(val input: List<CrescentToken>) : Iterator<CrescentTok
 		return index < input.size
 	}
 
-	override fun next(): CrescentToken {
+	override fun next(): CrescentAST.Node {
 		return input[index++]
 	}
 
 
-	fun back(): CrescentToken {
+	fun back(): CrescentAST.Node {
 		return input[--index]
 	}
 
 
-	fun peekNext(amount: Int = 1): CrescentToken {
-		return input.getOrElse(index + (amount - 1)) { CrescentToken.None }
+	fun peekNext(amount: Int = 1): CrescentAST.Node {
+		return input.getOrElse(index + (amount - 1)) { error("No node found") }
 	}
 
-	fun peekBack(amount: Int = 1): CrescentToken {
-		return input.getOrElse(index - amount) { CrescentToken.None }
+	fun peekBack(amount: Int = 1): CrescentAST.Node {
+		return input.getOrElse(index - amount) { error("No node found") }
 	}
 
 
-	inline fun nextUntil(predicate: (CrescentToken) -> Boolean): List<CrescentToken> {
+	inline fun nextUntil(predicate: (CrescentAST.Node) -> Boolean): List<CrescentAST.Node> {
 
-		val tokens = mutableListOf<CrescentToken>()
+		val nodes = mutableListOf<CrescentAST.Node>()
 
 		while (index < input.size && !predicate(input[index])) {
-			tokens += input[index]
+			nodes += input[index]
 			index++
 		}
 
-		return tokens
+		return nodes
 	}
 
-	inline fun peekBackUntil(predicate: (CrescentToken) -> Boolean): List<CrescentToken> {
+	inline fun peekBackUntil(predicate: (CrescentAST.Node) -> Boolean): List<CrescentAST.Node> {
 
 		var currentIndex = index - 1
-		val result = mutableListOf<CrescentToken>()
+		val result = mutableListOf<CrescentAST.Node>()
 
 		while (currentIndex > 0) {
 
-			val token = input[currentIndex--]
+			val node = input[currentIndex--]
 
-			if (predicate(token)) {
+			if (predicate(node)) {
 				break
 			}
 
-			result += token
+			result += node
 		}
 
 		return result
