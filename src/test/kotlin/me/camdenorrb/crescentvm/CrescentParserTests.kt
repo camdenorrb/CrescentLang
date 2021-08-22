@@ -29,7 +29,7 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 Expression(listOf(
-                    FunctionCall("println", listOf(Argument(Expression(listOf(String("Hello World"))))))
+                    Identifier("println"), Call(listOf(Argument(Expression(listOf(String("Hello World"))))))
                 ))
             ),
             mainFunction.innerCode.expressions,
@@ -56,17 +56,17 @@ internal class CrescentParserTests {
                 Expression(listOf(
                     Statement.If(
                         Expression(listOf(
-                            ArrayCall("args", 0), Operator(EQUALS_COMPARE), String("true")
+                            Identifier("args"), GetCall(listOf(Argument(Expression(listOf(Number(0.0)))))), Operator(EQUALS_COMPARE), String("true")
                         )),
                         Statement.Block(listOf(
-                            Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Meow"))))))))
+                            Expression(listOf(Identifier("println"), Call(listOf(Argument(Expression(listOf(String("Meow"))))))))
                         )),
                     ),
                 )),
                 Expression(listOf(
                     Statement.Else(
                         Statement.Block(listOf(
-                            Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Hiss"))))))))
+                            Expression(listOf(Identifier("println"), Call(listOf(Argument(Expression(listOf(String("Hiss"))))))))
                         ))
                     )
                 ))
@@ -94,24 +94,24 @@ internal class CrescentParserTests {
             listOf(
                 Expression(listOf(
                     Variable("input", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
-                        FunctionCall("readBoolean", listOf(Argument(Expression(listOf(String("Enter a boolean value [true/false]"))))))
+                        Identifier("readBoolean"), Call(listOf(Argument(Expression(listOf(String("Enter a boolean value [true/false]"))))))
                     )))
                 )),
                 Expression(listOf(
                     Statement.If(
                         Expression(listOf(
-                            VariableCall("input")
+                            Identifier("input")
                         )),
-                        Statement.Block(listOf(
-                            Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Meow"))))))))
-                        )),
+                        Statement.Block(listOf(Expression(listOf(
+                            Identifier("println"), Call(listOf(Argument(Expression(listOf(String("Meow"))))))
+                        )))),
                     ),
                 )),
                 Expression(listOf(
                     Statement.Else(
-                        Statement.Block(listOf(
-                            Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Hiss"))))))))
-                        ))
+                        Statement.Block(listOf(Expression(listOf(
+                            Identifier("println"), Call(listOf(Argument(Expression(listOf(String("Hiss"))))))
+                        ))))
                     )
                 ))
             ),
@@ -139,47 +139,47 @@ internal class CrescentParserTests {
             listOf(
                 Expression(listOf(
                     Variable("input1", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
-                        FunctionCall("readDouble", listOf(Argument(Expression(listOf(String("Enter your first number"))))))
+                        Identifier("readDouble"), Call(listOf(Argument(Expression(listOf(String("Enter your first number"))))))
                     )))
                 )),
                 Expression(listOf(
                     Variable("input2", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
-                        FunctionCall("readDouble", listOf(Argument(Expression(listOf(String("Enter your second number"))))))
+                        Identifier("readDouble"), Call(listOf(Argument(Expression(listOf(String("Enter your second number"))))))
                     )))
                 )),
                 Expression(listOf(
                     Variable("operation", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
-                        FunctionCall("readLine", listOf(Argument(Expression(listOf(String("Enter an operation [+, -, *, /]"))))))
+                        Identifier("readLine"), Call(listOf(Argument(Expression(listOf(String("Enter an operation [+, -, *, /]"))))))
                     )))
                 )),
                 Expression(listOf(
                     Variable("result", true, Visibility.PUBLIC, Type.Implicit,
                         Expression(listOf(
                             When(
-                                Argument(Expression(listOf(VariableCall("operation")))),
+                                Argument(Expression(listOf(Identifier("operation")))),
                                 listOf(
                                     When.Clause(
                                         Expression(listOf(Char('+'))),
                                         Statement.Block(listOf(Expression(listOf(
-                                            VariableCall("input1"), Operator(ADD), VariableCall("input2")
+                                            Identifier("input1"), Operator(ADD), Identifier("input2")
                                         ))))
                                     ),
                                     When.Clause(
                                         Expression(listOf(Char('-'))),
                                         Statement.Block(listOf(Expression(listOf(
-                                            VariableCall("input1"), Operator(SUB), VariableCall("input2")
+                                            Identifier("input1"), Operator(SUB), Identifier("input2")
                                         ))))
                                     ),
                                     When.Clause(
                                         Expression(listOf(Char('*'))),
                                         Statement.Block(listOf(Expression(listOf(
-                                            VariableCall("input1"), Operator(MUL), VariableCall("input2")
+                                            Identifier("input1"), Operator(MUL), Identifier("input2")
                                         ))))
                                     ),
                                     When.Clause(
                                         Expression(listOf(Char('/'))),
                                         Statement.Block(listOf(Expression(listOf(
-                                            VariableCall("input1"), Operator(DIV), VariableCall("input2")
+                                            Identifier("input1"), Operator(DIV), Identifier("input2")
                                         ))))
                                     )
                                 )
@@ -187,7 +187,7 @@ internal class CrescentParserTests {
                         ))
                     ))),
                 Expression(listOf(
-                    FunctionCall("println", listOf(Argument(Expression(listOf(VariableCall("result"))))))
+                    Identifier("println"), Call(listOf(Argument(Expression(listOf(Identifier("result"))))))
                 ))
             ),
             mainFunction.innerCode.expressions,
@@ -288,7 +288,7 @@ internal class CrescentParserTests {
                             params = listOf(Parameter.Basic("value1", Type.Basic("Int")), Parameter.Basic("value2", Type.Basic("Int"))),
                             returnType = Type.Basic("Int"),
                             innerCode = Statement.Block(listOf(
-                                Expression(listOf(Return(Expression(listOf(VariableCall("value1"), Operator(ADD), VariableCall("value2"))))))
+                                Expression(listOf(Return(Expression(listOf(Identifier("value1"), Operator(ADD), Identifier("value2"))))))
                             ))
                         ),
                         Function(
@@ -298,7 +298,7 @@ internal class CrescentParserTests {
                             params = listOf(Parameter.Basic("value1", Type.Basic("Int")), Parameter.Basic("value2", Type.Basic("Int"))),
                             returnType = Type.Basic("Int"),
                             innerCode = Statement.Block(listOf(
-                                Expression(listOf(Return(Expression(listOf(VariableCall("value1"), Operator(SUB), VariableCall("value2"))))))
+                                Expression(listOf(Return(Expression(listOf(Identifier("value1"), Operator(SUB), Identifier("value2"))))))
                             ))
                         ),
                     ),
@@ -313,8 +313,6 @@ internal class CrescentParserTests {
             ),
             parsed.impls,
         )
-
-        println(parsed)
     }
 
 
@@ -335,8 +333,9 @@ internal class CrescentParserTests {
         )
 
         assertContentEquals(
-            listOf(
-                Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(
+            listOf(Expression(listOf(
+                Identifier("println"),
+                Call(listOf(Argument(Expression(listOf(
                     Expression(listOf(Number(1.0), Operator(ADD), Number(1.0))),
                     Operator(ADD), Number(1.0), Operator(DIV), Number(10.0), Operator(ADD), Number(1000.0), Operator(MUL), Number(10.0), Operator(DIV), Number(10.0), Operator(POW), Number(10.0)
                     //Operation(Operation(Operation(Operation(Operation(Operation(Expression(listOf(Operation(Number(1.0), ADD, Number(1.0)))), ADD, Number(1.0)), DIV, Number(10.0)), ADD, Number(1000.0)), MUL, Number(10.0)), DIV, Number(10.0)), POW, Number(10.0))
@@ -417,18 +416,18 @@ internal class CrescentParserTests {
                 returnType = Type.Unit,
                 innerCode = Statement.Block(listOf(
                     Expression(listOf(
-                        Variable("color", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(ClassCall("Color"), Operator(DOT), FunctionCall("random", emptyList()))))
+                        Variable("color", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(Identifier("Color"), Operator(DOT), Identifier("random"), Call(emptyList()))))
                     )),
                     Expression(listOf(
-                        When(Argument(Expression(listOf(VariableCall("color")))), listOf(
+                        When(Argument(Expression(listOf(Identifier("color")))), listOf(
                             When.Clause(
-                                Expression(listOf(InstanceOf(Expression(listOf(Operator(DOT), ClassCall("RED")))))),
+                                Expression(listOf(InstanceOf(Expression(listOf(Operator(DOT), Identifier("RED")))))),
                                 Statement.Block(listOf(
-                                    Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(String("Meow")))))))),
+                                    Expression(listOf(Identifier("println"), Call(listOf(Argument(Expression(listOf(String("Meow")))))))),
                                 ))
                             ),
                             When.Clause(
-                                Expression(listOf(InstanceOf(Expression(listOf(Operator(DOT), ClassCall("GREEN")))))),
+                                Expression(listOf(InstanceOf(Expression(listOf(Operator(DOT), Identifier("GREEN")))))),
                                 Statement.Block(emptyList())
                             ),
                             When.Clause(
@@ -439,11 +438,11 @@ internal class CrescentParserTests {
                     )),
                     Expression(listOf(
                         // TODO: Encode name into a Variable instead of a bunch of tokens
-                        When(Argument(Expression(listOf(VariableCall("name"), Operator(ASSIGN), VariableCall("color"), Operator(DOT), VariableCall("name")))), listOf(
+                        When(Argument(Expression(listOf(Identifier("name"), Operator(ASSIGN), Identifier("color"), Operator(DOT), Identifier("name")))), listOf(
                             When.Clause(
                                 Expression(listOf(String("Red"))),
                                 Statement.Block(listOf(
-                                    Expression(listOf(FunctionCall("println", listOf(Argument(Expression(listOf(VariableCall("name")))))))),
+                                    Expression(listOf(Identifier("println"), Call(listOf(Argument(Expression(listOf(Identifier("name")))))))),
                                 ))
                             ),
                             When.Clause(
@@ -495,7 +494,7 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Expression(listOf(VariableCall("println"))),
+                Expression(listOf(Identifier("println"))),
                 Expression(listOf(String("#meow"))),
                 Expression(listOf(Number(1.0), Operator(ADD))),
                 Expression(listOf(Number(1.0), Operator(SUB))),

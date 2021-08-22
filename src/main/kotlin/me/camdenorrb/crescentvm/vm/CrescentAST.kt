@@ -48,13 +48,32 @@ class CrescentAST {
 
         }
 
-
         data class Argument(
             val value: Expression,
         ) : Node() {
 
             override fun toString(): kotlin.String {
                 return "$value"
+            }
+
+        }
+
+        data class GetCall(
+            val arguments: List<Argument>
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "[${arguments.joinToString()}]"
+            }
+
+        }
+
+        data class Call(
+            val arguments: List<Argument>
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "(${arguments.joinToString()})"
             }
 
         }
@@ -166,6 +185,7 @@ class CrescentAST {
             val returnType: Type,
         ) : Node()
 
+        /*
         data class FunctionCall(
             val name: kotlin.String,
             val arguments: List<Argument>,
@@ -176,8 +196,9 @@ class CrescentAST {
             }
 
         }
+        */
 
-        data class VariableCall(
+        data class Identifier(
             val name: kotlin.String,
         ) : Node() {
 
@@ -187,16 +208,7 @@ class CrescentAST {
 
         }
 
-        data class ClassCall(
-            val name: kotlin.String,
-        ) : Node() {
-
-            override fun toString(): kotlin.String {
-                return name
-            }
-
-        }
-
+        /*
         data class ArrayCall(
             val name: kotlin.String,
             val index: Int,
@@ -207,6 +219,7 @@ class CrescentAST {
             }
 
         }
+        */
 
         data class Constant(
             val name: kotlin.String,
