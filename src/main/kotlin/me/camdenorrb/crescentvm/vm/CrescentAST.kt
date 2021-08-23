@@ -373,13 +373,13 @@ class CrescentAST {
 
             data class While(
                 val predicate: Expression,
-                val block: Expression,
+                val block: Block,
             ) : Statement()
 
             data class For(
                 val variable: Variable,
                 val predicate: Expression,
-                val block: Expression,
+                val block: Block,
             ) : Statement()
 
             data class Block(
@@ -388,6 +388,17 @@ class CrescentAST {
 
                 override fun toString(): kotlin.String {
                     return "{ ${expressions.joinToString { it.nodes.joinToString() }} }"
+                }
+
+            }
+
+            data class Range(
+                val start: Node,
+                val end: Node,
+            ) {
+
+                override fun toString(): kotlin.String {
+                    return "$start..$end"
                 }
 
             }

@@ -123,8 +123,8 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
     }
     */
 
-    fun peekNext(): Char {
-        return input[index]
+    fun peekNext(amount: Int = 0): Char {
+        return input[index + amount]
     }
 
     inline fun peekNextUntil(predicate: (Char) -> Boolean): String {

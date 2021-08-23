@@ -57,7 +57,7 @@ internal class CrescentParserTests {
                 Expression(listOf(
                     Statement.If(
                         Expression(listOf(
-                            GetCall("args", listOf(Expression(listOf(Number(0.0))))), Operator(EQUALS_COMPARE), String("true")
+                            GetCall("args", listOf(Expression(listOf(Number(0))))), Operator(EQUALS_COMPARE), String("true")
                         )),
                         Statement.Block(listOf(
                             Expression(listOf(FunctionCall("println", listOf(Expression(listOf(String("Meow")))))))
@@ -336,8 +336,8 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(Expression(listOf(
                 FunctionCall("println", listOf(Expression(listOf(
-                    Expression(listOf(Number(1.0), Operator(ADD), Number(1.0))),
-                    Operator(ADD), Number(1.0), Operator(DIV), Number(10.0), Operator(ADD), Number(1000.0), Operator(MUL), Number(10.0), Operator(DIV), Number(10.0), Operator(POW), Number(10.0)
+                    Expression(listOf(Number(1.0), Operator(ADD), Number(1))),
+                    Operator(ADD), Number(1), Operator(DIV), Number(10), Operator(ADD), Number(1000), Operator(MUL), Number(10), Operator(DIV), Number(10), Operator(POW), Number(10)
                     //Operation(Operation(Operation(Operation(Operation(Operation(Expression(listOf(Operation(Number(1.0), ADD, Number(1.0)))), ADD, Number(1.0)), DIV, Number(10.0)), ADD, Number(1000.0)), MUL, Number(10.0)), DIV, Number(10.0)), POW, Number(10.0))
                 ))))))
             ),
@@ -496,11 +496,11 @@ internal class CrescentParserTests {
             listOf(
                 Expression(listOf(Identifier("println"))),
                 Expression(listOf(String("#meow"))),
-                Expression(listOf(Number(1.0), Operator(ADD))),
-                Expression(listOf(Number(1.0), Operator(SUB))),
-                Expression(listOf(Number(1.0), Operator(DIV))),
-                Expression(listOf(Number(1.0), Operator(MUL))),
-                Expression(listOf(Number(1.0), Operator(ASSIGN))),
+                Expression(listOf(Number(1), Operator(ADD))),
+                Expression(listOf(Number(1), Operator(SUB))),
+                Expression(listOf(Number(1), Operator(DIV))),
+                Expression(listOf(Number(1), Operator(MUL))),
+                Expression(listOf(Number(1), Operator(ASSIGN))),
             ),
             mainFunction.innerCode.expressions,
         )

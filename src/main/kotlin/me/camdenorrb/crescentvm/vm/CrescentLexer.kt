@@ -40,7 +40,8 @@ object CrescentLexer {
                     }
                 }
 
-                '(', ')', '{', '}', '[', ']', '\'', '"', '.', '#' -> {
+                // Only take in one of these at a time
+                '(', ')', '{', '}', '[', ']', '\'', '"', '#' -> {
                     charIterator.next().toString()
                 }
 
@@ -49,21 +50,46 @@ object CrescentLexer {
                     when {
 
                         peekNext.isDigit() -> {
+
                             isANumber = true
-                            charIterator.nextUntil { !it.isDigit() && it != '.' }
+
+                            // Select number, stop if rangeTo (..) is found
+                            charIterator.nextUntil {
+                                if (it == '.' && charIterator.peekNext(1) != '.') {
+                                    println("Here")
+                                    false
+                                }
+                                else {
+                                    !it.isDigit()
+                                }
+                            }
                         }
 
-                        peekNext.isLetter() -> charIterator.nextUntil { !it.isLetterOrDigit() }
+                        peekNext.isLetter() -> {
+                            charIterator.nextUntil { !it.isLetterOrDigit() }
+                        }
 
-                        else -> charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
+                        else -> {
+                            charIterator.nextUntil { it.isLetterOrDigit() || it.isWhitespace() }
+                        }
+
                     }
                 }
 
             }
 
             if (isANumber) {
+
                 // TODO: Determine type of number
-                tokens += CrescentToken.Data.Number(key.toDouble())
+
+                tokens +=
+                    if ('.' in key) {
+                        CrescentToken.Data.Number(key.toDouble())
+                    }
+                    else {
+                        CrescentToken.Data.Number(key.toInt())
+                    }
+
                 continue
             }
 
@@ -115,7 +141,7 @@ object CrescentLexer {
                 "inline" -> CrescentToken.Modifier.INLINE
                 "static" -> CrescentToken.Modifier.STATIC
 
-                // VISIBILITY
+                // Visibility
                 "public" -> CrescentToken.Visibility.PUBLIC
                 "internal" -> CrescentToken.Visibility.INTERNAL
                 "private" -> CrescentToken.Visibility.PRIVATE

@@ -35,7 +35,7 @@ internal class CrescentLexerTests {
         assertContentEquals(
             listOf(
                 FUN, Key("main"), Parenthesis.OPEN, Key("args"), TYPE_PREFIX, SquareBracket.OPEN, Key("String"), SquareBracket.CLOSE, Parenthesis.CLOSE, Bracket.OPEN,
-                IF, Parenthesis.OPEN, Key("args"), SquareBracket.OPEN, Data.Number(0.0), SquareBracket.CLOSE, EQUALS_COMPARE, Data.String("true"), Parenthesis.CLOSE, Bracket.OPEN,
+                IF, Parenthesis.OPEN, Key("args"), SquareBracket.OPEN, Data.Number(0), SquareBracket.CLOSE, EQUALS_COMPARE, Data.String("true"), Parenthesis.CLOSE, Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("Meow"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
                 ELSE, Bracket.OPEN,
@@ -62,6 +62,50 @@ internal class CrescentLexerTests {
                 ELSE, Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("Hiss"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
+                Bracket.CLOSE,
+            ),
+            tokens
+        )
+    }
+
+    @Test
+    fun stringInterpolation() {
+
+        val tokens = CrescentLexer.invoke(TestCode.stringInterpolation)
+
+        assertContentEquals(
+            listOf(
+                FUN, Key("main"), Bracket.OPEN,
+                VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0),
+                Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
+                Bracket.CLOSE,
+            ),
+            tokens
+        )
+    }
+
+    @Test
+    fun forLoop() {
+
+        val tokens = CrescentLexer.invoke(TestCode.forLoop)
+
+        assertContentEquals(
+            listOf(
+                FUN, Key("main"), Bracket.OPEN,
+
+                VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0),
+                Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
+
+                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0), RANGE, Data.Number(10), Bracket.OPEN,
+                Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
+                Bracket.CLOSE,
+
+                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0), RANGE, Data.Number(10), COMMA, Data.Number(0), RANGE, Data.Number(10), COMMA, Data.Number(0), RANGE, Data.Number(10), Bracket.OPEN,
+                Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
+                Bracket.CLOSE,
+
+                Key("println"), Parenthesis.OPEN, Data.String("Hello World"), Parenthesis.CLOSE,
+
                 Bracket.CLOSE,
             ),
             tokens
@@ -149,9 +193,9 @@ internal class CrescentLexerTests {
             listOf(
                 FUN, Key("main"), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN,
-                Parenthesis.OPEN, Data.Number(1.0), ADD, Data.Number(1.0), Parenthesis.CLOSE,
-                ADD, Data.Number(1.0), DIV, Data.Number(10.0), ADD, Data.Number(1000.0), MUL, Data.Number(10.0),
-                DIV, Data.Number(10.0), POW, Data.Number(10.0),
+                Parenthesis.OPEN, Data.Number(1.0), ADD, Data.Number(1), Parenthesis.CLOSE,
+                ADD, Data.Number(1), DIV, Data.Number(10), ADD, Data.Number(1000), MUL, Data.Number(10),
+                DIV, Data.Number(10), POW, Data.Number(10),
                 Parenthesis.CLOSE,
                 Bracket.CLOSE,
             ),
@@ -227,11 +271,11 @@ internal class CrescentLexerTests {
                 Data.Comment("Meow"),
                 Data.Comment("Meow"),
                 Data.String("#meow"),
-                Data.Number(1.0), ADD, Data.Comment("Meow"),
-                Data.Number(1.0), SUB, Data.Comment("Meow"),
-                Data.Number(1.0), DIV, Data.Comment("Meow"),
-                Data.Number(1.0), MUL, Data.Comment("Meow"),
-                Data.Number(1.0), ASSIGN, Data.Comment("Meow"),
+                Data.Number(1), ADD, Data.Comment("Meow"),
+                Data.Number(1), SUB, Data.Comment("Meow"),
+                Data.Number(1), DIV, Data.Comment("Meow"),
+                Data.Number(1), MUL, Data.Comment("Meow"),
+                Data.Number(1), ASSIGN, Data.Comment("Meow"),
                 Data.Comment("}")
             ),
             tokens

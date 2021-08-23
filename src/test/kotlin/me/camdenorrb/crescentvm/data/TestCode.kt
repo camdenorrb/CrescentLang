@@ -1,5 +1,9 @@
 package me.camdenorrb.crescentvm.data
 
+/* TODO:
+    - String interpolation
+*/
+
 object TestCode {
 
 	const val helloWorld =
@@ -35,6 +39,36 @@ object TestCode {
                 }
             }
         """
+
+	// Can't be constant due to lack of escaping $'s :C
+	val stringInterpolation =
+		"""
+		    fun main {
+		        val x, y, z = 0
+				println("${'$'}x${'$'}y${'$'}z")
+            }
+		"""
+
+	// Can't be constant due to lack of escaping $'s :C
+	val forLoop =
+		"""
+		    fun main {
+		     
+		        val x, y, z = 0
+                
+				println("${'$'}x${'$'}y${'$'}z")
+
+			    for x, y, z in 0..10 {
+			        println("${'$'}x${'$'}y${'$'}z")
+			    }
+			
+			    for x, y, z in 0..10, 0..10, 0..10 {
+			        println("${'$'}x${'$'}y${'$'}z")
+			    }
+
+                println("Hello World")
+            }
+		"""
 
 	const val calculator =
 		"""
@@ -95,7 +129,7 @@ object TestCode {
 	const val math =
 		"""
             fun main {
-                println((1 + 1) + 1 / 10 + 1000 * 10 / 10 ^ 10)
+                println((1.0 + 1) + 1 / 10 + 1000 * 10 / 10 ^ 10)
             }
 		"""
 

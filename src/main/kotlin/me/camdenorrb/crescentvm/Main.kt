@@ -5,7 +5,6 @@ import kotlin.io.path.*
 
 object Main {
 
-
     @JvmStatic
     fun main(args: Array<String>) {
 
@@ -20,6 +19,9 @@ object Main {
             """
                 fun main {
                     println("Hello World")
+                    println("Hello World")
+                    println("Hello World")
+                    println("Meow")
                 }
             """
 
