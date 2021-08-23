@@ -8,22 +8,25 @@ class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: Cresc
 
 
 	fun invoke() {
-		runFunction(mainFunction)
+		//runFunction(mainFunction)
 	}
 
+	/*
 	fun runFunction(function: CrescentAST.Node.Function): CrescentAST.Node {
 
 		// TODO: Have a stack
 		// TODO: Last expression acts as return
-		function.innerCode.expressions.forEach { expression ->
+		function.innerCode.nodes.forEach { expression ->
 			runExpression(expression)
 		}
 
 		// TODO: Make this meaningful
 		return CrescentAST.Node.Type.Unit
 	}
+	*/
 
 	// TODO: Take in a stack or something
+	/*
 	fun runExpression(expression: CrescentAST.Node.Expression): CrescentAST.Node {
 
 		expression.nodes.forEachIndexed { index, node ->
@@ -65,7 +68,7 @@ class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: Cresc
 		}
 
 		return CrescentAST.Node.Type.Unit
-	}
+	}*/
 
 	fun CrescentAST.Node.asString(): String {
 		return when (this) {

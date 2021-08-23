@@ -48,18 +48,6 @@ class CrescentAST {
 
         }
 
-        /*
-        data class Argument(
-            val value: Expression,
-        ) : Node() {
-
-            override fun toString(): kotlin.String {
-                return "$value"
-            }
-
-        }
-        */
-
         data class GetCall(
             val identifier: kotlin.String,
             val arguments: List<Expression>
@@ -77,22 +65,24 @@ class CrescentAST {
         ) : Node() {
 
             override fun toString(): kotlin.String {
-                return "(${arguments.joinToString()})"
+                return "$identifier(${arguments.joinToString()})"
             }
 
         }
 
+        // Should usually only represent stuff inside (,)'s or return values
         data class Expression(
             val nodes: List<Node>,
         ) : Node() {
 
             override fun toString(): kotlin.String {
-                return "$nodes"
+                return "Exp$nodes"
             }
 
         }
 
-        // TODO: Make a class called MathExpression and just store a list of tokens, or just retrieve the list of tokens in the parser and do shunting yard
+        // TONO: Make a class called MathExpression and just store a list of tokens, or just retrieve the list of tokens in the parser and do shunting yard
+        // Use Expression and just do a shunting yard algorithm on it, each token should have a precedence or -1 by default
         /*
         data class Operation(
             val first: Node,
@@ -106,6 +96,16 @@ class CrescentAST {
 
         }
         */
+
+        data class DotChain(
+            val nodes: List<Node>
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "DotChain=${nodes.joinToString(".")}"
+            }
+
+        }
 
         data class Operator(
             val operator: CrescentToken.Operator
@@ -189,19 +189,6 @@ class CrescentAST {
             val returnType: Type,
         ) : Node()
 
-        /*
-        data class FunctionCall(
-            val name: kotlin.String,
-            val arguments: List<Argument>,
-        ) : Node() {
-
-            override fun toString(): kotlin.String {
-                return "$name(${arguments.joinToString { it.value.nodes.joinToString() }})"
-            }
-
-        }
-        */
-
         data class Identifier(
             val name: kotlin.String,
         ) : Node() {
@@ -211,19 +198,6 @@ class CrescentAST {
             }
 
         }
-
-        /*
-        data class ArrayCall(
-            val name: kotlin.String,
-            val index: Int,
-        ) : Node() {
-
-            override fun toString(): kotlin.String {
-                return "$name[$index]"
-            }
-
-        }
-        */
 
         data class Constant(
             val name: kotlin.String,
@@ -247,7 +221,18 @@ class CrescentAST {
         ) : Node() {
 
             override fun toString(): kotlin.String {
-                return "${if (isFinal) "val" else "var"} $name: ${type::class.simpleName} = $value"
+                return "$visibility ${if (isFinal) "val" else "var"} $name: ${type::class.simpleName} = $value"
+            }
+
+        }
+
+        // Hacky fix for readExpressionNode, change in the future
+        data class Variables(
+            val data: List<Variable>
+        ) : Node() {
+
+            override fun toString(): kotlin.String {
+                return "$data"
             }
 
         }
@@ -348,14 +333,14 @@ class CrescentAST {
             ) : Statement() {
 
                 override fun toString(): kotlin.String {
-                    return "when (${argument.nodes.joinToString()}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
+                    return "when (${argument}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
                 }
 
                 // ifExpression is null when it's else
-                data class Clause(val ifExpression: Expression?, val thenBlock: Block) : Statement() {
+                data class Clause(val ifExpressionNode: Node?, val thenBlock: Block) : Statement() {
 
                     override fun toString(): kotlin.String {
-                        return "$ifExpression $thenBlock"
+                        return "$ifExpressionNode $thenBlock"
                     }
 
                 }
@@ -382,12 +367,13 @@ class CrescentAST {
                 val block: Block,
             ) : Statement()
 
+            // TODO: Make it a list of nodes
             data class Block(
-                val expressions: List<Expression>,
+                val nodes: List<Node>,
             ) : Statement() {
 
                 override fun toString(): kotlin.String {
-                    return "{ ${expressions.joinToString { it.nodes.joinToString() }} }"
+                    return "{ ${nodes.joinToString()} }"
                 }
 
             }

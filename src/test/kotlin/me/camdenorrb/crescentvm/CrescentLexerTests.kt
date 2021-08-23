@@ -113,6 +113,28 @@ internal class CrescentLexerTests {
     }
 
     @Test
+    fun whileLoop() {
+
+        val tokens = CrescentLexer.invoke(TestCode.whileLoop)
+
+        assertContentEquals(
+            listOf(
+                FUN, Key("main"), Bracket.OPEN,
+
+                VAR, Key("x"), ASSIGN, Data.Number(1),
+
+                WHILE, Parenthesis.OPEN, Key("x"), LESSER_EQUALS_COMPARE, Data.Number(10), Parenthesis.CLOSE, Bracket.OPEN,
+                Key("println"), Parenthesis.OPEN, Key("x"), Parenthesis.CLOSE,
+                Key("x"), ADD_ASSIGN, Data.Number(1),
+                Bracket.CLOSE,
+
+                Bracket.CLOSE,
+            ),
+            tokens
+        )
+    }
+
+    @Test
     fun calculator() {
 
         val tokens = CrescentLexer.invoke(TestCode.calculator)

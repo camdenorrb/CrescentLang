@@ -27,7 +27,7 @@ object CrescentLexer {
 
             val key = when(val peekNext = charIterator.peekNext()) {
 
-                '!', '+', '-', '/', '%', '^', '*', '=' -> {
+                '!', '+', '-', '/', '%', '^', '*', '=', '<', '>' -> {
 
                     val next = charIterator.next()
                     val peek = charIterator.peekNext()
@@ -56,7 +56,6 @@ object CrescentLexer {
                             // Select number, stop if rangeTo (..) is found
                             charIterator.nextUntil {
                                 if (it == '.' && charIterator.peekNext(1) != '.') {
-                                    println("Here")
                                     false
                                 }
                                 else {
@@ -167,8 +166,10 @@ object CrescentLexer {
                 // Compare
                 "||" -> CrescentToken.Operator.OR_COMPARE
                 "&&" -> CrescentToken.Operator.AND_COMPARE
-                "<=" -> CrescentToken.Operator.GREATER_EQUALS_COMPARE
-                ">=" -> CrescentToken.Operator.LESSER_EQUALS_COMPARE
+                "<"  -> CrescentToken.Operator.LESSER_COMPARE
+                ">"  -> CrescentToken.Operator.GREATER_COMPARE
+                "<=" -> CrescentToken.Operator.LESSER_EQUALS_COMPARE
+                ">=" -> CrescentToken.Operator.GREATER_EQUALS_COMPARE
                 "==" -> CrescentToken.Operator.EQUALS_COMPARE
                 "!=" -> CrescentToken.Operator.NOT_EQUALS_COMPARE
 

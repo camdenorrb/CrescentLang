@@ -133,6 +133,8 @@ interface CrescentToken {
         OR_COMPARE("||"),
         AND_COMPARE("&&"),
         EQUALS_COMPARE("=="),
+        LESSER_COMPARE("<"),
+        GREATER_COMPARE(">"),
         LESSER_EQUALS_COMPARE("<="),
         GREATER_EQUALS_COMPARE(">="),
         EQUALS_REFERENCE_COMPARE("==="),
