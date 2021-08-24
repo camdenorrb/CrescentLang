@@ -23,6 +23,7 @@ tasks {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_16.toString()
         kotlinOptions.languageVersion = "1.6"
         kotlinOptions.apiVersion = "1.6"
+        kotlinOptions.useFir = true
     }
 
     withType<JavaCompile> {
