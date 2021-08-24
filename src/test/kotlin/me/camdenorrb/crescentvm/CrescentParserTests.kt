@@ -13,7 +13,6 @@ import me.camdenorrb.crescentvm.vm.CrescentToken.Visibility
 import org.junit.Test
 import java.nio.file.Path
 import kotlin.test.assertContentEquals
-import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 internal class CrescentParserTests {
@@ -55,17 +54,15 @@ internal class CrescentParserTests {
             listOf(
                 Statement.If(
                     Expression(listOf(
-                        GetCall("args", listOf(Expression(listOf(Primitive.Number(0))))), Operator(EQUALS_COMPARE), String("true")
+                        GetCall("args", listOf(Expression(listOf(Number(0))))), Operator(EQUALS_COMPARE), String("true")
                     )),
                     Statement.Block(listOf(
                         FunctionCall("println", listOf(Expression(listOf(String("Meow")))))
                     )),
-                ),
-                Statement.Else(
                     Statement.Block(listOf(
                         FunctionCall("println", listOf(Expression(listOf(String("Hiss")))))
-                    ))
-                )
+                    )),
+                ),
             ),
             mainFunction.innerCode.nodes,
         )
@@ -101,12 +98,10 @@ internal class CrescentParserTests {
                     Statement.Block(listOf(
                         FunctionCall("println", listOf(Expression(listOf(String("Meow")))))
                     )),
-                ),
-                Statement.Else(
                     Statement.Block(listOf(
                         FunctionCall("println", listOf(Expression(listOf(String("Hiss")))))
-                    ))
-                )
+                    )),
+                ),
             ),
             mainFunction.innerCode.nodes,
         )
@@ -286,14 +281,20 @@ internal class CrescentParserTests {
                     ),
                     extends = emptyList(),
                 ),
+            ),
+            parsed.impls.values,
+        )
+
+        assertContentEquals(
+            listOf(
                 Impl(
                     type = Type.Basic("Example"),
                     modifiers = listOf(CrescentToken.Modifier.STATIC),
                     functions = emptyList(),
                     extends = emptyList(),
-                ),
+                )
             ),
-            parsed.impls.values,
+            parsed.staticImpls.values,
         )
     }
 

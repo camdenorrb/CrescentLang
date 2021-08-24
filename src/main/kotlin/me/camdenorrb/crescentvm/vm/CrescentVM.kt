@@ -41,29 +41,71 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			paramsToValue
 		)
 
-		// TODO: Have a stack
 		// TODO: Last expression acts as return
-		function.innerCode.nodes.forEach { node ->
-			when (node) {
-
-				is Node.FunctionCall -> {
-					runFunctionCall(node, context)
-				}
-
-				is Node.Expression -> {
-					runExpression(node, context)
-				}
-
-				else -> error("Unexpected node: $node")
-			}
-		}
+		runBlock(function.innerCode, context)
 
 		// TODO: Make this meaningful
 		return Type.Unit
 	}
 
-	fun runNode(node: Node) {
+	// TODO: Have a return value
+	fun runBlock(block: Node.Statement.Block, context: FunctionContext): Node {
 
+		block.nodes.forEachIndexed { index, node ->
+
+			// If is last node in the block
+			if (index + 1 == block.nodes.size) {
+				return runNode(node, context)
+			}
+			else {
+				runNode(node, context)
+			}
+
+		}
+
+		return Type.Unit
+	}
+
+	fun runNode(node: Node, context: FunctionContext): Node {
+		when (node) {
+
+			is Primitive.String,
+			is Primitive.Number,
+			is Primitive.Char,
+			is Primitive.Boolean,
+			is Node.Array,
+			-> {
+				return node
+			}
+
+			is Node.FunctionCall -> {
+				return runFunctionCall(node, context)
+			}
+
+			is Node.Expression -> {
+				return runExpression(node, context)
+			}
+
+			is Node.Statement.If -> {
+				return if ((runExpression(node.predicate, context) as Primitive.Boolean).data) {
+					runBlock(node.block, context)
+				}
+				else {
+					node.elseBlock?.let {
+						runBlock(it, context)
+					}
+				} ?: Type.Unit
+			}
+
+			is Node.Variable -> {
+				//context.variables[node.name] = node
+				context.variableValues[node.name] = runNode(node.value, context)
+			}
+
+			else -> error("Unexpected node: $node")
+		}
+
+		return Type.Unit
 	}
 
 	// TODO: Take in a stack or something
@@ -90,17 +132,26 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				}
 
 				is Node.Identifier -> {
-					stack.push(context.parameters[node.name] ?: context.variables[node.name]?.value)
+					stack.push(context.parameters[node.name] ?: context.variableValues[node.name])
 				}
 
 				// TODO: Account for operator overloading
 				is Node.GetCall -> {
-					val arrayNode = (context.parameters[node.identifier] ?: context.variables[node.identifier]?.value) as Node.Array
+					val arrayNode = (context.parameters[node.identifier] ?: context.variableValues[node.identifier]) as Node.Array
 					stack.push(arrayNode.values[(runExpression(node.arguments[0], context) as Primitive.Number).data.toInt()])
 				}
 
+				is Node.Statement.If -> {
+					stack.push(runNode(node, context))
+				}
+
 				is Node.FunctionCall -> {
-					runFunctionCall(node, context)
+
+					val returnValue = runFunctionCall(node, context)
+
+					if (returnValue != Type.Unit) {
+						stack.push(returnValue)
+					}
 				}
 
 				else -> {}
@@ -122,13 +173,19 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				println(runExpression(node.arguments[0], context).asString())
 			}
 
+			"readBoolean" -> {
+				checkEquals(node.arguments.size, 1)
+				println(runExpression(node.arguments[0], context).asString())
+				return Primitive.Boolean(readLine()!!.toBooleanStrict())
+			}
+
 			else -> {
 
 				val functionFile = checkNotNull(files.find { node.identifier in it.functions }) {
 					"Unknown function: ${node.identifier}(${node.arguments.map { runExpression(it, context) }})"
 				}
 
-				val function = functionFile.functions[node.identifier]!!
+				val function = functionFile.functions.getValue(node.identifier)
 
 				return runFunction(functionFile, function, node.arguments.map { runExpression(it, context) })
 			}
@@ -204,7 +261,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	data class FunctionContext(
 		val holder: Node,
 		val parameters: MutableMap<String, Node>,
-		val variables: MutableMap<String, Node.Variable> = mutableMapOf()
+		//val variables: MutableMap<String, Node.Variable> = mutableMapOf(),
+		val variableValues: MutableMap<String, Node> = mutableMapOf(),
 	)
 
 }

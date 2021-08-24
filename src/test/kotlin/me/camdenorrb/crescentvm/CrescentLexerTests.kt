@@ -28,6 +28,22 @@ internal class CrescentLexerTests {
     }
 
     @Test
+    fun argsHelloWorld() {
+
+        val tokens = CrescentLexer.invoke(TestCode.helloWorld)
+
+        TODO("Fix this")
+        assertContentEquals(
+            listOf(
+                FUN, Key("main"), Bracket.OPEN,
+                Key("println"), Parenthesis.OPEN, Data.String("Hello World"), Parenthesis.CLOSE,
+                Bracket.CLOSE,
+            ),
+            tokens
+        )
+    }
+
+    @Test
     fun ifStatement() {
 
         val tokens = CrescentLexer.invoke(TestCode.ifStatement)

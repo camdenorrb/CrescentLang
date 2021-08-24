@@ -52,4 +52,10 @@ internal class CrescentVMTests {
 		assertEquals(output, "Hello World\n")
 	}
 
+	@Test
+	fun ifInputStatement() {
+		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifInputStatement))
+		CrescentVM(listOf(file), file).invoke()
+	}
+
 }

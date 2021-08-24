@@ -20,11 +20,19 @@ object Main {
         val code =
             """
                 fun main(args: [String]) {
-                    println(args[0])
-                    println('M')
-                    println("Hello World")
-                    println("Hello World")
-                    println("Meow")
+                    
+                    val thing = readBoolean("Meow")
+                    
+                    val thing2 = 
+                        if (thing) {
+                            "Moo"
+                        }
+                        else {
+                            "Cow"
+                        }
+                    
+                    println(thing)
+                    println(thing2)
                 }
             """
 

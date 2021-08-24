@@ -11,18 +11,19 @@ object CrescentParser {
 
     fun invoke(filePath: Path, tokens: List<CrescentToken>): CrescentAST.Node.File {
 
-        val impls = mutableListOf<CrescentAST.Node.Impl>()
-        val enums = mutableListOf<CrescentAST.Node.Enum>()
-        val traits = mutableListOf<CrescentAST.Node.Trait>()
-
-        val sealeds = mutableListOf<CrescentAST.Node.Sealed>()
         val imports = mutableListOf<CrescentAST.Node.Import>()
-        val structs = mutableListOf<CrescentAST.Node.Struct>()
-        val objects = mutableListOf<CrescentAST.Node.Object>()
+        val impls = mutableMapOf<String, CrescentAST.Node.Impl>()
+        val enums = mutableMapOf<String, CrescentAST.Node.Enum>()
+        val traits = mutableMapOf<String, CrescentAST.Node.Trait>()
+        val staticImpls = mutableMapOf<String, CrescentAST.Node.Impl>()
 
-        val functions = mutableListOf<CrescentAST.Node.Function>()
-        val variables = mutableListOf<CrescentAST.Node.Variable>()
-        val constants = mutableListOf<CrescentAST.Node.Constant>()
+        val sealeds = mutableMapOf<String, CrescentAST.Node.Sealed>()
+        val structs = mutableMapOf<String, CrescentAST.Node.Struct>()
+        val objects = mutableMapOf<String, CrescentAST.Node.Object>()
+
+        val functions = mutableMapOf<String, CrescentAST.Node.Function>()
+        val variables = mutableMapOf<String, CrescentAST.Node.Variable>()
+        val constants = mutableMapOf<String, CrescentAST.Node.Constant>()
 
         var mainFunction: CrescentAST.Node.Function? = null
         val tokenIterator = PeekingTokenIterator(tokens)
@@ -52,19 +53,32 @@ object CrescentParser {
                 }
 
                 CrescentToken.Type.STRUCT -> {
-                    structs += readStruct(tokenIterator)
+                    readStruct(tokenIterator).let {
+                        structs[it.name] = it
+                    }
                 }
 
                 CrescentToken.Type.IMPL -> {
-                    impls += readImpl(tokenIterator)
+                    readImpl(tokenIterator).let {
+                        if (CrescentToken.Modifier.STATIC in it.modifiers) {
+                            staticImpls["${it.type}"] = it
+                        }
+                        else {
+                            impls["${it.type}"] = it
+                        }
+                    }
                 }
 
                 CrescentToken.Variable.CONST -> {
-                    constants += readConstant(tokenIterator, visibility)
+                    readConstant(tokenIterator, visibility).let {
+                        constants[it.name] = it
+                    }
                 }
 
                 CrescentToken.Variable.VAL, CrescentToken.Variable.VAR -> {
-                    variables.addAll(readVariables(tokenIterator, visibility, token == CrescentToken.Variable.VAL))
+                    readVariables(tokenIterator, visibility, token == CrescentToken.Variable.VAL).forEach {
+                        variables[it.name] = it
+                    }
                 }
 
                 CrescentToken.Type.TRAIT -> {
@@ -91,11 +105,13 @@ object CrescentParser {
 
                     }
 
-                    traits += CrescentAST.Node.Trait(name, functionTraits)
+                    traits[name] = CrescentAST.Node.Trait(name, functionTraits)
                 }
 
                 CrescentToken.Type.OBJECT -> {
-                    objects += readObject(tokenIterator)
+                    readObject(tokenIterator).let {
+                        objects[it.name] = it
+                    }
                 }
 
                 CrescentToken.Type.ENUM -> {
@@ -116,7 +132,7 @@ object CrescentParser {
                         entries += CrescentAST.Node.EnumEntry(entryName, entryArgs)
                     }
 
-                    enums += CrescentAST.Node.Enum(name, parameters, entries)
+                    enums[name] = CrescentAST.Node.Enum(name, parameters, entries)
                 }
 
                 CrescentToken.Type.SEALED -> {
@@ -138,7 +154,7 @@ object CrescentParser {
                         }
                     }
 
-                    sealeds += CrescentAST.Node.Sealed(name, innerStructs, innerObjects)
+                    sealeds[name] = CrescentAST.Node.Sealed(name, innerStructs, innerObjects)
                 }
 
                 CrescentToken.Statement.FUN -> {
@@ -154,7 +170,7 @@ object CrescentParser {
                         mainFunction = function
                     }
 
-                    functions += function
+                    functions[function.name] = function
                 }
 
                 CrescentToken.Statement.IMPORT -> {
@@ -207,15 +223,16 @@ object CrescentParser {
         return CrescentAST.Node.File(
             path = filePath,
             imports = imports,
-            structs = structs.associateBy { it.name },
-            sealeds = sealeds.associateBy { it.name },
-            impls = impls.associateBy { "${it.type}" },
-            traits = traits.associateBy { it.name },
-            objects = objects.associateBy { it.name },
-            enums = enums.associateBy { it.name },
-            variables = variables.associateBy { it.name },
-            constants = constants.associateBy { it.name },
-            functions = functions.associateBy { it.name },
+            structs = structs,
+            sealeds = sealeds,
+            impls = impls,
+            staticImpls = staticImpls,
+            traits = traits,
+            objects = objects,
+            enums = enums,
+            variables = variables,
+            constants = constants,
+            functions = functions,
             mainFunction = mainFunction,
         )
     }
@@ -633,16 +650,26 @@ object CrescentParser {
             // Unskip the read token from readNextUntilClosed(tokenIterator)
             tokenIterator.back()
 
-            val ifExpressionNode = readExpressionNode(tokenIterator)
-                ?: return@readNextUntilClosed
+            val ifExpressionNode =
+                if (tokenIterator.peekNext() == CrescentToken.Statement.ELSE) {
+
+                    checkEquals(tokenIterator.next(), CrescentToken.Statement.ELSE)
+                    checkEquals(tokenIterator.next(), CrescentToken.Operator.RETURN)
+
+                    CrescentAST.Node.Statement.When.Else(readBlock(tokenIterator))
+                }
+                else {
+                    readExpressionNode(tokenIterator) ?: return@readNextUntilClosed
+                }
+
 
             // Usually happens if there is a comment before last closing }
 
             //println(ifExpressionNode)
 
             // If is else statement, no ifExpression
-            if (ifExpressionNode is CrescentAST.Node.Statement.Else) {
-                clauses += CrescentAST.Node.Statement.When.Clause(null, ifExpressionNode.block)
+            if (ifExpressionNode is CrescentAST.Node.Statement.When.Else) {
+                clauses += CrescentAST.Node.Statement.When.Clause(null, ifExpressionNode.thenBlock)
                 return@readNextUntilClosed
             }
 
@@ -734,25 +761,22 @@ object CrescentParser {
 
                 checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
 
-                CrescentAST.Node.Statement.If(
-                    readExpression(tokenIterator).also {
-                        checkEquals(
-                            tokenIterator.next(),
-                            CrescentToken.Parenthesis.CLOSE,
-                        )
-                    },
-                    readBlock(tokenIterator)
-                )
-            }
-
-            CrescentToken.Statement.ELSE -> {
-
-                // If used like a when statement. TODO: Add more validation that it is in a when statement
-                if (tokenIterator.peekNext() == CrescentToken.Operator.RETURN) {
-                    tokenIterator.next()
+                val argument = readExpression(tokenIterator).also {
+                    checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
                 }
 
-                CrescentAST.Node.Statement.Else(readBlock(tokenIterator))
+                val ifBlock = readBlock(tokenIterator)
+
+                val elseBlock =
+                    if (tokenIterator.peekNext() == CrescentToken.Statement.ELSE) {
+                        tokenIterator.next()
+                        readBlock(tokenIterator)
+                    }
+                    else {
+                        null
+                    }
+
+                CrescentAST.Node.Statement.If(argument, ifBlock, elseBlock)
             }
 
             is CrescentToken.Data -> {

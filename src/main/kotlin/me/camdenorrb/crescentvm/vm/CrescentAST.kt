@@ -273,6 +273,7 @@ class CrescentAST {
             val structs: Map<String, Struct>,
             val sealeds: Map<String, Sealed>,
             val impls: Map<String, Impl>,
+            val staticImpls: Map<String, Impl>,
             val traits: Map<String, Trait>,
             val objects: Map<String, Object>,
             val enums: Map<String, Enum>,
@@ -365,15 +366,16 @@ class CrescentAST {
 
                 }
 
-            }
+                data class Else(
+                    val thenBlock: Block,
+                ) : Statement()
 
-            data class Else(
-                val block: Block,
-            ) : Statement()
+            }
 
             data class If(
                 val predicate: Expression,
                 val block: Block,
+                val elseBlock: Block?
             ) : Statement()
 
             data class While(
