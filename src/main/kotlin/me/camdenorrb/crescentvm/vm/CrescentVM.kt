@@ -70,6 +70,10 @@ class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: Cresc
 			}
 		}
 
+		if (stack.size == 1) {
+			return stack.pop()
+		}
+
 		return CrescentAST.Node.Type.Unit
 	}
 
