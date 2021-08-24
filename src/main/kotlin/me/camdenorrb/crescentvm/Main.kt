@@ -3,7 +3,7 @@ package me.camdenorrb.crescentvm
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.*
-import kotlin.io.path.*
+import kotlin.io.path.Path
 
 object Main {
 
