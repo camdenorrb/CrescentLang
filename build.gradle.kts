@@ -13,6 +13,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21")
     implementation("org.capnproto:runtime:0.1.9")
     implementation("com.guardsquare:proguard-core:8.0.1")
+    implementation("tech.poder.ir:PoderTechIR:+")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.5.21")
 }
 
