@@ -1,16 +1,12 @@
 package me.camdenorrb.crescentvm.vm.machines
 
 import me.camdenorrb.crescentvm.vm.*
-import me.camdenorrb.crescentvm.vm.ir.poder.tech.PoderTechIR
-import java.io.File
 import java.nio.file.Path
-import java.nio.file.Paths
 import java.util.*
 import kotlin.io.path.pathString
-import kotlin.io.path.readBytes
 import kotlin.io.path.readText
 
-class PoderTechVM(val mode: VM = VM.INTERPRETED) {
+class CrescentVMOld(val mode: VM = VM.INTERPRETED) {
 
     fun lex(input: String): List<CrescentToken> {
         return CrescentLexer.invoke(input)
@@ -52,17 +48,5 @@ class PoderTechVM(val mode: VM = VM.INTERPRETED) {
         }
     }*/
 
-    /*
-    fun load(classPaths: PoderTechIR) {
 
-    }
-
-    fun packageLib() {
-
-    }
-
-    fun invoke(clazzName: String) {
-        packageLib()
-
-    }*/
 }
