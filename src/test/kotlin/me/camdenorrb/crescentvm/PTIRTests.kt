@@ -106,7 +106,8 @@ internal class PTIRTests {
 	fun ifInputStatement() {
 
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifInputStatement))
-
+		//val result = CrescentToPTIR.invoke(file)
+		//Machine.loadCode(*result.toTypedArray())
 		assertEquals(
 			"""
 				Enter a boolean value [true/false]

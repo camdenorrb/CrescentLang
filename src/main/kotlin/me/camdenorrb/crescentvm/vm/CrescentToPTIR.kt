@@ -42,6 +42,9 @@ object CrescentToPTIR {
             is CrescentAST.Node.Primitive.Boolean -> {
                 builder.push(node.data)
             }
+            is CrescentAST.Node.Primitive.Number -> {
+                builder.push(node.data)
+            }
             is CrescentAST.Node.Expression -> {
                 val opOrdering = mutableListOf<CrescentAST.Node>()
                 var i = 0
@@ -72,7 +75,11 @@ object CrescentToPTIR {
             is CrescentAST.Node.GetCall -> {
                 when (node.identifier) {
                     "args" -> {
-                        //todo pull from stack if not next, args may need to be placed in an array var for this language
+                        node.arguments.forEach {
+                            nodeToCode(builder, it)
+                        }
+                        builder.getVar("args")
+                        builder.getArrayItem()
                     }
                     else -> {
                         println(node.identifier)
