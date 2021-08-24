@@ -24,8 +24,12 @@ internal class CrescentVMTests {
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorld))
 		val result = CrescentToPTIR.invoke(file)
 		Machine.loadCode(*result.toTypedArray())
-		Machine.execute("static.main")
-		//todo validate output matches expected
+		assertEquals(
+			"Hello World\n",
+			collectSystemOut {
+				Machine.execute("static.main")
+			}
+		)
 	}
 
 	private inline fun collectSystemOut(block: () -> Unit): String {
