@@ -20,17 +20,18 @@ dependencies {
 }
 
 tasks {
+    val javaVersion = JavaVersion.VERSION_16.toString()
     withType<KotlinCompile> {
-        sourceCompatibility = JavaVersion.VERSION_16.toString()
-        targetCompatibility = JavaVersion.VERSION_16.toString()
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_16.toString()
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
+        kotlinOptions.jvmTarget = javaVersion
         kotlinOptions.languageVersion = "1.6"
         kotlinOptions.apiVersion = "1.6"
         kotlinOptions.useFir = true
     }
 
     withType<JavaCompile> {
-        sourceCompatibility = JavaVersion.VERSION_16.toString()
-        targetCompatibility = JavaVersion.VERSION_16.toString()
+        sourceCompatibility = javaVersion
+        targetCompatibility = javaVersion
     }
 }
