@@ -1,6 +1,7 @@
 package me.camdenorrb.crescentvm.vm
 
 import me.camdenorrb.crescentvm.project.checkEquals
+import java.util.*
 
 class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: CrescentAST.Node.Function) {
 
@@ -8,35 +9,53 @@ class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: Cresc
 
 
 	fun invoke() {
-		//runFunction(mainFunction)
+		runFunction(mainFunction)
 	}
 
-	/*
+
 	fun runFunction(function: CrescentAST.Node.Function): CrescentAST.Node {
 
 		// TODO: Have a stack
 		// TODO: Last expression acts as return
-		function.innerCode.nodes.forEach { expression ->
-			runExpression(expression)
+		function.innerCode.nodes.forEach { node ->
+			when (node) {
+				is CrescentAST.Node.FunctionCall -> {
+					runFunctionCall(node)
+				}
+				is CrescentAST.Node.Expression -> {
+					runExpression(node)
+				}
+			}
 		}
 
 		// TODO: Make this meaningful
 		return CrescentAST.Node.Type.Unit
 	}
-	*/
+
+	fun runNode(node: CrescentAST.Node) {
+
+	}
 
 	// TODO: Take in a stack or something
-	/*
 	fun runExpression(expression: CrescentAST.Node.Expression): CrescentAST.Node {
+
+		val stack = LinkedList<CrescentAST.Node>()
 
 		expression.nodes.forEachIndexed { index, node ->
 			when (node) {
 
-				is CrescentAST.Node.String -> {
+				is CrescentAST.Node.String,
+				is CrescentAST.Node.Number,
+				is CrescentAST.Node.Char,
+				is CrescentAST.Node.Boolean,
+				-> {
 					// If is last node
+					stack.push(node)
+					/*
 					if (index + 1 == expression.nodes.size) {
 						return node
 					}
+					*/
 				}
 
 				is CrescentAST.Node.Return -> {
@@ -44,23 +63,7 @@ class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: Cresc
 				}
 
 				is CrescentAST.Node.FunctionCall -> {
-					when (node.identifier) {
-
-						"println" -> {
-							checkEquals(node.arguments.size, 1)
-							println(runExpression(node.arguments[0]).asString())
-						}
-
-						else -> {
-
-							val function = checkNotNull(globalFunctions[node.identifier]) {
-								"Unknown function: ${node.identifier}(${node.arguments.map { runExpression(it) }})"
-							}
-
-							return runFunction(function)
-						}
-
-					}
+					runFunctionCall(node)
 				}
 
 				else -> {}
@@ -68,7 +71,30 @@ class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: Cresc
 		}
 
 		return CrescentAST.Node.Type.Unit
-	}*/
+	}
+
+	fun runFunctionCall(node: CrescentAST.Node.FunctionCall): CrescentAST.Node {
+
+		when (node.identifier) {
+
+			"println" -> {
+				checkEquals(node.arguments.size, 1)
+				println(runExpression(node.arguments[0]).asString())
+			}
+
+			else -> {
+
+				val function = checkNotNull(globalFunctions[node.identifier]) {
+					"Unknown function: ${node.identifier}(${node.arguments.map { runExpression(it) }})"
+				}
+
+				return runFunction(function)
+			}
+
+		}
+
+		return CrescentAST.Node.Type.Unit
+	}
 
 	fun CrescentAST.Node.asString(): String {
 		return when (this) {
@@ -100,5 +126,10 @@ class CrescentVM(val files: List<CrescentAST.Node.File>, val mainFunction: Cresc
 
 		}
 	}
+
+
+	data class FunctionContext(
+		val variables: MutableMap<String, CrescentAST.Node.Variable>
+	)
 
 }

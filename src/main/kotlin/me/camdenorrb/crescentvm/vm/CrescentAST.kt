@@ -226,17 +226,6 @@ class CrescentAST {
 
         }
 
-        // Hacky fix for readExpressionNode, change in the future
-        data class Variables(
-            val data: List<Variable>
-        ) : Node() {
-
-            override fun toString(): kotlin.String {
-                return "$data"
-            }
-
-        }
-
         data class Function(
             val name: kotlin.String,
             val modifiers: List<CrescentToken.Modifier>,
