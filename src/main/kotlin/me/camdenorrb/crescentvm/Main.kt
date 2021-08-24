@@ -1,5 +1,7 @@
 package me.camdenorrb.crescentvm
 
+import me.camdenorrb.crescentvm.lexers.CrescentLexer
+import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.*
 import kotlin.io.path.*
 
@@ -17,8 +19,9 @@ object Main {
 
         val code =
             """
-                fun main {
-                    println("Hello World")
+                fun main(args: [String]) {
+                    println(args[0])
+                    println('M')
                     println("Hello World")
                     println("Hello World")
                     println("Meow")
@@ -26,11 +29,7 @@ object Main {
             """
 
         val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
-
-        CrescentVM(
-            listOf(file),
-            file.mainFunction!!
-        ).invoke()
+        CrescentVM(listOf(file), file).invoke(listOf("Meowwwwww"))
     }
 
 

@@ -1,12 +1,12 @@
 package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.data.TestCode
-import me.camdenorrb.crescentvm.vm.CrescentLexer
-import me.camdenorrb.crescentvm.vm.CrescentParser
+import me.camdenorrb.crescentvm.lexers.CrescentLexer
+import me.camdenorrb.crescentvm.parsers.CrescentParser
 import java.nio.file.Path
 import kotlin.system.measureNanoTime
 
-object Bench {
+internal object Bench {
 
 	const val DEFAULT_CYCLES = 1_000_000
 

@@ -1,7 +1,7 @@
 package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.data.TestCode
-import me.camdenorrb.crescentvm.vm.CrescentLexer
+import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.vm.CrescentToken.*
 import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
 import me.camdenorrb.crescentvm.vm.CrescentToken.Statement.*
@@ -235,6 +235,7 @@ internal class CrescentLexerTests {
                 SEALED, Key("Example"), Bracket.OPEN,
                 STRUCT, Key("Thing1"), Parenthesis.OPEN, VAL, Key("name"), TYPE_PREFIX, Key("String"), Parenthesis.CLOSE,
                 STRUCT, Key("Thing2"), Parenthesis.OPEN, VAL, Key("id"), TYPE_PREFIX, Key("i32"), Parenthesis.CLOSE,
+                OBJECT, Key("Thing3"),
                 Bracket.CLOSE,
             ),
             tokens

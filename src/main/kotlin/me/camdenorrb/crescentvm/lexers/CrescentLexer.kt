@@ -1,7 +1,8 @@
-package me.camdenorrb.crescentvm.vm
+package me.camdenorrb.crescentvm.lexers
 
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 import me.camdenorrb.crescentvm.project.checkEquals
+import me.camdenorrb.crescentvm.vm.CrescentToken
 
 object CrescentLexer {
 

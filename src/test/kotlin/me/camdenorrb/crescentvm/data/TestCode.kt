@@ -1,15 +1,18 @@
 package me.camdenorrb.crescentvm.data
 
-/* TODO:
-    - String interpolation
-*/
-
-object TestCode {
+internal object TestCode {
 
 	const val helloWorld =
 		"""
 			fun main {
                 println("Hello World")
+            }
+		"""
+
+	const val argsHelloWorld =
+		"""
+			fun main(args: [String]) {
+                println(args[0])
             }
 		"""
 
@@ -151,6 +154,7 @@ object TestCode {
             sealed Example {
                 struct Thing1(val name: String)
                 struct Thing2(val id: i32)
+				object Thing3
             }
 		"""
 

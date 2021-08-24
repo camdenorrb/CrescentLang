@@ -1,5 +1,7 @@
 package me.camdenorrb.crescentvm.vm.machines
 
+import me.camdenorrb.crescentvm.lexers.CrescentLexer
+import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.*
 import java.nio.file.Path
 import java.util.*

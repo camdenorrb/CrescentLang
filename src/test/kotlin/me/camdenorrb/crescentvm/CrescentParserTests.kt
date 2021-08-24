@@ -4,8 +4,8 @@ import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.*
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Statement.When
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.String
-import me.camdenorrb.crescentvm.vm.CrescentLexer
-import me.camdenorrb.crescentvm.vm.CrescentParser
+import me.camdenorrb.crescentvm.lexers.CrescentLexer
+import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToken
 import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
 import me.camdenorrb.crescentvm.vm.CrescentToken.Visibility
@@ -122,8 +122,6 @@ internal class CrescentParserTests {
             "No main function found"
         )
 
-        println(mainFunction.innerCode)
-
         assertContentEquals(
             listOf(
                 Variable("x", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(Number(0)))),
@@ -220,36 +218,16 @@ internal class CrescentParserTests {
     fun constantsAndObject() {
 
         val tokens = CrescentLexer.invoke(TestCode.constantsAndObject)
-
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
-
-        assertEquals(
-            File(
-                path = crescentFile.path,
-                imports = emptyList(),
-                structs = emptyList(),
-                impls = emptyList(),
-                traits = emptyList(),
-                objects = crescentFile.objects.take(1),
-                enums = emptyList(),
-                variables = emptyList(),
-                constants = crescentFile.constants.take(1),
-                functions = emptyList(),
-                mainFunction = null,
-                sealeds = emptyList()
-            ),
-            crescentFile,
-            "Crescent file isn't structured as expected"
-        )
 
         assertContentEquals(
             listOf(Constant("thing", Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("Meow"))))),
-            crescentFile.constants,
+            crescentFile.constants.values,
             "Variables not as expected"
         )
 
         val constantsObject = assertNotNull(
-            crescentFile.objects.find { it.name == "Constants" },
+            crescentFile.objects["Constants"],
             "Could not find Constants object"
         )
 
@@ -267,25 +245,6 @@ internal class CrescentParserTests {
         val tokens = CrescentLexer.invoke(TestCode.impl)
         val parsed = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
-        assertEquals(
-            File(
-                path = parsed.path,
-                imports = emptyList(),
-                structs = parsed.structs.take(1),
-                impls = parsed.impls.take(2),
-                traits = emptyList(),
-                objects = emptyList(),
-                enums = emptyList(),
-                variables = emptyList(),
-                constants = emptyList(),
-                functions = emptyList(),
-                mainFunction = null,
-                sealeds = emptyList()
-            ),
-            parsed,
-            "Crescent file isn't structured as expected"
-        )
-
         assertContentEquals(
             listOf(
                 Struct("Example", listOf(
@@ -294,7 +253,7 @@ internal class CrescentParserTests {
                     Variable("aValue2", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(String("")))),
                 ))
             ),
-            parsed.structs,
+            parsed.structs.values,
         )
 
         assertContentEquals(
@@ -333,7 +292,7 @@ internal class CrescentParserTests {
                     extends = emptyList(),
                 ),
             ),
-            parsed.impls,
+            parsed.impls.values,
         )
     }
 
@@ -369,30 +328,10 @@ internal class CrescentParserTests {
     fun sealed() {
 
         val tokens = CrescentLexer.invoke(TestCode.sealed)
-
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
-        assertEquals(
-            File(
-                path = crescentFile.path,
-                imports = emptyList(),
-                structs = emptyList(),
-                sealeds = crescentFile.sealeds.take(1),
-                impls = emptyList(),
-                traits = emptyList(),
-                objects = emptyList(),
-                enums = emptyList(),
-                variables = emptyList(),
-                constants = emptyList(),
-                functions = emptyList(),
-                mainFunction = null,
-            ),
-            crescentFile,
-            "Crescent file isn't structured as expected"
-        )
-
         val sealedExample = assertNotNull(
-            crescentFile.sealeds.find { it.name == "Example" },
+            crescentFile.sealeds["Example"],
             "Could not find Constants object"
         )
 
@@ -402,6 +341,13 @@ internal class CrescentParserTests {
                 Struct("Thing2", listOf(Variable("id", true, Visibility.PUBLIC, Type.Basic("i32"), Expression(emptyList())))),
             ),
             sealedExample.structs,
+        )
+
+        assertContentEquals(
+            listOf(
+                Object("Thing3", emptyList(), emptyList(), emptyList())
+            ),
+            sealedExample.objects,
         )
     }
 
@@ -428,10 +374,8 @@ internal class CrescentParserTests {
                         EnumEntry("BLUE", listOf(Expression(listOf(String("Blue"))))),
                     ),
                 ),
-            ), crescentFile.enums,
+            ), crescentFile.enums.values,
         )
-
-        println(mainFunction.innerCode.nodes)
 
         assertContentEquals(
             listOf(
@@ -471,7 +415,7 @@ internal class CrescentParserTests {
                         Statement.Block(emptyList())
                     ),
                 )),
-            ).also { println(it) },
+            ),
             mainFunction.innerCode.nodes,
         )
 
@@ -481,31 +425,11 @@ internal class CrescentParserTests {
     fun comments() {
 
         val tokens = CrescentLexer.invoke(TestCode.comments)
-
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
         val mainFunction = assertNotNull(
             crescentFile.mainFunction,
             "No main function found"
-        )
-
-        assertEquals(
-            File(
-                path = crescentFile.path,
-                imports = emptyList(),
-                structs = emptyList(),
-                sealeds = emptyList(),
-                impls = emptyList(),
-                traits = emptyList(),
-                objects = emptyList(),
-                enums = emptyList(),
-                variables = emptyList(),
-                constants = emptyList(),
-                functions = listOf(mainFunction),
-                mainFunction = mainFunction,
-            ),
-            crescentFile,
-            "Crescent file isn't structured as expected"
         )
 
         assertContentEquals(
@@ -526,27 +450,7 @@ internal class CrescentParserTests {
     fun imports() {
 
         val tokens = CrescentLexer.invoke(TestCode.imports)
-
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
-
-        assertEquals(
-            File(
-                path = crescentFile.path,
-                imports = crescentFile.imports.take(3),
-                structs = emptyList(),
-                sealeds = emptyList(),
-                impls = emptyList(),
-                traits = emptyList(),
-                objects = emptyList(),
-                enums = emptyList(),
-                variables = emptyList(),
-                constants = emptyList(),
-                functions = emptyList(),
-                mainFunction = null,
-            ),
-            crescentFile,
-            "Crescent file isn't structured as expected"
-        )
 
         assertContentEquals(
             listOf(

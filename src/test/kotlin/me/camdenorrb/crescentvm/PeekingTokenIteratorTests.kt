@@ -1,4 +1,4 @@
 package me.camdenorrb.crescentvm
 
-class PeekingTokenIteratorTests {
+internal class PeekingTokenIteratorTests {
 }
