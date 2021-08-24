@@ -30,7 +30,7 @@ internal object TestCode {
 	const val ifStatement =
 		"""
             fun main(args: [String]) {
-                if (args[0] == "true") {
+                if (args[0] == true) {
                     println("Meow")
                 }
                 else {
