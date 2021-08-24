@@ -31,6 +31,13 @@ object CrescentToPTIR {
                     nodeToCode(builder, it)
                 }
             }
+            is CrescentAST.Node.GetCall -> {
+                when(node.identifier) {
+                    "args" -> {
+                        //todo pull from stack if not next, args may need to be placed in an array var for this language
+                    }
+                }
+            }
             is CrescentAST.Node.FunctionCall -> {
                 node.arguments.reversed().forEach { arg ->
                     nodeToCode(builder, arg)

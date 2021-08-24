@@ -20,7 +20,20 @@ internal class CrescentVMTests {
 	val originalSystemIn = System.`in`
 
 	@Test
-	fun convertToPTIR() {
+	fun argsHelloWorldPTIR() {
+		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.argsHelloWorld))
+		val result = CrescentToPTIR.invoke(file)
+		Machine.loadCode(*result.toTypedArray())
+		assertEquals(
+			"Hello World\n",
+			collectSystemOut {
+				Machine.execute("static.main", "Hello World")
+			}
+		)
+	}
+
+	@Test
+	fun helloWorldPTIR() {
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorld))
 		val result = CrescentToPTIR.invoke(file)
 		Machine.loadCode(*result.toTypedArray())
