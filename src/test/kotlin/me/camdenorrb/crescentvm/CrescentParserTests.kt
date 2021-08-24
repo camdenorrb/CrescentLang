@@ -3,9 +3,9 @@ package me.camdenorrb.crescentvm
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.*
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Statement.When
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.String
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
+import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.*
 import me.camdenorrb.crescentvm.vm.CrescentToken
 import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
 import me.camdenorrb.crescentvm.vm.CrescentToken.Visibility
@@ -54,7 +54,7 @@ internal class CrescentParserTests {
             listOf(
                 Statement.If(
                     Expression(listOf(
-                        GetCall("args", listOf(Expression(listOf(Number(0))))), Operator(EQUALS_COMPARE), String("true")
+                        GetCall("args", listOf(Expression(listOf(Primitive.Number(0))))), Operator(EQUALS_COMPARE), String("true")
                     )),
                     Statement.Block(listOf(
                         FunctionCall("println", listOf(Expression(listOf(String("Meow")))))
