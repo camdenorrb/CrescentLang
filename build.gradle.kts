@@ -1,9 +1,8 @@
 plugins {
     kotlin("jvm") version "1.5.30-RC"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
-group = "me.camdenorrb"
+group = "me.camdenorrb.vm"
 version = "1.0-SNAPSHOT"
 
 repositories {
