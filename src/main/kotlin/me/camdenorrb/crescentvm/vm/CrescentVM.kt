@@ -3,6 +3,7 @@ package me.camdenorrb.crescentvm.vm
 import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
+import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Type
 import java.util.*
 
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
@@ -18,7 +19,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			runFunction(
 				mainFile,
 				mainFunction,
-				listOf(Node.Array(Node.Type.Array(Node.Type.Basic("String")), args.map { Primitive.String(it) }.toTypedArray()))
+				listOf(Node.Array(Type.Array(Type.Basic("String")), Array(args.size) { Primitive.String(args[it]) }))
 			)
 		}
 	}
@@ -58,7 +59,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		}
 
 		// TODO: Make this meaningful
-		return Node.Type.Unit
+		return Type.Unit
 	}
 
 	fun runNode(node: Node) {
@@ -134,7 +135,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 		}
 
-		return Node.Type.Unit
+		return Type.Unit
 	}
 
 	fun Node.asString(): String {
@@ -144,7 +145,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				this.data
 			}
 
-			is Node.Type -> {
+			is Type -> {
 				"$this"
 			}
 
@@ -178,12 +179,12 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		is Node.Parameter.Basic -> {
 			when (parameter.type) {
 
-				is Node.Type.Array -> {
+				is Type.Array -> {
 					check(arg is Node.Array)
 					checkEquals(parameter.type, arg.type)
 				}
 
-				is Node.Type.Basic -> {
+				is Type.Basic -> {
 					checkEquals(parameter.type.name, arg::class.simpleName!!)
 				}
 

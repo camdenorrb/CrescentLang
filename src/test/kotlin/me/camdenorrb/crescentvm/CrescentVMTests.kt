@@ -40,5 +40,16 @@ internal class CrescentVMTests {
 		assertEquals(output, "Hello World\n")
 	}
 
+	@Test
+	fun argsHelloWorld() {
+
+		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.argsHelloWorld))
+
+		val output = collectSystemOut {
+			CrescentVM(listOf(file), file).invoke(listOf("Hello World"))
+		}
+
+		assertEquals(output, "Hello World\n")
+	}
 
 }
