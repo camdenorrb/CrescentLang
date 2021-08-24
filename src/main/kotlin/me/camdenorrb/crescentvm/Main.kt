@@ -19,6 +19,11 @@ object Main {
 
         val code =
             """
+                
+                fun funThing {
+                    println("I am a fun thing :)")
+                }
+                
                 fun main(args: [String]) {
                     
                     val thing = readBoolean("Meow")
@@ -33,6 +38,7 @@ object Main {
                     
                     println(thing)
                     println(thing2)
+                    funThing()
                 }
             """
 

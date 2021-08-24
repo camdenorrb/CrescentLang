@@ -16,6 +16,16 @@ internal object TestCode {
             }
 		"""
 
+	const val funThing =
+		"""         
+			fun funThing {
+			    println("I am a fun thing :)")
+			}
+			
+			fun main {
+				funThing()
+			}
+		"""
 	const val ifStatement =
 		"""
             fun main(args: [String]) {

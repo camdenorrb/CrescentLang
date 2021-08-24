@@ -10,11 +10,11 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.21")
+    implementation(kotlin("stdlib-jdk8"))
     implementation("org.capnproto:runtime:0.1.9")
     implementation("com.guardsquare:proguard-core:8.0.1")
     implementation("tech.poder.ir:PoderTechIR:+")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:1.5.21")
+    testImplementation(kotlin("test-junit"))
 }
 
 tasks {
@@ -24,7 +24,7 @@ tasks {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_16.toString()
         kotlinOptions.languageVersion = "1.6"
         kotlinOptions.apiVersion = "1.6"
-        kotlinOptions.useFir = true
+        //kotlinOptions.useFir = true
     }
 
     withType<JavaCompile> {

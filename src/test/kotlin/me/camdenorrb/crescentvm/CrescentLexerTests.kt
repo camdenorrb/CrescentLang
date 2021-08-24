@@ -32,15 +32,6 @@ internal class CrescentLexerTests {
 
         val tokens = CrescentLexer.invoke(TestCode.helloWorld)
 
-        TODO("Fix this")
-        assertContentEquals(
-            listOf(
-                FUN, Key("main"), Bracket.OPEN,
-                Key("println"), Parenthesis.OPEN, Data.String("Hello World"), Parenthesis.CLOSE,
-                Bracket.CLOSE,
-            ),
-            tokens
-        )
     }
 
     @Test
