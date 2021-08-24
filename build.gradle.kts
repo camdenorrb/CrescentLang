@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "1.5.30-RC"
+    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 group = "me.camdenorrb"
@@ -13,12 +14,12 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.capnproto:runtime:0.1.9")
     implementation("com.guardsquare:proguard-core:8.0.1")
-    implementation("tech.poder.ir:PoderTechIR:+")
+    //implementation("tech.poder.ir:PoderTechIR:+")
     testImplementation(kotlin("test-junit"))
 }
 
 tasks {
-    withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+    compileKotlin {
         sourceCompatibility = JavaVersion.VERSION_16.toString()
         targetCompatibility = JavaVersion.VERSION_16.toString()
         kotlinOptions.jvmTarget = JavaVersion.VERSION_16.toString()
@@ -27,7 +28,7 @@ tasks {
         //kotlinOptions.useFir = true
     }
 
-    withType<JavaCompile> {
+    compileJava {
         sourceCompatibility = JavaVersion.VERSION_16.toString()
         targetCompatibility = JavaVersion.VERSION_16.toString()
     }
