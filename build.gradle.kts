@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     kotlin("jvm") version "1.5.30-RC"
 }
@@ -18,16 +20,16 @@ dependencies {
 }
 
 tasks {
-    compileKotlin {
+    withType<KotlinCompile> {
         sourceCompatibility = JavaVersion.VERSION_16.toString()
         targetCompatibility = JavaVersion.VERSION_16.toString()
         kotlinOptions.jvmTarget = JavaVersion.VERSION_16.toString()
-        //kotlinOptions.languageVersion = "1.6"
-        //kotlinOptions.apiVersion = "1.6"
-        //kotlinOptions.useFir = true
+        kotlinOptions.languageVersion = "1.6"
+        kotlinOptions.apiVersion = "1.6"
+        kotlinOptions.useFir = true
     }
 
-    compileJava {
+    withType<JavaCompile> {
         sourceCompatibility = JavaVersion.VERSION_16.toString()
         targetCompatibility = JavaVersion.VERSION_16.toString()
     }
