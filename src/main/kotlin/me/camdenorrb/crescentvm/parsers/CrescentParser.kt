@@ -7,6 +7,7 @@ import me.camdenorrb.crescentvm.vm.CrescentToken
 import java.nio.file.Path
 
 // TODO: Maybe support comments
+// TODO: Shunting yard :C
 object CrescentParser {
 
     fun invoke(filePath: Path, tokens: List<CrescentToken>): CrescentAST.Node.File {

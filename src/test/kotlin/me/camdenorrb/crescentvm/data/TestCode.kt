@@ -26,6 +26,7 @@ internal object TestCode {
 				funThing()
 			}
 		"""
+
 	const val ifStatement =
 		"""
             fun main(args: [String]) {

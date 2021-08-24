@@ -1,10 +1,12 @@
 package me.camdenorrb.crescentvm.vm
 
+import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Type
 import java.util.*
+import kotlin.math.exp
 
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
@@ -113,8 +115,51 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 		val stack = LinkedList<Node>()
 
-		expression.nodes.forEachIndexed { index, node ->
-			when (node) {
+		val nodeIterator = PeekingNodeIterator(expression.nodes)
+
+		while (nodeIterator.hasNext()) {
+			when (val node = nodeIterator.next()) {
+
+				is Node.Operator -> {
+					when (node.operator) {
+						CrescentToken.Operator.NOT -> TODO()
+						CrescentToken.Operator.ADD -> TODO()
+						CrescentToken.Operator.SUB -> TODO()
+						CrescentToken.Operator.MUL -> TODO()
+						CrescentToken.Operator.DIV -> TODO()
+						CrescentToken.Operator.POW -> TODO()
+						CrescentToken.Operator.REM -> TODO()
+						CrescentToken.Operator.ASSIGN -> TODO()
+						CrescentToken.Operator.ADD_ASSIGN -> TODO()
+						CrescentToken.Operator.SUB_ASSIGN -> TODO()
+						CrescentToken.Operator.MUL_ASSIGN -> TODO()
+						CrescentToken.Operator.DIV_ASSIGN -> TODO()
+						CrescentToken.Operator.REM_ASSIGN -> TODO()
+						CrescentToken.Operator.POW_ASSIGN -> TODO()
+						CrescentToken.Operator.OR_COMPARE -> TODO()
+						CrescentToken.Operator.AND_COMPARE -> TODO()
+						CrescentToken.Operator.EQUALS_COMPARE -> {
+							stack.push(Primitive.Boolean(stack.pop() == runNode(nodeIterator.next(), context)))
+						}
+						CrescentToken.Operator.LESSER_COMPARE -> TODO()
+						CrescentToken.Operator.GREATER_COMPARE -> TODO()
+						CrescentToken.Operator.LESSER_EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.GREATER_EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
+						CrescentToken.Operator.NOT_EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
+						CrescentToken.Operator.CONTAINS -> TODO()
+						CrescentToken.Operator.RANGE -> TODO()
+						CrescentToken.Operator.TYPE_PREFIX -> TODO()
+						CrescentToken.Operator.RETURN -> TODO()
+						CrescentToken.Operator.RESULT -> TODO()
+						CrescentToken.Operator.COMMA -> TODO()
+						CrescentToken.Operator.DOT -> TODO()
+						CrescentToken.Operator.AS -> TODO()
+						CrescentToken.Operator.IMPORT_SEPARATOR -> TODO()
+						CrescentToken.Operator.INSTANCE_OF -> TODO()
+					}
+				}
 
 				is Primitive.String,
 				is Primitive.Number,
@@ -122,17 +167,15 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				is Primitive.Boolean,
 				is Node.Array,
 				-> {
-					// If is last node
 					stack.push(node)
-					/*
-					if (index + 1 == expression.nodes.size) {
-						return node
-					}
-					*/
 				}
 
 				is Node.Identifier -> {
-					stack.push(context.parameters[node.name] ?: context.variableValues[node.name])
+					stack.push(
+						context.parameters[node.name]
+							?: context.variableValues[node.name]
+							?: error("Unknown variable: ${node.name}")
+					)
 				}
 
 				// TODO: Account for operator overloading
@@ -171,6 +214,12 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			"println" -> {
 				checkEquals(node.arguments.size, 1)
 				println(runExpression(node.arguments[0], context).asString())
+			}
+
+			"readLine" -> {
+				checkEquals(node.arguments.size, 1)
+				println(runExpression(node.arguments[0], context).asString())
+				return Primitive.String(readLine()!!)
 			}
 
 			"readBoolean" -> {
@@ -238,11 +287,16 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				is Type.Array -> {
 					check(arg is Node.Array)
-					checkEquals(parameter.type, arg.type)
+					checkEquals(arg.type, parameter.type)
 				}
 
 				is Type.Basic -> {
-					checkEquals(parameter.type.name, arg::class.simpleName!!)
+					if (parameter.type.name != "Any") {
+						checkEquals(arg::class.simpleName!!, parameter.type.name)
+					}
+					else {
+						// Do nothing
+					}
 				}
 
 				else -> { error("Unexpected parameter: $parameter")}

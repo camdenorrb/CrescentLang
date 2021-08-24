@@ -20,13 +20,13 @@ object Main {
         val code =
             """
                 
-                fun funThing {
-                    println("I am a fun thing :)")
+                fun funThing(input: Any) {
+                    println(input)
                 }
                 
                 fun main(args: [String]) {
                     
-                    val thing = readBoolean("Meow")
+                    val thing = true#readBoolean("Meow")
                     
                     val thing2 = 
                         if (thing) {
@@ -38,7 +38,7 @@ object Main {
                     
                     println(thing)
                     println(thing2)
-                    funThing()
+                    funThing(thing == true)
                 }
             """
 
