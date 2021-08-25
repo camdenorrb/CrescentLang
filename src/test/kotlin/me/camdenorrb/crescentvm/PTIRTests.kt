@@ -89,11 +89,10 @@ internal class PTIRTests {
     fun helloWorld() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorld))
         val result = CrescentToPTIR.craft(file)
-        Machine.loadCode(*result.toTypedArray())
         assertEquals(
             "Hello World\n",
             collectSystemOut {
-                Machine.execute("static.main")
+                CrescentToPTIR.execute("static.main", result)
             }
         )
     }
@@ -102,11 +101,10 @@ internal class PTIRTests {
     fun funThing() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.funThing))
         val result = CrescentToPTIR.craft(file)
-        Machine.loadCode(*result.toTypedArray())
         assertEquals(
             "I am a fun thing :)\n",
             collectSystemOut {
-                Machine.execute("static.main")
+                CrescentToPTIR.execute("static.main", result)
             }
         )
     }
@@ -115,18 +113,17 @@ internal class PTIRTests {
     fun ifStatement() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifStatement))
         val result = CrescentToPTIR.craft(file)
-        Machine.loadCode(*result.toTypedArray())
         assertEquals(
             "Meow\n",
             collectSystemOut {
-                Machine.execute("static.main", true)
+                CrescentToPTIR.execute("static.main", result, true)
             }
         )
 
         assertEquals(
             "Hiss\n",
             collectSystemOut {
-                Machine.execute("static.main", false)
+                CrescentToPTIR.execute("static.main", result, false)
             }
         )
     }
