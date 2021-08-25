@@ -30,7 +30,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	fun runFunction(holder: Node, function: Node.Function, args: List<Node>): Node {
 
 		// TODO: Account for default params
-		checkEquals(function.params.size, args.size)
+		checkEquals(args.size, function.params.size)
 
 		val paramsToValue = mutableMapOf<String, Node>()
 
@@ -225,7 +225,19 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 
 						CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
-						CrescentToken.Operator.NOT_EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.NOT_EQUALS_COMPARE -> {
+
+							val pop1 = stack.pop()
+							val pop2 = stack.pop()
+
+							// TODO: Override !=, ==, >=, <=, <, > on number, then merging this if statement into one statement and remove pop1 and pop2
+							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
+								stack.push(Primitive.Boolean(pop2.data.toDouble() != pop1.data.toDouble()))
+							}
+							else {
+								stack.push(Primitive.Boolean(pop2 != pop1))
+							}
+						}
 						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
 						CrescentToken.Operator.CONTAINS -> TODO()
 						CrescentToken.Operator.RANGE -> TODO()
@@ -319,7 +331,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				}
 
 				val function = functionFile.functions.getValue(node.identifier)
-
 				return runFunction(functionFile, function, node.arguments.map { runExpression(it, context) })
 			}
 

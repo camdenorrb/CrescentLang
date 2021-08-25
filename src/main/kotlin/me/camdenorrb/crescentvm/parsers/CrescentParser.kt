@@ -588,6 +588,10 @@ object CrescentParser {
             names.forEach { name ->
                 parameters += CrescentAST.Node.Parameter.Basic(name, type)
             }
+
+            if (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
+                checkEquals(tokenIterator.next(), CrescentToken.Operator.COMMA)
+            }
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
@@ -605,6 +609,11 @@ object CrescentParser {
         val arguments = mutableListOf<CrescentAST.Node.Expression>()
 
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
+
+            if (tokenIterator.peekNext() == CrescentToken.Operator.COMMA) {
+                tokenIterator.next()
+            }
+
             arguments += readExpression(tokenIterator)
         }
 
@@ -863,6 +872,10 @@ object CrescentParser {
             nodes += when (val peekNext = tokenIterator.peekNext()) {
 
                 CrescentToken.Parenthesis.CLOSE, CrescentToken.Bracket.CLOSE, CrescentToken.SquareBracket.CLOSE -> {
+                    break
+                }
+
+                CrescentToken.Operator.COMMA -> {
                     break
                 }
 

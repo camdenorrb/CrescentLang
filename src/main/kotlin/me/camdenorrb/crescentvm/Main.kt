@@ -19,16 +19,32 @@ object Main {
 
         val code =
             """             
-            fun main {
-                println((1.0 + 1) + 1 / 10 + 1000 * 10 / 10) 
-                println(1 + 4 + 3)
-                println(1 * (2))
-            }
+                fun repeatPrint(input: Any, amount: Any) {
+                
+                  print(input)
+                
+                  if (amount > 0) {
+                      repeatPrint(input, amount - 1)
+                  }
+                }
+                
+                fun printStars(number: Any) {
+                
+                  repeatPrint('*', number)
+                  println("")
+                
+                  if (number < 10) {
+                    printStars(number + 1)
+                  }
+                }
+                fun main {
+                    printStars(5)
+                }
             """
 
 
         val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
-        println(file.mainFunction?.innerCode)
+        println(file.functions["printStars"])
         CrescentVM(listOf(file), file).invoke()
     }
 
