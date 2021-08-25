@@ -5,9 +5,6 @@ import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToPTIR
 import me.camdenorrb.crescentvm.vm.CrescentVM
-import tech.poder.ir.instructions.common.Method
-import tech.poder.ir.instructions.common.special.SpecialCalls
-import tech.poder.ir.vm.Machine
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -40,39 +37,6 @@ internal class PTIRTests {
     }
 
     @Test
-    fun forcedError() {
-        Machine.clear()
-		val libA = Method.create("printHelloKat") {
-			it.push("Hello Kat\n")
-			it.sysCall(SpecialCalls.PRINT)
-		}
-		val libB = Method.create("printHelloWorld") {
-			it.push("Hello World")
-            it.push("\n")
-            it.add()
-			it.sysCall(SpecialCalls.PRINT)
-		}
-		val main = Method.create("main") {
-			val elseLabel = it.newLabel()
-			val afterLabel = it.newLabel()
-			it.sysCall(SpecialCalls.RANDOM_INT, -1, 1)
-			it.push(0)
-			it.ifEquals(elseLabel)
-			it.invoke(libA)
-			it.push("Forced Error Leftover") //Uneven Push/Pop!
-			it.jmp(afterLabel)
-			it.placeLabel(elseLabel)
-			it.invoke(libB)
-			it.placeLabel(afterLabel)
-			it.return_()
-		}
-		Machine.loadCode(libA, libB, main)
-        repeat(10) {
-            Machine.execute("static.main")
-        }
-    }
-
-    @Test
     fun argsHelloWorld() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.argsHelloWorld))
         val result = CrescentToPTIR.craft(file)
@@ -95,7 +59,9 @@ internal class PTIRTests {
     fun tree() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.tree))
         val result = CrescentToPTIR.craft(file)
-        CrescentToPTIR.execute("static.main", result)
+        collectSystemOut {
+            CrescentToPTIR.execute("static.main", result)
+        }
     }
 
     @Test
