@@ -18,32 +18,14 @@ object Main {
         /*path.readText()*/
 
         val code =
-            """
-                
-                fun funThing(input: Any) {
-                    println(input)
-                }
-                
+            """             
                 fun main(args: [String]) {
-                    
-                    val thing = true#readBoolean("Meow")
-                    
-                    val thing2 = 
-                        if (thing) {
-                            "Moo"
-                        }
-                        else {
-                            "Cow"
-                        }
-                    
-                    println(thing)
-                    println(thing2)
-                    funThing(thing == true)
+                    println("Hello World")
                 }
             """
 
         val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
-        CrescentVM(listOf(file), file).invoke(listOf("Meowwwwww"))
+        CrescentVM(listOf(file), file).invoke()
     }
 
 

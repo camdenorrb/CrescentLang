@@ -7,6 +7,7 @@ import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Type
 import java.util.*
 import kotlin.math.exp
+import kotlin.math.pow
 
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
@@ -123,12 +124,24 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				is Node.Operator -> {
 					when (node.operator) {
 						CrescentToken.Operator.NOT -> TODO()
-						CrescentToken.Operator.ADD -> TODO()
-						CrescentToken.Operator.SUB -> TODO()
-						CrescentToken.Operator.MUL -> TODO()
-						CrescentToken.Operator.DIV -> TODO()
-						CrescentToken.Operator.POW -> TODO()
-						CrescentToken.Operator.REM -> TODO()
+						CrescentToken.Operator.ADD -> {
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() + (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+						}
+						CrescentToken.Operator.SUB -> {
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() - (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+						}
+						CrescentToken.Operator.MUL -> {
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() * (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+						}
+						CrescentToken.Operator.DIV -> {
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() / (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+						}
+						CrescentToken.Operator.POW -> {
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble().pow((runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble())))
+						}
+						CrescentToken.Operator.REM -> {
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() % (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+						}
 						CrescentToken.Operator.ASSIGN -> TODO()
 						CrescentToken.Operator.ADD_ASSIGN -> TODO()
 						CrescentToken.Operator.SUB_ASSIGN -> TODO()
