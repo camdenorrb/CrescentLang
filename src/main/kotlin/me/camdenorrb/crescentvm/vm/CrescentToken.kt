@@ -137,6 +137,12 @@ interface CrescentToken {
         GREATER_COMPARE(">"),
         LESSER_EQUALS_COMPARE("<="),
         GREATER_EQUALS_COMPARE(">="),
+        BIT_SHIFT_RIGHT("shr"),
+        BIT_SHIFT_LEFT("shl"),
+        UNSIGNED_BIT_SHIFT_RIGHT("ushr"), // Left isn't needed
+        BIT_OR("or"),
+        BIT_XOR("xor"),
+        BIT_AND("and"),
         EQUALS_REFERENCE_COMPARE("==="),
         NOT_EQUALS_COMPARE("!="),
         NOT_EQUALS_REFERENCE_COMPARE("!=="),

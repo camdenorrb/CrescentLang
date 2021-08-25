@@ -4,6 +4,7 @@ import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.vm.CrescentToken
 
+// TODO: Support negative numbers
 object CrescentLexer {
 
     // TODO: Remake to act like how my filter works, finds all matches and eliminates as it continues to read
@@ -33,7 +34,7 @@ object CrescentLexer {
                     val next = charIterator.next()
                     val peek = charIterator.peekNext()
 
-                    if ((next == '-' && peek == '>') || peek == '=') {
+                    if (peek == '=' || next == '-' && peek == '>') {
                         "$next${charIterator.next()}"
                     }
                     else {
@@ -154,6 +155,13 @@ object CrescentLexer {
                 "/" -> CrescentToken.Operator.DIV
                 "%" -> CrescentToken.Operator.REM
                 "^" -> CrescentToken.Operator.POW
+
+                // Bit
+                "shr" -> CrescentToken.Operator.BIT_SHIFT_RIGHT
+                "shl" -> CrescentToken.Operator.BIT_SHIFT_LEFT
+                "ushr" -> CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT
+                "and" -> CrescentToken.Operator.BIT_AND
+                "or" -> CrescentToken.Operator.BIT_OR
 
                 // Assign
                 "=" -> CrescentToken.Operator.ASSIGN

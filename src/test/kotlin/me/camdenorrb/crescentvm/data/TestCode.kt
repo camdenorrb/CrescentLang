@@ -1,5 +1,11 @@
 package me.camdenorrb.crescentvm.data
 
+/*
+TODO:
+	- Bit shifting
+	- Triangles
+	- Negative numbers and multiplication through parenthesis
+*/
 internal object TestCode {
 
 	const val helloWorld =

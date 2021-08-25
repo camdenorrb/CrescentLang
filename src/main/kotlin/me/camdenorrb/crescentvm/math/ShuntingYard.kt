@@ -8,10 +8,6 @@ import java.util.*
 
 object ShuntingYard {
 
-    @JvmStatic
-    fun main(args: Array<String>) {
-    }
-
     fun invoke(input: List<CrescentAST.Node>): List<CrescentAST.Node> {
 
         // Queue -> Add/Remove
@@ -37,7 +33,7 @@ object ShuntingYard {
 
                 is CrescentAST.Node.Operator -> {
 
-                    while (operatorStack.isNotEmpty() && precedence(operatorStack.first) >= precedence(next)) {
+                    while (operatorStack.isNotEmpty() && precedence(operatorStack.first) <= precedence(next)) {
                         outputQueue.add(operatorStack.pop())
                     }
 
@@ -55,18 +51,34 @@ object ShuntingYard {
         return outputQueue
     }
 
+    // Lower is higher precedence (Runs operations top to bottom)
     fun precedence(operator: CrescentAST.Node.Operator) = when (operator.operator) {
 
-        CrescentToken.Operator.ADD -> 2
+        CrescentToken.Operator.POW -> 1
 
         CrescentToken.Operator.MUL,
         CrescentToken.Operator.DIV,
         CrescentToken.Operator.REM,
+        -> 2
+
+        CrescentToken.Operator.ADD,
+        CrescentToken.Operator.SUB
         -> 3
 
-        CrescentToken.Operator.POW -> 4
+        CrescentToken.Operator.BIT_SHIFT_LEFT,
+        CrescentToken.Operator.BIT_SHIFT_RIGHT,
+        CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT,
+        -> 4
 
-        else -> 0
+        CrescentToken.Operator.BIT_AND -> 5
+        CrescentToken.Operator.BIT_XOR -> 6
+        CrescentToken.Operator.BIT_OR -> 7
+
+        CrescentToken.Operator.AND_COMPARE -> 8
+        CrescentToken.Operator.OR_COMPARE -> 9
+
+        // Should always be higher than any operators, for stuff like assignment
+        else -> 10
     }
 
 }

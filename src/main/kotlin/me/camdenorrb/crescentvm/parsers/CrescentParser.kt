@@ -752,6 +752,7 @@ object CrescentParser {
     }
 
     // Returns null if the node should be skipped in the expression
+    // TODO: Find a way to remove recursion?
     fun readExpressionNode(tokenIterator: PeekingTokenIterator, isInDotChain: Boolean = false): CrescentAST.Node? {
 
         return when (val next = tokenIterator.next()) {

@@ -9,6 +9,7 @@ import java.util.*
 import kotlin.math.pow
 
 // TODO: Add a way to add external functions
+// TODO: Find a way to remove recursion
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 	fun invoke(args: List<String> = emptyList()) {
@@ -101,7 +102,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 
 			is Node.Variable -> {
-				//context.variables[node.name] = node
 				context.variableValues[node.name] = runNode(node.value, context)
 			}
 
@@ -121,6 +121,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		while (nodeIterator.hasNext()) {
 			when (val node = nodeIterator.next()) {
 
+				// TODO: Run operator function
 				is Node.Operator -> {
 					when (node.operator) {
 
@@ -177,8 +178,22 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.DIV_ASSIGN -> TODO()
 						CrescentToken.Operator.REM_ASSIGN -> TODO()
 						CrescentToken.Operator.POW_ASSIGN -> TODO()
-						CrescentToken.Operator.OR_COMPARE -> TODO()
-						CrescentToken.Operator.AND_COMPARE -> TODO()
+
+						CrescentToken.Operator.OR_COMPARE -> {
+
+							val pop1 = stack.pop() as Primitive.Boolean
+							val pop2 = stack.pop() as Primitive.Boolean
+
+							stack.push(Primitive.Boolean(pop2.data || pop1.data))
+						}
+
+						CrescentToken.Operator.AND_COMPARE -> {
+
+							val pop1 = stack.pop() as Primitive.Boolean
+							val pop2 = stack.pop() as Primitive.Boolean
+
+							stack.push(Primitive.Boolean(pop2.data && pop1.data))
+						}
 
 						CrescentToken.Operator.EQUALS_COMPARE -> {
 
@@ -225,12 +240,13 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 
 						CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
+
 						CrescentToken.Operator.NOT_EQUALS_COMPARE -> {
 
 							val pop1 = stack.pop()
 							val pop2 = stack.pop()
 
-							// TODO: Override !=, ==, >=, <=, <, > on number, then merging this if statement into one statement and remove pop1 and pop2
+							// TODO: Override !=, ==, >=, <=, <, >, xor, or, and, etc on number, then merging this if statement into one statement and remove pop1 and pop2
 							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
 								stack.push(Primitive.Boolean(pop2.data.toDouble() != pop1.data.toDouble()))
 							}
@@ -238,6 +254,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 								stack.push(Primitive.Boolean(pop2 != pop1))
 							}
 						}
+
 						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
 						CrescentToken.Operator.CONTAINS -> TODO()
 						CrescentToken.Operator.RANGE -> TODO()
@@ -249,6 +266,55 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.AS -> TODO()
 						CrescentToken.Operator.IMPORT_SEPARATOR -> TODO()
 						CrescentToken.Operator.INSTANCE_OF -> TODO()
+
+						CrescentToken.Operator.BIT_SHIFT_RIGHT -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toInt()
+							val pop2 = (stack.pop() as Primitive.Number).data.toInt()
+
+							stack.push(Primitive.Number(pop2 shr pop1))
+						}
+
+						CrescentToken.Operator.BIT_SHIFT_LEFT -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toInt()
+							val pop2 = (stack.pop() as Primitive.Number).data.toInt()
+
+							stack.push(Primitive.Number(pop2 shl pop1))
+						}
+
+						CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toInt()
+							val pop2 = (stack.pop() as Primitive.Number).data.toInt()
+
+							stack.push(Primitive.Number(pop2 ushr pop1))
+						}
+
+						CrescentToken.Operator.BIT_OR -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toInt()
+							val pop2 = (stack.pop() as Primitive.Number).data.toInt()
+
+							stack.push(Primitive.Number(pop2 or pop1))
+						}
+
+						CrescentToken.Operator.BIT_AND -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toInt()
+							val pop2 = (stack.pop() as Primitive.Number).data.toInt()
+
+							stack.push(Primitive.Number(pop2 and pop1))
+						}
+						CrescentToken.Operator.BIT_XOR -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toInt()
+							val pop2 = (stack.pop() as Primitive.Number).data.toInt()
+
+							stack.push(Primitive.Number(pop2 xor pop1))
+						}
+
+						CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()
 					}
 				}
 
