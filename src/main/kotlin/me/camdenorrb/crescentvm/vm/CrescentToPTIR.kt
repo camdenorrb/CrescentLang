@@ -87,15 +87,22 @@ object CrescentToPTIR {
                 }
             }
             is CrescentAST.Node.FunctionCall -> {
-                node.arguments.reversed().forEach { arg ->
-                    nodeToCode(builder, arg)
-                }
+
                 when (node.identifier) {
                     "println" -> {
-                        builder.sysCall(SpecialCalls.PRINTLN)
+                        builder.push("\n")
+                        node.arguments.reversed().forEach { arg ->
+                            nodeToCode(builder, arg)
+                        }
+                        builder.add()
+                        builder.sysCall(SpecialCalls.PRINT)
                     }
                     else -> {
-                        builder.invoke("static." + node.identifier, node.arguments.size)
+                        node.arguments.reversed().forEach { arg ->
+                            nodeToCode(builder, arg)
+                        }
+                        builder.invoke("static." + node.identifier, node.arguments.size, false)
+                        //todo no item for checking return type!
                     }
                 }
             }

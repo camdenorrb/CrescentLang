@@ -5,6 +5,8 @@ import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToPTIR
 import me.camdenorrb.crescentvm.vm.CrescentVM
+import tech.poder.ir.instructions.common.Method
+import tech.poder.ir.instructions.common.special.SpecialCalls
 import tech.poder.ir.vm.Machine
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -16,124 +18,156 @@ import kotlin.test.assertEquals
 
 internal class PTIRTests {
 
-	val originalSystemOut = System.out
+    val originalSystemOut = System.out
 
-	val originalSystemIn = System.`in`
+    val originalSystemIn = System.`in`
 
-	private inline fun collectSystemOut(block: () -> Unit): String {
+    private inline fun collectSystemOut(block: () -> Unit): String {
 
-		val byteArrayOutputStream = ByteArrayOutputStream()
-		val printStream = PrintStream(byteArrayOutputStream)
+        val byteArrayOutputStream = ByteArrayOutputStream()
+        val printStream = PrintStream(byteArrayOutputStream)
 
-		System.setOut(printStream)
-		block()
-		System.setOut(originalSystemOut)
+        System.setOut(printStream)
+        block()
+        System.setOut(originalSystemOut)
 
-		return byteArrayOutputStream.toString()
-	}
+        return byteArrayOutputStream.toString()
+    }
 
-	private inline fun fakeUserInput(input: String, block: () -> Unit) {
-		System.setIn(ByteArrayInputStream(input.toByteArray()))
-		block()
-		System.setIn(originalSystemIn)
-	}
+    private inline fun fakeUserInput(input: String, block: () -> Unit) {
+        System.setIn(ByteArrayInputStream(input.toByteArray()))
+        block()
+        System.setIn(originalSystemIn)
+    }
 
-	@BeforeTest
-	fun cleanMachine() {
-		Machine.clear()
-	}
+    @BeforeTest
+    fun cleanMachine() {
+        Machine.clear()
+    }
 
-	@Test
-	fun argsHelloWorld() {
-		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.argsHelloWorld))
-		val result = CrescentToPTIR.invoke(file)
-		Machine.loadCode(*result.toTypedArray())
-		assertEquals(
-			"Hello World\n",
-			collectSystemOut {
-				Machine.execute("static.main", "Hello World")
-			}
-		)
-	}
+    @Test
+    fun forcedError() {
+		val libA = Method.create("printHelloKat") {
+			it.push("Hello Kat\n")
+			it.sysCall(SpecialCalls.PRINT)
+		}
+		val libB = Method.create("printHelloWorld") {
+			it.push("\n")
+			it.push("Hello World")
+			it.add()
+			it.sysCall(SpecialCalls.PRINT)
+		}
+		val main = Method.create("main") {
+			val elseLabel = it.newLabel()
+			val afterLabel = it.newLabel()
+			it.sysCall(SpecialCalls.RANDOM_INT, -1, 1)
+			it.push(0)
+			it.ifEquals(elseLabel)
+			it.invoke(libA)
+			it.push("Forced Error Leftover") //Uneven Push/Pop!
+			it.jmp(afterLabel)
+			it.placeLabel(elseLabel)
+			it.invoke(libB)
+			it.placeLabel(afterLabel)
+			it.return_()
+		}
+		Machine.loadCode(libA, libB, main)
+        repeat(10) {
+            Machine.execute("static.main")
+        }
+    }
 
-	@Test
-	fun helloWorld() {
-		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorld))
-		val result = CrescentToPTIR.invoke(file)
-		Machine.loadCode(*result.toTypedArray())
-		assertEquals(
-			"Hello World\n",
-			collectSystemOut {
-				Machine.execute("static.main")
-			}
-		)
-	}
+    @Test
+    fun argsHelloWorld() {
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.argsHelloWorld))
+        val result = CrescentToPTIR.invoke(file)
+        Machine.loadCode(*result.toTypedArray())
+        assertEquals(
+            "Hello World\n",
+            collectSystemOut {
+                Machine.execute("static.main", "Hello World")
+            }
+        )
+    }
 
-	@Test
-	fun funThing() {
-		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.funThing))
-		val result = CrescentToPTIR.invoke(file)
-		Machine.loadCode(*result.toTypedArray())
-		assertEquals(
-			"I am a fun thing :)\n",
-			collectSystemOut {
-				Machine.execute("static.main")
-			}
-		)
-	}
+    @Test
+    fun helloWorld() {
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorld))
+        val result = CrescentToPTIR.invoke(file)
+        Machine.loadCode(*result.toTypedArray())
+        assertEquals(
+            "Hello World\n",
+            collectSystemOut {
+                Machine.execute("static.main")
+            }
+        )
+    }
 
-	@Test
-	fun ifStatement() {
-		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifStatement))
-		val result = CrescentToPTIR.invoke(file)
-		Machine.loadCode(*result.toTypedArray())
-		assertEquals(
-			"Meow\n",
-			collectSystemOut {
-				Machine.execute("static.main", true)
-			}
-		)
+    @Test
+    fun funThing() {
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.funThing))
+        val result = CrescentToPTIR.invoke(file)
+        Machine.loadCode(*result.toTypedArray())
+        assertEquals(
+            "I am a fun thing :)\n",
+            collectSystemOut {
+                Machine.execute("static.main")
+            }
+        )
+    }
 
-		assertEquals(
-			"Hiss\n",
-			collectSystemOut {
-				Machine.execute("static.main", false)
-			}
-		)
-	}
+    @Test
+    fun ifStatement() {
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifStatement))
+        val result = CrescentToPTIR.invoke(file)
+        Machine.loadCode(*result.toTypedArray())
+        assertEquals(
+            "Meow\n",
+            collectSystemOut {
+                Machine.execute("static.main", true)
+            }
+        )
 
-	@Test
-	fun ifInputStatement() {
+        assertEquals(
+            "Hiss\n",
+            collectSystemOut {
+                Machine.execute("static.main", false)
+            }
+        )
+    }
 
-		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifInputStatement))
-		//val result = CrescentToPTIR.invoke(file)
-		//Machine.loadCode(*result.toTypedArray())
-		assertEquals(
-			"""
+    @Test
+    fun ifInputStatement() {
+
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifInputStatement))
+        //val result = CrescentToPTIR.invoke(file)
+        //Machine.loadCode(*result.toTypedArray())
+        assertEquals(
+            """
 				Enter a boolean value [true/false]
 				Meow
 				
 			""".trimIndent(),
-			collectSystemOut {
-				fakeUserInput("true") {
-					CrescentVM(listOf(file), file).invoke()
-				}
-			},
-		)
+            collectSystemOut {
+                fakeUserInput("true") {
+                    CrescentVM(listOf(file), file).invoke()
+                }
+            },
+        )
 
-		assertEquals(
-			"""
+        assertEquals(
+            """
 				Enter a boolean value [true/false]
 				Hiss
 				
 			""".trimIndent(),
-			collectSystemOut {
-				fakeUserInput("false") {
-					CrescentVM(listOf(file), file).invoke()
-				}
-			}
-		)
-	}
+            collectSystemOut {
+                fakeUserInput("false") {
+                    CrescentVM(listOf(file), file).invoke()
+                }
+            }
+        )
+    }
 
 
 }
