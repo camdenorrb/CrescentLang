@@ -54,7 +54,7 @@ internal class CrescentParserTests {
             listOf(
                 Statement.If(
                     Expression(listOf(
-                        GetCall("args", listOf(Expression(listOf(Number(0))))), Operator(EQUALS_COMPARE), String("true")
+                        GetCall("args", listOf(Expression(listOf(Number(0))))), String("true"), Operator(EQUALS_COMPARE)
                     )),
                     Statement.Block(listOf(
                         FunctionCall("println", listOf(Expression(listOf(String("Meow")))))
@@ -178,25 +178,25 @@ internal class CrescentParserTests {
                                 When.Clause(
                                     Char('+'),
                                     Statement.Block(listOf(Expression(listOf(
-                                        Identifier("input1"), Operator(ADD), Identifier("input2")
+                                        Identifier("input1"), Identifier("input2"), Operator(ADD)
                                     ))))
                                 ),
                                 When.Clause(
                                     Char('-'),
                                     Statement.Block(listOf(Expression(listOf(
-                                        Identifier("input1"), Operator(SUB), Identifier("input2")
+                                        Identifier("input1"), Identifier("input2"), Operator(SUB)
                                     ))))
                                 ),
                                 When.Clause(
                                     Char('*'),
                                     Statement.Block(listOf(Expression(listOf(
-                                        Identifier("input1"), Operator(MUL), Identifier("input2")
+                                        Identifier("input1"), Identifier("input2"), Operator(MUL)
                                     ))))
                                 ),
                                 When.Clause(
                                     Char('/'),
                                     Statement.Block(listOf(Expression(listOf(
-                                        Identifier("input1"), Operator(DIV), Identifier("input2")
+                                        Identifier("input1"), Identifier("input2"), Operator(DIV)
                                     ))))
                                 )
                             )
@@ -204,7 +204,6 @@ internal class CrescentParserTests {
                     ))
                 ),
                 FunctionCall("println", listOf(Expression(listOf(Identifier("result")))))
-
             ),
             mainFunction.innerCode.nodes,
         )
@@ -265,7 +264,7 @@ internal class CrescentParserTests {
                             params = listOf(Parameter.Basic("value1", Type.Basic("Int")), Parameter.Basic("value2", Type.Basic("Int"))),
                             returnType = Type.Basic("Int"),
                             innerCode = Statement.Block(listOf(
-                                Return(Expression(listOf(Identifier("value1"), Operator(ADD), Identifier("value2"))))
+                                Return(Expression(listOf(Identifier("value1"), Identifier("value2"), Operator(ADD))))
                             ))
                         ),
                         Function(
@@ -275,7 +274,7 @@ internal class CrescentParserTests {
                             params = listOf(Parameter.Basic("value1", Type.Basic("Int")), Parameter.Basic("value2", Type.Basic("Int"))),
                             returnType = Type.Basic("Int"),
                             innerCode = Statement.Block(listOf(
-                                Return(Expression(listOf(Identifier("value1"), Operator(SUB), Identifier("value2"))))
+                                Return(Expression(listOf(Identifier("value1"), Identifier("value2"), Operator(SUB))))
                             ))
                         ),
                     ),
@@ -318,8 +317,8 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 FunctionCall("println", listOf(Expression(listOf(
-                    Expression(listOf(Number(1.0), Operator(ADD), Number(1))),
-                    Operator(ADD), Number(1), Operator(DIV), Number(10), Operator(ADD), Number(1000), Operator(MUL), Number(10), Operator(DIV), Number(10), Operator(POW), Number(10)
+                    Number(1.0), Number(1), Operator(ADD),
+                    Number(1), Number(10), Operator(DIV), Operator(ADD), Number(1000), Number(10), Operator(MUL), Number(10), Number(10), Operator(POW), Operator(DIV), Operator(ADD)
                 ))))
             ),
             mainFunction.innerCode.nodes,
@@ -384,13 +383,13 @@ internal class CrescentParserTests {
                 Variable("color", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(DotChain(listOf(Identifier("Color"), FunctionCall("random", emptyList())))))),
                 When(Expression(listOf(Identifier("color"))), listOf(
                     When.Clause(
-                        InstanceOf(Expression(listOf(Operator(DOT), Identifier("RED")))),
+                        When.EnumShortHand("RED"),
                         Statement.Block(listOf(
                             FunctionCall("println", listOf(Expression(listOf(String("Meow")))))
                         ))
                     ),
                     When.Clause(
-                        InstanceOf(Expression(listOf(Operator(DOT), Identifier("GREEN")))),
+                        When.EnumShortHand("GREEN"),
                         Statement.Block(emptyList())
                     ),
                     When.Clause(
@@ -399,7 +398,7 @@ internal class CrescentParserTests {
                     ),
                 )),
                 // TODO: Encode name into a Variable instead of a bunch of tokens
-                When(Expression(listOf(Identifier("name"), Operator(ASSIGN), DotChain(listOf(Identifier("color"), Identifier("name"))))), listOf(
+                When(Expression(listOf(Identifier("name"), DotChain(listOf(Identifier("color"), Identifier("name"))), Operator(ASSIGN))), listOf(
                     When.Clause(
                         String("Red"),
                         Statement.Block(listOf(
@@ -446,6 +445,7 @@ internal class CrescentParserTests {
             ),
             mainFunction.innerCode.nodes,
         )
+
     }
 
     @Test

@@ -1,6 +1,7 @@
 package me.camdenorrb.crescentvm.parsers
 
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
+import me.camdenorrb.crescentvm.math.ShuntingYard
 import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentToken
@@ -13,6 +14,7 @@ object CrescentParser {
     fun invoke(filePath: Path, tokens: List<CrescentToken>): CrescentAST.Node.File {
 
         val imports = mutableListOf<CrescentAST.Node.Import>()
+
         val impls = mutableMapOf<String, CrescentAST.Node.Impl>()
         val enums = mutableMapOf<String, CrescentAST.Node.Enum>()
         val traits = mutableMapOf<String, CrescentAST.Node.Trait>()
@@ -651,17 +653,30 @@ object CrescentParser {
             // Unskip the read token from readNextUntilClosed(tokenIterator)
             tokenIterator.back()
 
-            val ifExpressionNode =
-                if (tokenIterator.peekNext() == CrescentToken.Statement.ELSE) {
+            val ifExpressionNode = when (tokenIterator.peekNext()) {
+
+                CrescentToken.Operator.DOT -> {
+
+                    checkEquals(tokenIterator.next(), CrescentToken.Operator.DOT)
+                    val identifier = readExpressionNode(tokenIterator) as CrescentAST.Node.Identifier
+                    //checkEquals(tokenIterator.next(), CrescentToken.Operator.RETURN)
+
+                    CrescentAST.Node.Statement.When.EnumShortHand(identifier.name)
+                }
+
+                CrescentToken.Statement.ELSE -> {
 
                     checkEquals(tokenIterator.next(), CrescentToken.Statement.ELSE)
                     checkEquals(tokenIterator.next(), CrescentToken.Operator.RETURN)
 
                     CrescentAST.Node.Statement.When.Else(readBlock(tokenIterator))
                 }
-                else {
+
+                else -> {
                     readExpressionNode(tokenIterator) ?: return@readNextUntilClosed
                 }
+
+            }
 
 
             // Usually happens if there is a comment before last closing }
@@ -852,7 +867,6 @@ object CrescentParser {
                 }
 
                 else -> {
-
                     if (nodes.isNotEmpty()) {
                         if (peekNext is CrescentToken.Operator) {
                             when (peekNext) {
@@ -870,7 +884,8 @@ object CrescentParser {
             }
         }
 
-        return CrescentAST.Node.Expression(nodes)
+        // TODO: Only run ShuntingYard if operators are used
+        return CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
     }
 
     inline fun readNextUntilClosed(tokenIterator: PeekingTokenIterator, block: (token: CrescentToken) -> Unit) {

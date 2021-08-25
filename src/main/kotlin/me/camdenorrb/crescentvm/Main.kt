@@ -20,7 +20,7 @@ object Main {
         val code =
             """             
                 fun main(args: [String]) {
-                    println("Hello World")
+                    println()
                 }
             """
 

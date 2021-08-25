@@ -125,22 +125,22 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					when (node.operator) {
 						CrescentToken.Operator.NOT -> TODO()
 						CrescentToken.Operator.ADD -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() + (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() + (stack.pop() as Primitive.Number).data.toDouble()))
 						}
 						CrescentToken.Operator.SUB -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() - (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() - (stack.pop() as Primitive.Number).data.toDouble()))
 						}
 						CrescentToken.Operator.MUL -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() * (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() * (stack.pop() as Primitive.Number).data.toDouble()))
 						}
 						CrescentToken.Operator.DIV -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() / (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() / (stack.pop() as Primitive.Number).data.toDouble()))
 						}
 						CrescentToken.Operator.POW -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble().pow((runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble())))
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble().pow((stack.pop() as Primitive.Number).data.toDouble())))
 						}
 						CrescentToken.Operator.REM -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() % (runNode(nodeIterator.next(), context) as Primitive.Number).data.toDouble()))
+							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() % (stack.pop() as Primitive.Number).data.toDouble()))
 						}
 						CrescentToken.Operator.ASSIGN -> TODO()
 						CrescentToken.Operator.ADD_ASSIGN -> TODO()
@@ -152,7 +152,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.OR_COMPARE -> TODO()
 						CrescentToken.Operator.AND_COMPARE -> TODO()
 						CrescentToken.Operator.EQUALS_COMPARE -> {
-							stack.push(Primitive.Boolean(stack.pop() == runNode(nodeIterator.next(), context)))
+							stack.push(Primitive.Boolean(stack.pop() == stack.pop()))
 						}
 						CrescentToken.Operator.LESSER_COMPARE -> TODO()
 						CrescentToken.Operator.GREATER_COMPARE -> TODO()

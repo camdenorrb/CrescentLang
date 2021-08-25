@@ -270,8 +270,8 @@ internal class CrescentLexerTests {
                 Data.Comment("Shows off cool Enum shorthand for when statements"),
 
                 WHEN, Parenthesis.OPEN, Key("color"), Parenthesis.CLOSE, Bracket.OPEN,
-                INSTANCE_OF, DOT, Key("RED"), RETURN, Bracket.OPEN, Key("println"), Parenthesis.OPEN, Data.String("Meow"), Parenthesis.CLOSE, Bracket.CLOSE,
-                INSTANCE_OF, DOT, Key("GREEN"), RETURN, Bracket.OPEN, Bracket.CLOSE,
+                DOT, Key("RED"), RETURN, Bracket.OPEN, Key("println"), Parenthesis.OPEN, Data.String("Meow"), Parenthesis.CLOSE, Bracket.CLOSE,
+                DOT, Key("GREEN"), RETURN, Bracket.OPEN, Bracket.CLOSE,
                 ELSE, RETURN, Bracket.OPEN, Bracket.CLOSE,
                 Bracket.CLOSE,
 

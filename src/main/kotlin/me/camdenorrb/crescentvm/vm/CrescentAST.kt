@@ -6,13 +6,14 @@ import java.nio.file.Path
 // https://github.com/cretz/kastree/blob/master/ast/ast-common/src/main/kotlin/kastree/ast/Node.kt
 class CrescentAST {
 
-    sealed class Node {
+    interface Node {
 
         sealed class Primitive {
 
-            data class Number(
+            @JvmInline
+            value class Number(
                 val data: kotlin.Number,
-            ) : Node() {
+            ) : Node {
 
                 override fun toString(): kotlin.String {
                     return "$data"
@@ -20,9 +21,10 @@ class CrescentAST {
 
             }
 
-            data class Boolean(
+            @JvmInline
+            value class Boolean(
                 val data: kotlin.Boolean,
-            ) : Node() {
+            ) : Node {
 
                 override fun toString(): kotlin.String {
                     return "$data"
@@ -30,9 +32,10 @@ class CrescentAST {
 
             }
 
-            data class String(
+            @JvmInline
+            value class String(
                 val data: kotlin.String,
-            ) : Node() {
+            ) : Node {
 
                 override fun toString(): kotlin.String {
                     return "\"$data\""
@@ -40,9 +43,10 @@ class CrescentAST {
 
             }
 
-            data class Char(
+            @JvmInline
+            value class Char(
                 val data: kotlin.Char,
-            ) : Node() {
+            ) : Node {
 
                 override fun toString(): kotlin.String {
                     return "'$data'"
@@ -55,7 +59,7 @@ class CrescentAST {
         data class Array(
             val type: Type.Array,
             val values: kotlin.Array<Node>,
-        ) : Node() {
+        ) : Node {
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
@@ -80,7 +84,7 @@ class CrescentAST {
         data class GetCall(
             val identifier: String,
             val arguments: List<Expression>
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "[${arguments.joinToString()}]"
@@ -91,7 +95,7 @@ class CrescentAST {
         data class FunctionCall(
             val identifier: String,
             val arguments: List<Expression>
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "$identifier(${arguments.joinToString()})"
@@ -100,9 +104,10 @@ class CrescentAST {
         }
 
         // Should usually only represent stuff inside (,)'s or return values
-        data class Expression(
+        @JvmInline
+        value class Expression(
             val nodes: List<Node>,
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "Exp$nodes"
@@ -126,9 +131,10 @@ class CrescentAST {
         }
         */
 
-        data class DotChain(
+        @JvmInline
+        value class DotChain(
             val nodes: List<Node>
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "DotChain=${nodes.joinToString(".")}"
@@ -136,9 +142,10 @@ class CrescentAST {
 
         }
 
-        data class Operator(
+        @JvmInline
+        value class Operator(
             val operator: CrescentToken.Operator
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "$operator"
@@ -146,9 +153,10 @@ class CrescentAST {
 
         }
 
-        data class InstanceOf(
+        @JvmInline
+        value class InstanceOf(
             val expression: Expression,
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "is $expression"
@@ -156,9 +164,10 @@ class CrescentAST {
 
         }
 
-        data class Return(
+        @JvmInline
+        value class Return(
             val expression: Expression,
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "-> $expression"
@@ -170,23 +179,23 @@ class CrescentAST {
             val path: String,
             val typeName: String,
             val typeAlias: String? = null,
-        ) : Node()
+        ) : Node
 
         data class Struct(
             val name: String,
             val variables: List<Variable>,
-        ) : Node()
+        ) : Node
 
         data class Sealed(
             val name: String,
             val structs: List<Struct>,
             val objects: List<Object>
-        )
+        ) : Node
 
         data class Trait(
             val name: String,
             val functionTraits: List<FunctionTrait>,
-        ) : Node()
+        ) : Node
 
         // TODO: Force variables to be val not var
         data class Object(
@@ -194,35 +203,36 @@ class CrescentAST {
             val variables: List<Variable>,
             val constants: List<Constant>,
             val functions: List<Function>,
-        ) : Node()
+        ) : Node
 
         data class Impl(
             val type: Type,
             val modifiers: List<CrescentToken.Modifier>,
             val extends: List<Type>,
             val functions: List<Function>,
-        ) : Node()
+        ) : Node
 
         data class Enum(
             val name: String,
             val parameters: List<Parameter>,
             val structs: List<EnumEntry>,
-        ) : Node()
+        ) : Node
 
         data class EnumEntry(
             val name: String,
             val arguments: List<Expression>,
-        ) : Node()
+        ) : Node
 
         data class FunctionTrait(
             val name: String,
             val params: List<Parameter>,
             val returnType: Type,
-        ) : Node()
+        ) : Node
 
-        data class Identifier(
+        @JvmInline
+        value class Identifier(
             val name: String,
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return name
@@ -235,7 +245,7 @@ class CrescentAST {
             val visibility: CrescentToken.Visibility,
             val type: Type,
             val value: Node,
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "const $name: ${type::class.simpleName} = $value"
@@ -249,7 +259,7 @@ class CrescentAST {
             val visibility: CrescentToken.Visibility,
             val type: Type,
             val value: Node,
-        ) : Node() {
+        ) : Node {
 
             override fun toString(): String {
                 return "$visibility ${if (isFinal) "val" else "var"} $name: ${type::class.simpleName} = $value"
@@ -264,7 +274,7 @@ class CrescentAST {
             val params: List<Parameter>,
             val returnType: Type,
             val innerCode: Statement.Block,
-        ) : Node()
+        ) : Node
 
         // TODO: Make a better toString
         data class File(
@@ -281,10 +291,10 @@ class CrescentAST {
             val constants: Map<String, Constant>,
             val functions: Map<String, Function>,
             val mainFunction: Function?,
-        ) : Node()
+        ) : Node
 
 
-        sealed class Parameter : Node() {
+        sealed class Parameter : Node {
 
             abstract val name: String
 
@@ -302,19 +312,21 @@ class CrescentAST {
         }
 
         // TODO: Add toStrings
-        sealed class Type : Node() {
+        interface Type : Node {
 
             // Should only be used for variables
-            object Implicit : Type()
+            object Implicit : Type
 
             // No return type
-            object Unit : Type()
+            object Unit : Type
 
 
             // Should only be used for function return types
-            data class Result(val type: Type) : Type()
+            @JvmInline
+            value class Result(val type: Type) : Type
 
-            data class Basic(val name: String) : Type() {
+            @JvmInline
+            value class Basic(val name: String) : Type {
 
                 override fun toString(): String {
                     return name
@@ -322,7 +334,8 @@ class CrescentAST {
 
             }
 
-            data class Array(val type: Type) : Type() {
+            @JvmInline
+            value class Array(val type: Type) : Type {
 
                 override fun toString(): String {
                     return "[${type}]"
@@ -346,19 +359,19 @@ class CrescentAST {
         }
 
 
-        sealed class Statement : Node() {
+        interface Statement : Node {
 
             data class When(
                 val argument: Expression,
                 val predicateToBlock: List<Clause>,
-            ) : Statement() {
+            ) : Statement {
 
                 override fun toString(): String {
                     return "when (${argument}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
                 }
 
                 // ifExpression is null when it's else
-                data class Clause(val ifExpressionNode: Node?, val thenBlock: Block) : Statement() {
+                data class Clause(val ifExpressionNode: Node?, val thenBlock: Block) : Statement {
 
                     override fun toString(): String {
                         return "$ifExpressionNode $thenBlock"
@@ -366,9 +379,16 @@ class CrescentAST {
 
                 }
 
-                data class Else(
+                // .EnumName
+                @JvmInline
+                value class EnumShortHand(
+                    val name: String,
+                ) : Statement
+
+                @JvmInline
+                value class Else(
                     val thenBlock: Block,
-                ) : Statement()
+                ) : Statement
 
             }
 
@@ -376,23 +396,24 @@ class CrescentAST {
                 val predicate: Expression,
                 val block: Block,
                 val elseBlock: Block?
-            ) : Statement()
+            ) : Statement
 
             data class While(
                 val predicate: Expression,
                 val block: Block,
-            ) : Statement()
+            ) : Statement
 
             data class For(
                 val variable: Variable,
                 val predicate: Expression,
                 val block: Block,
-            ) : Statement()
+            ) : Statement
 
             // TODO: Make it a list of nodes
-            data class Block(
+            @JvmInline
+            value class Block(
                 val nodes: List<Node>,
-            ) : Statement() {
+            ) : Statement {
 
                 override fun toString(): String {
                     return "{ ${nodes.joinToString()} }"
@@ -403,7 +424,7 @@ class CrescentAST {
             data class Range(
                 val start: Node,
                 val end: Node,
-            ) {
+            ) : Statement {
 
                 override fun toString(): String {
                     return "$start..$end"

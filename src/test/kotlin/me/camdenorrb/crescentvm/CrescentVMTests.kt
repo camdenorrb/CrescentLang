@@ -17,6 +17,7 @@ internal class CrescentVMTests {
 
 	val originalSystemIn = System.`in`
 
+
 	private inline fun collectSystemOut(block: () -> Unit): String {
 
 		val byteArrayOutputStream = ByteArrayOutputStream()

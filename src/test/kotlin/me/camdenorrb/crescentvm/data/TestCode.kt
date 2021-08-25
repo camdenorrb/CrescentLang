@@ -186,8 +186,8 @@ internal object TestCode {
                 # Shows off cool Enum shorthand for when statements
                 when(color) {
             
-                    is .RED   -> { println("Meow") }
-                    is .GREEN -> {}
+                    .RED   -> { println("Meow") }
+                    .GREEN -> {}
             
                     else -> {}
                 }
