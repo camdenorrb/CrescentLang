@@ -213,14 +213,14 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
 							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
 
-							stack.push(Primitive.Boolean(pop2 > pop1))
+							stack.push(Primitive.Boolean(pop2 < pop1))
 						}
 						CrescentToken.Operator.GREATER_COMPARE -> {
 
 							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
 							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
 
-							stack.push(Primitive.Boolean(pop2 < pop1))
+							stack.push(Primitive.Boolean(pop2 > pop1))
 						}
 
 
