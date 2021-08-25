@@ -392,6 +392,7 @@ class CrescentAST {
 
             }
 
+            // TODO: Add else if's, perhaps rename elseBlock to elseBlocks
             data class If(
                 val predicate: Expression,
                 val block: Block,

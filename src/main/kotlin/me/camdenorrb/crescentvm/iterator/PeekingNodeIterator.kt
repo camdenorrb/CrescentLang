@@ -17,18 +17,17 @@ class PeekingNodeIterator(val input: List<CrescentAST.Node>) : Iterator<Crescent
 		return input[index++]
 	}
 
-
 	fun back(): CrescentAST.Node {
 		return input[--index]
 	}
 
 
-	fun peekNext(amount: Int = 1): CrescentAST.Node {
-		return input.getOrElse(index + (amount - 1)) { error("No node found") }
+	fun peekNext(amount: Int = 1): CrescentAST.Node? {
+		return input.getOrNull(index + (amount - 1))
 	}
 
-	fun peekBack(amount: Int = 1): CrescentAST.Node {
-		return input.getOrElse(index - amount) { error("No node found") }
+	fun peekBack(amount: Int = 1): CrescentAST.Node? {
+		return input.getOrNull(index - amount)
 	}
 
 

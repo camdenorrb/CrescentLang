@@ -20,9 +20,9 @@ object Main {
         val code =
             """             
             fun main {
-                #println((1.0 + 1) + 1 / 10 + 1000 * 10 / 10) 
-                #println(1 + 4 + 3)
-                println(1 < 2)
+                println((1.0 + 1) + 1 / 10 + 1000 * 10 / 10) 
+                println(1 + 4 + 3)
+                println(1 * (2))
             }
             """
 

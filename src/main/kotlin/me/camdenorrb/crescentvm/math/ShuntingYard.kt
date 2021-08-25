@@ -3,6 +3,7 @@ package me.camdenorrb.crescentvm.math
 import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentToken
+import java.lang.Exception
 import java.util.*
 
 object ShuntingYard {
@@ -27,16 +28,7 @@ object ShuntingYard {
                 is CrescentAST.Node.Primitive.Number,
                 is CrescentAST.Node.Identifier,
                 -> {
-
-                    if (nodeIterator.peekBack() is CrescentAST.Node.Expression && next is Number) {
-                        operatorStack.push(CrescentAST.Node.Operator(CrescentToken.Operator.MUL))
-                    }
-
                     outputQueue.add(next)
-
-                    if (nodeIterator.hasNext() && nodeIterator.peekNext() is CrescentAST.Node.Expression && next is Number) {
-                        operatorStack.push(CrescentAST.Node.Operator(CrescentToken.Operator.MUL))
-                    }
                 }
 
                 is CrescentAST.Node.Expression -> {
