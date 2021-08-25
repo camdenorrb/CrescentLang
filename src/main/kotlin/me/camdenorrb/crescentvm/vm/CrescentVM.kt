@@ -6,9 +6,9 @@ import me.camdenorrb.crescentvm.vm.CrescentAST.Node
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Type
 import java.util.*
-import kotlin.math.exp
 import kotlin.math.pow
 
+// TODO: Add a way to add external functions
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 	fun invoke(args: List<String> = emptyList()) {
@@ -289,6 +289,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	fun runFunctionCall(node: Node.FunctionCall, context: FunctionContext): Node {
 
 		when (node.identifier) {
+
+			"print" -> {
+				checkEquals(node.arguments.size, 1)
+				print(runExpression(node.arguments[0], context).asString())
+			}
 
 			"println" -> {
 				checkEquals(node.arguments.size, 1)
