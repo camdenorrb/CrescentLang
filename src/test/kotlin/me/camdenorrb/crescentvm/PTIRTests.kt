@@ -116,14 +116,14 @@ internal class PTIRTests {
         assertEquals(
             "Meow\n",
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result, true)
+                CrescentToPTIR.execute("static.main", result, "true")
             }
         )
 
         assertEquals(
             "Hiss\n",
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result, false)
+                CrescentToPTIR.execute("static.main", result, "false")
             }
         )
     }
