@@ -40,6 +40,18 @@ object CrescentToPTIR {
                     CrescentToken.Operator.EQUALS_COMPARE -> {
                         builder.compare()
                     }
+                    CrescentToken.Operator.ADD -> {
+                        builder.add()
+                    }
+                    CrescentToken.Operator.SUB -> {
+                        builder.sub()
+                    }
+                    CrescentToken.Operator.MUL -> {
+                        builder.mul()
+                    }
+                    CrescentToken.Operator.DIV -> {
+                        builder.div()
+                    }
                     else -> error("Unknown operator: ${node.operator}")
                 }
             }
