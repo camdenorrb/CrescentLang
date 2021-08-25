@@ -3,42 +3,53 @@ package me.camdenorrb.crescentvm.vm
 import tech.poder.ir.instructions.common.Method
 import tech.poder.ir.instructions.common.special.SpecialCalls
 import tech.poder.ir.instructions.simple.CodeBuilder
+import tech.poder.ir.std.Basic
 import tech.poder.ir.vm.Machine
 
 object CrescentToPTIR {
 
-    fun craft(astFile: CrescentAST.Node.File): List<Method> {
-        val methods = mutableListOf<Method>()
+    fun craft(astFile: CrescentAST.Node.File): Set<Method> {
+        val methods = mutableSetOf<Method>()
         astFile.functions.forEach { (_, u) ->
             methods.add(Method.create(u.name, u.params.size.toUByte(), u.returnType != CrescentAST.Node.Type.Unit) {
+                u.params.forEach { param ->
+                    it.idArg(param.name)
+                }
                 u.innerCode.nodes.forEach { node ->
-                    nodeToCode(it, node)
+                    nodeToCode(it, node, methods)
                 }
             })
         }
         return methods
     }
 
-    fun execute(target: String = "static.main", methods: List<Method>, vararg args: Any) {
+    fun execute(target: String = "static.main", methods: Set<Method>, vararg args: Any) {
         Machine.clear()
         Machine.loadCode(*methods.toTypedArray())
         Machine.execute(target, *args)
     }
 
-    private fun nodeToCode(builder: CodeBuilder, node: CrescentAST.Node) {
+    private fun nodeToCode(builder: CodeBuilder, node: CrescentAST.Node, methods: MutableSet<Method>) {
         when (node) {
             is CrescentAST.Node.Return -> {
                 builder.return_()
             }
             is CrescentAST.Node.Statement.Block -> {
                 node.nodes.forEach {
-                    nodeToCode(builder, it)
+                    nodeToCode(builder, it, methods)
                 }
             }
             is CrescentAST.Node.Operator -> {
                 when (node.operator) {
                     CrescentToken.Operator.EQUALS_COMPARE -> {
-                        builder.compare()
+                        val afterL = builder.newLabel()
+                        val elseL = builder.newLabel()
+                        builder.ifEquals(elseL)
+                        builder.push(1)
+                        builder.jmp(afterL)
+                        builder.placeLabel(elseL)
+                        builder.push(0)
+                        builder.placeLabel(afterL)
                     }
                     CrescentToken.Operator.ADD -> {
                         builder.add()
@@ -52,8 +63,35 @@ object CrescentToPTIR {
                     CrescentToken.Operator.DIV -> {
                         builder.div()
                     }
+                    CrescentToken.Operator.POW -> {
+                        methods.add(Basic.math.methods.first { it.name.endsWith("pow") })
+                        builder.invoke(Basic.math.methods.first { it.name.endsWith("pow") })
+                    }
+                    CrescentToken.Operator.GREATER_COMPARE -> {
+                        val afterL = builder.newLabel()
+                        val elseL = builder.newLabel()
+                        builder.ifGreaterThan(elseL)
+                        builder.push(1)
+                        builder.jmp(afterL)
+                        builder.placeLabel(elseL)
+                        builder.push(0)
+                        builder.placeLabel(afterL)
+                    }
+                    CrescentToken.Operator.LESSER_COMPARE -> {
+                        val afterL = builder.newLabel()
+                        val elseL = builder.newLabel()
+                        builder.ifLessThan(elseL)
+                        builder.push(1)
+                        builder.jmp(afterL)
+                        builder.placeLabel(elseL)
+                        builder.push(0)
+                        builder.placeLabel(afterL)
+                    }
                     else -> error("Unknown operator: ${node.operator}")
                 }
+            }
+            is CrescentAST.Node.Primitive.Char -> {
+                builder.push(node.data)
             }
             is CrescentAST.Node.Primitive.String -> {
                 builder.push(node.data)
@@ -65,61 +103,32 @@ object CrescentToPTIR {
                 builder.push(node.data)
             }
             is CrescentAST.Node.Expression -> {
-                val opOrdering = mutableListOf<CrescentAST.Node>()
-                var i = 0
-                var index = 0
-                var tmpOp: CrescentAST.Node? = null
-                while (index < node.nodes.size) {
-                    val tmp = node.nodes[index++]
-                    if (tmp is CrescentAST.Node.Operator) {
-                        tmpOp = tmp
-                    } else {
-                        opOrdering.add(tmp)
-                        i++
-                    }
-                    if (i >= 2 && tmpOp != null) {
-                        opOrdering.add(tmpOp)
-                        tmpOp = null
-                        i = 0
-                    }
-                }
-
-                if (tmpOp != null) {
-                    opOrdering.add(tmpOp)
-                }
-                opOrdering.forEach {
-                    nodeToCode(builder, it)
+                node.nodes.forEach {
+                    nodeToCode(builder, it, methods)
                 }
             }
             is CrescentAST.Node.GetCall -> {
-                when (node.identifier) {
-                    "args" -> {
-                        node.arguments.forEach {
-                            nodeToCode(builder, it)
-                        }
-                        builder.getVar("args")
-                        builder.getArrayItem()
-                    }
-                    else -> {
-                        println(node.identifier)
-                    }
+                node.arguments.forEach {
+                    nodeToCode(builder, it, methods)
                 }
+                builder.getVar(node.identifier)
+                builder.getArrayItem()
             }
             is CrescentAST.Node.FunctionCall -> {
+                node.arguments.reversed().forEach { arg ->
+                    nodeToCode(builder, arg, methods)
+                }
 
                 when (node.identifier) {
                     "println" -> {
                         builder.push("\n")
-                        node.arguments.reversed().forEach { arg ->
-                            nodeToCode(builder, arg)
-                        }
                         builder.add()
                         builder.sysCall(SpecialCalls.PRINT)
                     }
+                    "print" -> {
+                        builder.sysCall(SpecialCalls.PRINT)
+                    }
                     else -> {
-                        node.arguments.reversed().forEach { arg ->
-                            nodeToCode(builder, arg)
-                        }
                         builder.invoke("static." + node.identifier, node.arguments.size, false)
                         //todo no item for checking return type!
                     }
@@ -133,20 +142,22 @@ object CrescentToPTIR {
                         builder.newLabel()
                     }
                 val elseLabel = builder.newLabel()
-                nodeToCode(builder, node.predicate)
+                nodeToCode(builder, node.predicate, methods)
                 builder.push(0)
-                builder.ifEquals(elseLabel)
-                nodeToCode(builder, node.block)
+                builder.ifNotEquals(elseLabel)
+                nodeToCode(builder, node.block, methods)
                 if (afterLabel != null) {
                     builder.jmp(afterLabel)
                 }
                 builder.placeLabel(elseLabel)
                 if (afterLabel != null) {
-                    nodeToCode(builder, node.elseBlock!!)
+                    nodeToCode(builder, node.elseBlock!!, methods)
                     builder.placeLabel(afterLabel)
                 }
             }
-
+            is CrescentAST.Node.Identifier -> {
+                builder.getArg(node.name)
+            }
             else -> error("Unknown Node: ${node::class.java}")
         }
     }

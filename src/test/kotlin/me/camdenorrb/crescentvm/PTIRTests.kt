@@ -12,7 +12,6 @@ import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import kotlin.io.path.Path
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -48,9 +47,9 @@ internal class PTIRTests {
 			it.sysCall(SpecialCalls.PRINT)
 		}
 		val libB = Method.create("printHelloWorld") {
-			it.push("\n")
 			it.push("Hello World")
-			it.add()
+            it.push("\n")
+            it.add()
 			it.sysCall(SpecialCalls.PRINT)
 		}
 		val main = Method.create("main") {
@@ -80,9 +79,23 @@ internal class PTIRTests {
         assertEquals(
             "Hello World\n",
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result, "Hello World")
+                CrescentToPTIR.execute("static.main", result, "Hello World", "Cats")
             }
         )
+    }
+
+    @Test
+    fun maths() {
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.math))
+        val result = CrescentToPTIR.craft(file)
+        CrescentToPTIR.execute("static.main", result)
+    }
+
+    @Test
+    fun tree() {
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.tree))
+        val result = CrescentToPTIR.craft(file)
+        CrescentToPTIR.execute("static.main", result)
     }
 
     @Test

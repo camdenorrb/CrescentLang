@@ -219,8 +219,40 @@ internal object TestCode {
 	const val math =
 		"""
             fun main {
-                println((1.0 + 1) + 1 / 10 + 1000 * 10 / 10 ^ 10)
+                println((1.0 + 1.0) + 1.0 / 10.0 + 1000.0 * 10.0 / 10.0 ^ 10.0)
             }
+		"""
+
+	const val tree =
+		"""
+fun repeatPrint(input amount: Any) {
+  print(input)
+  
+  if (amount > 1) {
+      repeatPrint(input, amount - 1)
+  }
+}
+fun printStars(number size countUp: Any) {
+  repeatPrint("* ", number)
+  println("")
+   
+  if (countUp) {
+    if (number < size) {
+      printStars(number + 1, size, true)
+    }
+    else {
+      printStars(number - 1, size, false)
+    }
+  }
+  else {
+    if (number > 1) {
+      printStars(number - 1, size, false)
+    }
+  }
+}
+fun main {
+    printStars(1, 10, true)
+}
 		"""
 
 	const val sealed =
