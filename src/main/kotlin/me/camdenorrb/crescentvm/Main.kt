@@ -19,12 +19,15 @@ object Main {
 
         val code =
             """             
-                fun main(args: [String]) {
-                    println()
-                }
+            fun main {
+                println((1.0 + 1) + 1 / 10 + 1000 * 10 / 10) 
+                #println(1 + 4 + 3)
+            }
             """
 
+
         val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
+        println(file.mainFunction?.innerCode)
         CrescentVM(listOf(file), file).invoke()
     }
 

@@ -150,6 +150,7 @@ interface CrescentToken {
         AS("as"),
         IMPORT_SEPARATOR("::"),
         INSTANCE_OF("is"),
+        NOT_INSTANCE_OF("!is"),
     }
 
     enum class Primitive : CrescentToken {

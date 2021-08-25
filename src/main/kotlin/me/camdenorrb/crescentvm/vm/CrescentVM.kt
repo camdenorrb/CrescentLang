@@ -123,25 +123,53 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				is Node.Operator -> {
 					when (node.operator) {
+
 						CrescentToken.Operator.NOT -> TODO()
+
+						// TODO: Override operators for these in Primitive.Number
 						CrescentToken.Operator.ADD -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() + (stack.pop() as Primitive.Number).data.toDouble()))
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Number(pop2 + pop1))
 						}
 						CrescentToken.Operator.SUB -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() - (stack.pop() as Primitive.Number).data.toDouble()))
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Number(pop2 - pop1))
 						}
 						CrescentToken.Operator.MUL -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() * (stack.pop() as Primitive.Number).data.toDouble()))
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Number(pop2 * pop1))
 						}
 						CrescentToken.Operator.DIV -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() / (stack.pop() as Primitive.Number).data.toDouble()))
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Number(pop2 / pop1))
 						}
 						CrescentToken.Operator.POW -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble().pow((stack.pop() as Primitive.Number).data.toDouble())))
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Number(pop2.pow(pop1)))
 						}
 						CrescentToken.Operator.REM -> {
-							stack.push(Primitive.Number((stack.pop() as Primitive.Number).data.toDouble() % (stack.pop() as Primitive.Number).data.toDouble()))
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Number(pop2 % pop1))
 						}
+
 						CrescentToken.Operator.ASSIGN -> TODO()
 						CrescentToken.Operator.ADD_ASSIGN -> TODO()
 						CrescentToken.Operator.SUB_ASSIGN -> TODO()
@@ -151,13 +179,51 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.POW_ASSIGN -> TODO()
 						CrescentToken.Operator.OR_COMPARE -> TODO()
 						CrescentToken.Operator.AND_COMPARE -> TODO()
+
 						CrescentToken.Operator.EQUALS_COMPARE -> {
-							stack.push(Primitive.Boolean(stack.pop() == stack.pop()))
+
+							val pop1 = stack.pop()
+							val pop2 = stack.pop()
+
+							// TODO: Override !=, ==, >=, <=, <, > on number, then merging this if statement into one statement and remove pop1 and pop2
+							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
+								stack.push(Primitive.Boolean(pop2.data.toDouble() == pop1.data.toDouble()))
+							}
+							else {
+								stack.push(Primitive.Boolean(pop2 == pop1))
+							}
 						}
-						CrescentToken.Operator.LESSER_COMPARE -> TODO()
-						CrescentToken.Operator.GREATER_COMPARE -> TODO()
-						CrescentToken.Operator.LESSER_EQUALS_COMPARE -> TODO()
-						CrescentToken.Operator.GREATER_EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.LESSER_EQUALS_COMPARE -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Boolean(pop2 <= pop1))
+						}
+						CrescentToken.Operator.GREATER_EQUALS_COMPARE -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Boolean(pop2 >= pop1))
+						}
+
+						CrescentToken.Operator.LESSER_COMPARE -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Boolean(pop2 > pop1))
+						}
+						CrescentToken.Operator.GREATER_COMPARE -> {
+
+							val pop1 = (stack.pop() as Primitive.Number).data.toDouble()
+							val pop2 = (stack.pop() as Primitive.Number).data.toDouble()
+
+							stack.push(Primitive.Boolean(pop2 < pop1))
+						}
+
+
 						CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
 						CrescentToken.Operator.NOT_EQUALS_COMPARE -> TODO()
 						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
