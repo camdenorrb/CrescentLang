@@ -27,6 +27,41 @@ internal object TestCode {
 			}
 		"""
 
+	val strings =
+		"""			
+			fun main {
+				val number = 1			
+				var thing = "Me"
+				
+				thing += "ow"
+				
+			    println("Meow ${'$'}number")
+				println(thing)
+			}
+		"""
+
+
+	const val variables =
+		"""
+		    fun main {
+				
+				var thing1 = "Meow"
+				var thing2 = 1
+				var thing3: Char = 'c'
+				var thing4: i32
+				
+				thing1 = "Mew"
+				thing2 += 1
+				thing3 = 'a'
+				thing4 = 1
+				
+				println(thing1)
+				println(thing2)
+				println(thing3)
+				println(thing4)
+			}
+		"""
+
 	const val ifStatement =
 		"""
             fun main(args: [String]) {
@@ -137,20 +172,42 @@ internal object TestCode {
 
 	            # All implementation methods
 	
-	            fun add(value1 value2: Int) -> Int {
+				fun printValues {
+					println(aNumber)
+					println(aValue1)
+					println(aValue2)
+				}
+				
+            }
+
+            # Can't use self in static syntax
+            impl static Example {
+			
+                fun add(value1 value2: Int) -> Int {
 	                -> value1 + value2
 	            }
 	
 	            fun sub(value1 value2: Int) -> Int {
 	                -> value1 - value2
 	            }
-
+				
             }
-
-            # Can't use self in static syntax
-            impl static Example {
-
-            }
+			
+			
+			fun main {
+				val example = Example(1, "Meow", "Mew")
+			    
+				example.printValues()
+				
+				println()
+				
+				println(example.aNumber)
+				println(example.aValue1)
+				println(example.aValue2)
+				
+				println(Example.add(1, 2))
+				println(Example.sub(1, 2))
+			}
         """
 
 	const val math =
