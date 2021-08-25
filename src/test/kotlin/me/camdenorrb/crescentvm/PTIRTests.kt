@@ -40,13 +40,9 @@ internal class PTIRTests {
         System.setIn(originalSystemIn)
     }
 
-    @BeforeTest
-    fun cleanMachine() {
-        Machine.clear()
-    }
-
     @Test
     fun forcedError() {
+        Machine.clear()
 		val libA = Method.create("printHelloKat") {
 			it.push("Hello Kat\n")
 			it.sysCall(SpecialCalls.PRINT)
@@ -80,12 +76,11 @@ internal class PTIRTests {
     @Test
     fun argsHelloWorld() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.argsHelloWorld))
-        val result = CrescentToPTIR.invoke(file)
-        Machine.loadCode(*result.toTypedArray())
+        val result = CrescentToPTIR.craft(file)
         assertEquals(
             "Hello World\n",
             collectSystemOut {
-                Machine.execute("static.main", "Hello World")
+                CrescentToPTIR.execute("static.main", result, "Hello World")
             }
         )
     }
@@ -93,7 +88,7 @@ internal class PTIRTests {
     @Test
     fun helloWorld() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorld))
-        val result = CrescentToPTIR.invoke(file)
+        val result = CrescentToPTIR.craft(file)
         Machine.loadCode(*result.toTypedArray())
         assertEquals(
             "Hello World\n",
@@ -106,7 +101,7 @@ internal class PTIRTests {
     @Test
     fun funThing() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.funThing))
-        val result = CrescentToPTIR.invoke(file)
+        val result = CrescentToPTIR.craft(file)
         Machine.loadCode(*result.toTypedArray())
         assertEquals(
             "I am a fun thing :)\n",
@@ -119,7 +114,7 @@ internal class PTIRTests {
     @Test
     fun ifStatement() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifStatement))
-        val result = CrescentToPTIR.invoke(file)
+        val result = CrescentToPTIR.craft(file)
         Machine.loadCode(*result.toTypedArray())
         assertEquals(
             "Meow\n",

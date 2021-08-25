@@ -3,10 +3,11 @@ package me.camdenorrb.crescentvm.vm
 import tech.poder.ir.instructions.common.Method
 import tech.poder.ir.instructions.common.special.SpecialCalls
 import tech.poder.ir.instructions.simple.CodeBuilder
+import tech.poder.ir.vm.Machine
 
 object CrescentToPTIR {
 
-    fun invoke(astFile: CrescentAST.Node.File): List<Method> {
+    fun craft(astFile: CrescentAST.Node.File): List<Method> {
         val methods = mutableListOf<Method>()
         astFile.functions.forEach { (_, u) ->
             methods.add(Method.create(u.name, u.params.size.toUByte(), u.returnType != CrescentAST.Node.Type.Unit) {
@@ -16,6 +17,12 @@ object CrescentToPTIR {
             })
         }
         return methods
+    }
+
+    fun execute(target: String = "static.main", methods: List<Method>, vararg args: Any) {
+        Machine.clear()
+        Machine.loadCode(*methods.toTypedArray())
+        Machine.execute(target, *args)
     }
 
     private fun nodeToCode(builder: CodeBuilder, node: CrescentAST.Node) {
