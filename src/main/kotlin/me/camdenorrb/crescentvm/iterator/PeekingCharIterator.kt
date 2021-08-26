@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.iterator
 
+
 class PeekingCharIterator(val input: String): Iterator<Char> {
 
     @PublishedApi
@@ -123,9 +124,15 @@ class PeekingCharIterator(val input: String): Iterator<Char> {
     }
     */
 
-    fun peekNext(amount: Int = 0): Char {
-        return input[index + amount]
+
+    fun peekNext(amount: Int = 1): Char {
+        return input[index + (amount - 1)]
     }
+
+    fun peekBack(amount: Int = 1): Char {
+        return input[index - amount]
+    }
+
 
     inline fun peekNextUntil(predicate: (Char) -> Boolean): String {
 

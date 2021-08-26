@@ -21,7 +21,7 @@ object Main {
         val code =
             """
 fun main() {
-    println(-.5)
+    println(1 -(.5))
 }
 		    """
             /*

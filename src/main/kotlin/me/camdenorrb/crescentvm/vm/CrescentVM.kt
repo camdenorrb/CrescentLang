@@ -8,6 +8,7 @@ import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Type
 import java.util.*
 import kotlin.math.pow
 import kotlin.math.round
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 // TODO: Add a way to add external functions
@@ -413,6 +414,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			"sqrt" -> {
 				checkEquals(1, node.arguments.size)
 				return Primitive.Number(sqrt((runNode(node.arguments[0], context) as Primitive.Number).data.toDouble()))
+			}
+
+			"sin" -> {
+				checkEquals(1, node.arguments.size)
+				return Primitive.Number(sin((runNode(node.arguments[0], context) as Primitive.Number).data.toDouble()))
 			}
 
 			"round" -> {

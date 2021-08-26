@@ -5,6 +5,7 @@ import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToPTIR
 import me.camdenorrb.crescentvm.vm.CrescentVM
+import tech.poder.ir.vm.Machine
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -14,7 +15,7 @@ import kotlin.system.measureNanoTime
 
 internal object Bench {
 
-	const val DEFAULT_CYCLES = 1_000_000
+	const val DEFAULT_CYCLES = 10_000_000
 
 	val filePath = Path.of("example.crescent")
 
@@ -65,8 +66,8 @@ internal object Bench {
 		benchCode("Imports", TestCode.imports)
 		*/
 
-		//benchVM("Hello Worlds", TestCode.helloWorlds)
-		benchVM("Triangles", TestCode.triangleRecursion)
+		benchVM("Hello Worlds", TestCode.helloWorlds)
+		//benchVM("Triangles", TestCode.triangleRecursion)
 
 	}
 
@@ -93,17 +94,21 @@ internal object Bench {
 
 		val tokens = CrescentLexer.invoke(code)
 		val parsed = CrescentParser.invoke(Path("example.moo"), tokens)
-		val result = CrescentToPTIR.craft(parsed)
+		val methods = CrescentToPTIR.craft(parsed)
+
+		Machine.loadCode(*methods.toTypedArray())
 
 		vmBenchmark.bench("Moo:$name") {
 			collectSystemOut {
-				CrescentToPTIR.execute("static.main", result)
+				Machine.execute("static.main")
 			}
 		}
 
+		val vm = CrescentVM(listOf(parsed), parsed)
+
 		vmBenchmark.bench("Kat:$name") {
 			collectSystemOut {
-				CrescentVM(listOf(parsed), parsed)
+				vm.invoke()
 			}
 		}
 	}
