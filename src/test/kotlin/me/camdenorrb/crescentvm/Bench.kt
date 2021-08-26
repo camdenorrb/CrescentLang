@@ -19,7 +19,7 @@ internal object Bench {
 
 	@JvmStatic
 	fun main(args: Array<String>) {
-		benchCode("Hello World", TestCode.helloWorld)
+		benchCode("Hello World", TestCode.helloWorlds)
 		benchCode("If Statement", TestCode.ifStatement)
 		benchCode("If Input Statement", TestCode.ifInputStatement)
 		benchCode("Calculator", TestCode.calculator)

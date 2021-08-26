@@ -6,6 +6,7 @@ import java.nio.file.Path
 // https://github.com/cretz/kastree/blob/master/ast/ast-common/src/main/kotlin/kastree/ast/Node.kt
 
 // TODO: Store line numbers and start/end char positions
+// TODO: Make Variable a sealed class, Basic, Constant, Local
 class CrescentAST {
 
     interface Node {
@@ -85,18 +86,18 @@ class CrescentAST {
 
         data class GetCall(
             val identifier: String,
-            val arguments: List<Expression>
+            val arguments: List<Node>
         ) : Node {
 
             override fun toString(): String {
-                return "[${arguments.joinToString()}]"
+                return "$identifier[${arguments.joinToString()}]"
             }
 
         }
 
         data class IdentifierCall(
             val identifier: String,
-            val arguments: List<Expression>
+            val arguments: List<Node> = emptyList()
         ) : Node {
 
             override fun toString(): String {
@@ -158,7 +159,7 @@ class CrescentAST {
 
         @JvmInline
         value class InstanceOf(
-            val expression: Expression,
+            val expression: Node,
         ) : Node {
 
             override fun toString(): String {
@@ -169,7 +170,7 @@ class CrescentAST {
 
         @JvmInline
         value class Return(
-            val expression: Expression,
+            val expression: Node,
         ) : Node {
 
             override fun toString(): String {
@@ -223,7 +224,7 @@ class CrescentAST {
 
         data class EnumEntry(
             val name: String,
-            val arguments: List<Expression>,
+            val arguments: List<Node>,
         ) : Node
 
         data class FunctionTrait(
@@ -365,7 +366,7 @@ class CrescentAST {
         interface Statement : Node {
 
             data class When(
-                val argument: Expression,
+                val argument: Node,
                 val predicateToBlock: List<Clause>,
             ) : Statement {
 
@@ -397,13 +398,13 @@ class CrescentAST {
 
             // TODO: Add else if's, perhaps rename elseBlock to elseBlocks
             data class If(
-                val predicate: Expression,
+                val predicate: Node,
                 val block: Block,
                 val elseBlock: Block?
             ) : Statement
 
             data class While(
-                val predicate: Expression,
+                val predicate: Node,
                 val block: Block,
             ) : Statement
 

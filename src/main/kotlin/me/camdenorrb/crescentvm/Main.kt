@@ -20,10 +20,10 @@ object Main {
 
         val code =
             """
-                fun main {
-                    println(1 xor 1)
-                }
-            """.trimIndent()
+			fun main(args: [String]) {
+                println(args[0])
+            }
+		"""
             /*
             """             
                 fun repeatPrint(input: Any, amount: Any) {

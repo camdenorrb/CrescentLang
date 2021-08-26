@@ -57,7 +57,7 @@ internal class PTIRTests {
 
     @Test
     fun tree() {
-        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.tree))
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.triangleRecursion))
         val result = CrescentToPTIR.craft(file)
         collectSystemOut {
             CrescentToPTIR.execute("static.main", result)
@@ -66,7 +66,7 @@ internal class PTIRTests {
 
     @Test
     fun helloWorld() {
-        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorld))
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorlds))
         val result = CrescentToPTIR.craft(file)
         assertEquals(
             "Hello World\n",

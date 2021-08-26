@@ -82,8 +82,19 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				return node
 			}
 
+			is Node.Identifier -> {
+				return context.parameters[node.name]
+					?: context.variableValues[node.name]
+					?: error("Unknown variable: ${node.name}")
+			}
+
 			is Node.IdentifierCall -> {
 				return runFunctionCall(node, context)
+			}
+
+			is Node.GetCall -> {
+				val arrayNode = (context.parameters[node.identifier] ?: context.variableValues[node.identifier]) as Node.Array
+				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).data.toInt()]
 			}
 
 			is Node.Expression -> {
@@ -91,7 +102,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 
 			is Node.Statement.If -> {
-				return if ((runExpression(node.predicate, context) as Primitive.Boolean).data) {
+				return if ((runNode(node.predicate, context) as Primitive.Boolean).data) {
 					runBlock(node.block, context)
 				}
 				else {
@@ -338,7 +349,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				// TODO: Account for operator overloading
 				is Node.GetCall -> {
 					val arrayNode = (context.parameters[node.identifier] ?: context.variableValues[node.identifier]) as Node.Array
-					stack.push(arrayNode.values[(runExpression(node.arguments[0], context) as Primitive.Number).data.toInt()])
+					stack.push(arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).data.toInt()])
 				}
 
 				is Node.Statement.If -> {
@@ -370,34 +381,34 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			"print" -> {
 				checkEquals(node.arguments.size, 1)
-				print(runExpression(node.arguments[0], context).asString())
+				print(runNode(node.arguments[0], context).asString())
 			}
 
 			"println" -> {
 				checkEquals(node.arguments.size, 1)
-				println(runExpression(node.arguments[0], context).asString())
+				println(runNode(node.arguments[0], context).asString())
 			}
 
 			"readLine" -> {
 				checkEquals(node.arguments.size, 1)
-				println(runExpression(node.arguments[0], context).asString())
+				println(runNode(node.arguments[0], context).asString())
 				return Primitive.String(readLine()!!)
 			}
 
 			"readBoolean" -> {
 				checkEquals(node.arguments.size, 1)
-				println(runExpression(node.arguments[0], context).asString())
+				println(runNode(node.arguments[0], context).asString())
 				return Primitive.Boolean(readLine()!!.toBooleanStrict())
 			}
 
 			else -> {
 
 				val functionFile = checkNotNull(files.find { node.identifier in it.functions }) {
-					"Unknown function: ${node.identifier}(${node.arguments.map { runExpression(it, context) }})"
+					"Unknown function: ${node.identifier}(${node.arguments.map { runNode(it, context) }})"
 				}
 
 				val function = functionFile.functions.getValue(node.identifier)
-				return runFunction(functionFile, function, node.arguments.map { runExpression(it, context) })
+				return runFunction(functionFile, function, node.arguments.map { runNode(it, context) })
 			}
 
 		}

@@ -435,12 +435,17 @@ object CrescentParser {
                     expressionNodes += it
                 }
             }
+            else if (tokenIterator.peekNext(2) is CrescentToken.Operator) {
+                expressionNodes += readExpression(tokenIterator)
+            }
             else {
 
                 val expressionNode = when (tokenIterator.peekNext()) {
+
                     CrescentToken.Statement.WHILE -> {
                         readWhile(tokenIterator)
                     }
+
                     CrescentToken.Statement.FOR -> {
                         TODO()
                     }
@@ -627,14 +632,14 @@ object CrescentParser {
         return parameters
     }
 
-    fun readArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Expression> {
+    fun readArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node> {
 
         if (tokenIterator.peekNext() != CrescentToken.Parenthesis.OPEN) {
             return emptyList()
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
-        val arguments = mutableListOf<CrescentAST.Node.Expression>()
+        val arguments = mutableListOf<CrescentAST.Node>()
 
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
 
@@ -651,14 +656,14 @@ object CrescentParser {
     }
 
     // TODO: Merge with readArguments
-    fun readGetArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Expression> {
+    fun readGetArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node> {
 
         if (tokenIterator.peekNext() != CrescentToken.SquareBracket.OPEN) {
             return emptyList()
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.OPEN)
-        val arguments = mutableListOf<CrescentAST.Node.Expression>()
+        val arguments = mutableListOf<CrescentAST.Node>()
 
         while (tokenIterator.peekNext() != CrescentToken.SquareBracket.CLOSE) {
 
@@ -894,7 +899,7 @@ object CrescentParser {
     }
 
     // TODO: Separate readExpression and readNode, so that not every node is in an expression
-    fun readExpression(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Expression {
+    fun readExpression(tokenIterator: PeekingTokenIterator): CrescentAST.Node {
 
         val nodes = mutableListOf<CrescentAST.Node>()
 
@@ -932,7 +937,10 @@ object CrescentParser {
             }
         }
 
-        return if (nodes.any { it is CrescentAST.Node.Operator }) {
+        return if (nodes.size == 1) {
+            nodes[0]
+        }
+        else if (nodes.any { it is CrescentAST.Node.Operator }) {
             CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
         }
         else {

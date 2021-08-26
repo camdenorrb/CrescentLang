@@ -15,12 +15,14 @@ internal class CrescentLexerTests {
     @Test
     fun helloWorld() {
 
-        val tokens = CrescentLexer.invoke(TestCode.helloWorld)
+        val tokens = CrescentLexer.invoke(TestCode.helloWorlds)
 
         assertContentEquals(
             listOf(
                 FUN, Key("main"), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("Hello World"), Parenthesis.CLOSE,
+                Key("println"), *Array(2) { Parenthesis.OPEN }, Data.String("Hello World"), *Array(2) { Parenthesis.CLOSE },
+                Key("println"), *Array(10) { Parenthesis.OPEN }, Data.String("Hello World"), *Array(10) { Parenthesis.CLOSE },
                 Bracket.CLOSE,
             ),
             tokens
@@ -30,7 +32,7 @@ internal class CrescentLexerTests {
     @Test
     fun argsHelloWorld() {
 
-        val tokens = CrescentLexer.invoke(TestCode.helloWorld)
+        val tokens = CrescentLexer.invoke(TestCode.helloWorlds)
 
     }
 

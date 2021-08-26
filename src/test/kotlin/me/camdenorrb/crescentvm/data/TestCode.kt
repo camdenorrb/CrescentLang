@@ -10,7 +10,7 @@ TODO:
 */
 internal object TestCode {
 
-	const val helloWorld =
+	const val helloWorlds =
 		"""
 			fun main {
                 println("Hello World")
@@ -227,7 +227,7 @@ internal object TestCode {
             }
 		"""
 
-	const val tree =
+	const val triangleRecursion =
 		"""
 			fun printSpaces(count: Any) {
 				print(" ")
