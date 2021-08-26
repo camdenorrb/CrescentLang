@@ -148,10 +148,18 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						// TODO: Override operators for these in Primitive.Number
 						CrescentToken.Operator.ADD -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
 
-							stack.push(Primitive.Number(pop2 + pop1))
+							val pop1 = runNode(stack.pop(), context)
+							val pop2 = runNode(stack.pop(), context)
+
+							stack.push(
+								if (pop2 is Primitive.String || pop1 is Primitive.String) {
+									Primitive.String(pop2.asString() + pop1.asString())
+								}
+								else {
+									Primitive.Number((pop2 as Primitive.Number).data.toDouble() + (pop1 as Primitive.Number).data.toDouble())
+								}
+							)
 						}
 						CrescentToken.Operator.SUB -> {
 

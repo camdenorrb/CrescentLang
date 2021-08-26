@@ -21,13 +21,7 @@ object Main {
         val code =
             """
                 fun main {
-                
-                    var thing = 1
-                    
-                    while (thing <= 10) {
-                        println(thing)
-                        thing = thing + 1
-                    }
+                    println("Me" + "ow")
                 }
 		    """
             /*
