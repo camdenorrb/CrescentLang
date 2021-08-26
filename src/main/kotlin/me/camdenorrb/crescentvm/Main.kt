@@ -20,9 +20,16 @@ object Main {
 
         val code =
             """
-                fun main {
-                    println("Me" + "ow")
-                }
+fun main() {
+println("       /\")
+println("      /__\")
+println("     /\  /\")
+println("    /__\/__\")
+println("   /\      /\")
+println("  /__\    /__\")
+println(" /\  /\  /\  /\")
+println("/__\/__\/__\/__\")
+}
 		    """
             /*
             """             

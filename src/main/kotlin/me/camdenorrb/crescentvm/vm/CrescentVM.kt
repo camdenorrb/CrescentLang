@@ -7,6 +7,7 @@ import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Type
 import java.util.*
 import kotlin.math.pow
+import kotlin.math.round
 import kotlin.math.sqrt
 
 // TODO: Add a way to add external functions
@@ -118,6 +119,25 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				while ((runNode(node.predicate, context) as Primitive.Boolean).data) {
 					runBlock(node.block, context)
 				}
+			}
+
+			is Node.Statement.For -> {
+
+				val forContext = context.copy()
+
+				val ranges = node.ranges.map {
+					(it.start as Primitive.Number).data.toInt()..(it.end as Primitive.Number).data.toInt()
+				}
+
+				node.identifiers.forEachIndexed { index, identifier ->
+					forContext.variableValues[identifier.name] = Primitive.Number((ranges.getOrNull(index) ?: ranges[0]).first)
+				}
+
+				/*
+				while ((runNode(node.predicate, context) as Primitive.Boolean).data) {
+					runBlock(node.block, context)
+				}
+				*/
 			}
 
 			is Node.Variable.Basic -> {
@@ -395,6 +415,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				return Primitive.Number(sqrt((runNode(node.arguments[0], context) as Primitive.Number).data.toDouble()))
 			}
 
+			"round" -> {
+				checkEquals(1, node.arguments.size)
+				return Primitive.Number(round((runNode(node.arguments[0], context) as Primitive.Number).data.toDouble()))
+			}
+
 			"print" -> {
 				checkEquals(1, node.arguments.size)
 				print(runNode(node.arguments[0], context).asString())
@@ -501,7 +526,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	 * @constructor
 	 */
 	data class BlockContext(
-		val holder: Node,
+		val self: Node,
 		val parameters: MutableMap<String, Node>,
 		//val variables: MutableMap<String, Node.Variable> = mutableMapOf(),
 		val variableValues: MutableMap<String, Node> = mutableMapOf(),

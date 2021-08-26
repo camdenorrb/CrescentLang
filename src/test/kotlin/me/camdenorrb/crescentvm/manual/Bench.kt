@@ -3,6 +3,9 @@ package me.camdenorrb.crescentvm.manual
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
+import java.io.ByteArrayInputStream
+import java.io.ByteArrayOutputStream
+import java.io.PrintStream
 import java.nio.file.Path
 import kotlin.system.measureNanoTime
 
@@ -16,9 +19,33 @@ internal object Bench {
 
 	val parserBenchmark = Benchmark("Parser")
 
+	val originalSystemOut = System.out
+
+	val originalSystemIn = System.`in`
+
+
+	private inline fun collectSystemOut(block: () -> Unit): String {
+
+		val byteArrayOutputStream = ByteArrayOutputStream()
+		val printStream = PrintStream(byteArrayOutputStream)
+
+		System.setOut(printStream)
+		block()
+		System.setOut(originalSystemOut)
+
+		return byteArrayOutputStream.toString()
+	}
+
+	private inline fun fakeUserInput(input: String, block: () -> Unit) {
+		System.setIn(ByteArrayInputStream(input.toByteArray()))
+		block()
+		System.setIn(originalSystemIn)
+	}
+
 
 	@JvmStatic
 	fun main(args: Array<String>) {
+
 		benchCode("Hello World", TestCode.helloWorlds)
 		benchCode("If Statement", TestCode.ifStatement)
 		benchCode("If Input Statement", TestCode.ifInputStatement)
@@ -30,6 +57,8 @@ internal object Bench {
 		benchCode("Enum", TestCode.enum)
 		benchCode("Comments", TestCode.comments)
 		benchCode("Imports", TestCode.imports)
+
+		Benchmark("")
 	}
 
 	fun benchCode(name: String, code: String) {
