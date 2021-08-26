@@ -11,14 +11,17 @@ object CrescentToPTIR {
     fun craft(astFile: CrescentAST.Node.File): Set<Method> {
         val methods = mutableSetOf<Method>()
         astFile.functions.forEach { (_, u) ->
-            methods.add(Method.create(u.name, u.params.size.toUByte(), u.returnType != CrescentAST.Node.Type.Unit) {
-                u.params.forEach { param ->
-                    it.idArg(param.name)
-                }
-                u.innerCode.nodes.forEach { node ->
-                    nodeToCode(it, node, methods)
-                }
-            })
+            methods.add(
+                Method.create(
+                    u.name,
+                    u.params.size.toUByte(),
+                    u.returnType != CrescentAST.Node.Type.Unit
+                ) { builder ->
+                    builder.idArgs(*u.params.map { it.name }.toTypedArray())
+                    u.innerCode.nodes.forEach { node ->
+                        nodeToCode(builder, node, methods)
+                    }
+                })
         }
         return methods
     }

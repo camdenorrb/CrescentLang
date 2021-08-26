@@ -219,7 +219,7 @@ internal object TestCode {
 	const val math =
 		"""
             fun main {
-                println((1.0 + 1.0) + 1.0 / 10.0 + 1000.0 * 10.0 / 10.0 ^ 10.0)
+                println((1.0 + 1.0) + 1.0 / 10.0 + 1000.0 * 10.0 / 11.0 ^ 10.0)
             }
 		"""
 
