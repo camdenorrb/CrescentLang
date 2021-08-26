@@ -20,7 +20,7 @@ object CrescentToPTIR {
                 ) { builder ->
                     builder.idArgs(*u.params.map { it.name }.toTypedArray())
                     u.innerCode.nodes.forEach { node ->
-                        nodeToCode(builder, node, methods)
+                        nodeToCode(builder, node, methods, null, null)
                     }
                 })
         }
@@ -33,14 +33,20 @@ object CrescentToPTIR {
         Machine.execute(target, *args)
     }
 
-    private fun nodeToCode(builder: CodeBuilder, node: CrescentAST.Node, methods: MutableSet<Method>) {
+    private fun nodeToCode(
+        builder: CodeBuilder,
+        node: CrescentAST.Node,
+        methods: MutableSet<Method>,
+        before: Label?,
+        after: Label?
+    ) {
         when (node) {
             is CrescentAST.Node.Return -> {
                 builder.return_()
             }
             is CrescentAST.Node.Statement.Block -> {
                 node.nodes.forEach {
-                    nodeToCode(builder, it, methods)
+                    nodeToCode(builder, it, methods, before, after)
                 }
             }
             is CrescentToken.Operator -> {
@@ -155,19 +161,19 @@ object CrescentToPTIR {
             }
             is CrescentAST.Node.Expression -> {
                 node.nodes.forEach {
-                    nodeToCode(builder, it, methods)
+                    nodeToCode(builder, it, methods, before, after)
                 }
             }
             is CrescentAST.Node.GetCall -> {
                 node.arguments.forEach {
-                    nodeToCode(builder, it, methods)
+                    nodeToCode(builder, it, methods, before, after)
                 }
                 builder.getVar(node.identifier)
                 builder.getArrayItem()
             }
             is CrescentAST.Node.IdentifierCall -> {
                 node.arguments.reversed().forEach { arg ->
-                    nodeToCode(builder, arg, methods)
+                    nodeToCode(builder, arg, methods, before, after)
                 }
 
                 when (node.identifier) {
@@ -193,29 +199,29 @@ object CrescentToPTIR {
                         builder.newLabel()
                     }
                 val elseLabel = builder.newLabel()
-                nodeToCode(builder, node.predicate, methods)
+                nodeToCode(builder, node.predicate, methods, before, after)
                 builder.push(0)
                 builder.ifNotEquals(elseLabel)
-                nodeToCode(builder, node.block, methods)
+                nodeToCode(builder, node.block, methods, before, after)
                 if (afterLabel != null) {
                     builder.jmp(afterLabel)
                 }
                 builder.placeLabel(elseLabel)
                 if (afterLabel != null) {
-                    nodeToCode(builder, node.elseBlock!!, methods)
+                    nodeToCode(builder, node.elseBlock!!, methods, before, after)
                     builder.placeLabel(afterLabel)
                 }
             }
             is CrescentAST.Node.Statement.While -> {
-                val after = builder.newLabel()
-                val before = builder.newLabel()
-                builder.placeLabel(before)
-                nodeToCode(builder, node.predicate, methods)
+                val afterLabel = builder.newLabel()
+                val beforeLabel = builder.newLabel()
+                builder.placeLabel(beforeLabel)
+                nodeToCode(builder, node.predicate, methods, before, after)
                 builder.push(0)
-                builder.ifNotEquals(after)
-                nodeToCode(builder, node.block, methods)
-                builder.jmp(before)
-                builder.placeLabel(after)
+                builder.ifNotEquals(afterLabel)
+                nodeToCode(builder, node.block, methods, beforeLabel, afterLabel)
+                builder.jmp(beforeLabel)
+                builder.placeLabel(afterLabel)
             }
             is CrescentAST.Node.Statement.For -> {
                 val data = Array(node.identifiers.size) {
@@ -224,10 +230,10 @@ object CrescentToPTIR {
                 repeat(node.identifiers.size) {
                     val name = node.identifiers[it].name
                     val range = node.ranges[it]
-                    nodeToCode(builder, range.start, methods)
+                    nodeToCode(builder, range.start, methods, before, after)
                     builder.setVar(name)
-                    nodeToCode(builder, range.start, methods)
-                    nodeToCode(builder, range.end, methods)
+                    nodeToCode(builder, range.start, methods, before, after)
+                    nodeToCode(builder, range.end, methods, before, after)
                     val tmpElse = builder.newLabel()
                     builder.push(true)
                     val goesUp = "\$_Goes-Up%$name"
@@ -236,15 +242,16 @@ object CrescentToPTIR {
                     builder.push(false)
                     builder.setVar(goesUp)
                     builder.placeLabel(tmpElse)
-                    val after = builder.newLabel()
-                    val before = builder.newLabel()
-                    builder.placeLabel(before)
+                    val afterLabel = builder.newLabel()
+                    val beforeLabel = builder.newLabel()
+                    builder.placeLabel(beforeLabel)
                     builder.getVar(name)
-                    nodeToCode(builder, range.end, methods)
-                    builder.ifNotEquals(after)
-                    data[it] = Triple(before, after, goesUp)
+                    nodeToCode(builder, range.end, methods, before, after)
+                    builder.ifNotEquals(afterLabel)
+                    data[it] = Triple(beforeLabel, afterLabel, goesUp)
                 }
-                nodeToCode(builder, node.block, methods)
+                val last = data.last()
+                nodeToCode(builder, node.block, methods, last.first, last.second)
                 repeat(node.identifiers.size) {
                     val backwards = (node.identifiers.size - it) - 1
                     val name = node.identifiers[backwards].name
@@ -273,7 +280,7 @@ object CrescentToPTIR {
                 }
             }
             is CrescentAST.Node.Variable.Basic -> {
-                nodeToCode(builder, node.value, methods)
+                nodeToCode(builder, node.value, methods, before, after)
                 builder.setVar(node.name)
             }
             else -> error("Unknown Node: ${node::class.java}")
