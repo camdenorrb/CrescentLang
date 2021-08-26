@@ -195,7 +195,7 @@ object CrescentLexer {
                 "\"" -> CrescentToken.Data.String(charIterator.nextUntilAndSkip('"'))
                 "'" -> {
                     val data = charIterator.nextUntilAndSkip('\'')
-                    checkEquals(data.length, 1)
+                    checkEquals(1, data.length)
                     CrescentToken.Data.Char(data[0])
                 }
 

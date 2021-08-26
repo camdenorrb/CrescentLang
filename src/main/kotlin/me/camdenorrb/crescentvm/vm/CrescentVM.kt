@@ -31,7 +31,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	fun runFunction(holder: Node, function: Node.Function, args: List<Node>): Node {
 
 		// TODO: Account for default params
-		checkEquals(args.size, function.params.size)
+		checkEquals(function.params.size, args.size)
 
 		val paramsToValue = mutableMapOf<String, Node>()
 
@@ -369,7 +369,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 		}
 
-		checkEquals(stack.size, 1)
+		checkEquals(1, stack.size)
 
 		return stack.pop()
 		//return CrescentAST.Node.Type.Unit
@@ -380,23 +380,23 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		when (node.identifier) {
 
 			"print" -> {
-				checkEquals(node.arguments.size, 1)
+				checkEquals(1, node.arguments.size)
 				print(runNode(node.arguments[0], context).asString())
 			}
 
 			"println" -> {
-				checkEquals(node.arguments.size, 1)
+				checkEquals(1, node.arguments.size)
 				println(runNode(node.arguments[0], context).asString())
 			}
 
 			"readLine" -> {
-				checkEquals(node.arguments.size, 1)
+				checkEquals(1, node.arguments.size)
 				println(runNode(node.arguments[0], context).asString())
 				return Primitive.String(readLine()!!)
 			}
 
 			"readBoolean" -> {
-				checkEquals(node.arguments.size, 1)
+				checkEquals(1, node.arguments.size)
 				println(runNode(node.arguments[0], context).asString())
 				return Primitive.Boolean(readLine()!!.toBooleanStrict())
 			}
@@ -459,12 +459,12 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				is Type.Array -> {
 					check(arg is Node.Array)
-					checkEquals(arg.type, parameter.type)
+					checkEquals(parameter.type, arg.type)
 				}
 
 				is Type.Basic -> {
 					if (parameter.type.name != "Any") {
-						checkEquals(arg::class.simpleName!!, parameter.type.name)
+						checkEquals(parameter.type.name, arg::class.simpleName!!)
 					}
 					else {
 						// Do nothing

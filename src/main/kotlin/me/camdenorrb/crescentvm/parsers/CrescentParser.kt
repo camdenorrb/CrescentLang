@@ -300,7 +300,7 @@ object CrescentParser {
         val innerVariables = mutableListOf<CrescentAST.Node.Variable>()
 
         // Skip open bracket
-        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
+        checkEquals(CrescentToken.Parenthesis.OPEN, tokenIterator.next())
 
         var variableVisibility = CrescentToken.Visibility.PUBLIC
 
@@ -421,7 +421,7 @@ object CrescentParser {
 
         val expressionNodes = mutableListOf<CrescentAST.Node>()
 
-        checkEquals(tokenIterator.next(), CrescentToken.Bracket.OPEN)
+        checkEquals(CrescentToken.Bracket.OPEN, tokenIterator.next())
 
         while (tokenIterator.hasNext() && tokenIterator.peekNext() != CrescentToken.Bracket.CLOSE) {
 
@@ -463,7 +463,7 @@ object CrescentParser {
         }
 
         if (tokenIterator.hasNext()) {
-            checkEquals(tokenIterator.next(), CrescentToken.Bracket.CLOSE)
+            checkEquals(CrescentToken.Bracket.CLOSE, tokenIterator.next())
         }
 
         return CrescentAST.Node.Statement.Block(expressionNodes)
@@ -534,7 +534,7 @@ object CrescentParser {
 
         val expression =
             if (tokenIterator.peekNext() == CrescentToken.Operator.ASSIGN) {
-                checkEquals(tokenIterator.next(), CrescentToken.Operator.ASSIGN)
+                checkEquals(CrescentToken.Operator.ASSIGN, tokenIterator.next())
                 readExpression(tokenIterator)
             }
             else {
@@ -574,7 +574,7 @@ object CrescentParser {
 
         val expression =
             if (tokenIterator.peekNext() == CrescentToken.Operator.ASSIGN) {
-                checkEquals(tokenIterator.next(), CrescentToken.Operator.ASSIGN)
+                checkEquals(CrescentToken.Operator.ASSIGN, tokenIterator.next())
                 readExpression(tokenIterator)
             }
             else {
@@ -588,11 +588,11 @@ object CrescentParser {
 
     fun readWhile(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Statement.While {
 
-        checkEquals(tokenIterator.next(), CrescentToken.Statement.WHILE)
-        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
+        checkEquals(CrescentToken.Statement.WHILE, tokenIterator.next())
+        checkEquals(CrescentToken.Parenthesis.OPEN, tokenIterator.next())
 
         val predicate = readExpression(tokenIterator)
-        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
+        checkEquals(CrescentToken.Parenthesis.CLOSE, tokenIterator.next())
         val block = readBlock(tokenIterator)
 
         return CrescentAST.Node.Statement.While(predicate, block)
@@ -604,7 +604,7 @@ object CrescentParser {
             return emptyList()
         }
 
-        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
+        checkEquals(CrescentToken.Parenthesis.OPEN, tokenIterator.next())
         val parameters = mutableListOf<CrescentAST.Node.Parameter>()
 
         // TODO: Count opens and closes
@@ -615,7 +615,7 @@ object CrescentParser {
                 (it as CrescentToken.Key).string
             }
 
-            checkEquals(tokenIterator.next(), CrescentToken.Operator.TYPE_PREFIX)
+            checkEquals(CrescentToken.Operator.TYPE_PREFIX, tokenIterator.next())
             val type = readType(tokenIterator)
 
             names.forEach { name ->
@@ -623,11 +623,11 @@ object CrescentParser {
             }
 
             if (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
-                checkEquals(tokenIterator.next(), CrescentToken.Operator.COMMA)
+                checkEquals(CrescentToken.Operator.COMMA, tokenIterator.next())
             }
         }
 
-        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
+        checkEquals(CrescentToken.Parenthesis.CLOSE, tokenIterator.next())
 
         return parameters
     }
@@ -638,7 +638,7 @@ object CrescentParser {
             return emptyList()
         }
 
-        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
+        checkEquals(CrescentToken.Parenthesis.OPEN, tokenIterator.next())
         val arguments = mutableListOf<CrescentAST.Node>()
 
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
@@ -646,11 +646,11 @@ object CrescentParser {
             arguments += readExpression(tokenIterator)
 
             if (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
-                checkEquals(tokenIterator.next(), CrescentToken.Operator.COMMA)
+                checkEquals(CrescentToken.Operator.COMMA, tokenIterator.next())
             }
         }
 
-        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
+        checkEquals(CrescentToken.Parenthesis.CLOSE, tokenIterator.next())
 
         return arguments
     }
@@ -662,7 +662,7 @@ object CrescentParser {
             return emptyList()
         }
 
-        checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.OPEN)
+        checkEquals(CrescentToken.SquareBracket.OPEN, tokenIterator.next())
         val arguments = mutableListOf<CrescentAST.Node>()
 
         while (tokenIterator.peekNext() != CrescentToken.SquareBracket.CLOSE) {
@@ -670,11 +670,11 @@ object CrescentParser {
             arguments += readExpression(tokenIterator)
 
             if (tokenIterator.peekNext() != CrescentToken.SquareBracket.CLOSE) {
-                checkEquals(tokenIterator.next(), CrescentToken.Operator.COMMA)
+                checkEquals(CrescentToken.Operator.COMMA, tokenIterator.next())
             }
         }
 
-        checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.CLOSE)
+        checkEquals(CrescentToken.SquareBracket.CLOSE, tokenIterator.next())
 
         return arguments
     }
@@ -685,15 +685,15 @@ object CrescentParser {
 
         val argument =
             if (tokenIterator.peekNext() == CrescentToken.Parenthesis.OPEN) {
-                checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
+                checkEquals(CrescentToken.Parenthesis.OPEN, tokenIterator.next())
                 readExpression(tokenIterator)
             }
             else {
                 CrescentAST.Node.Expression(emptyList())
             }
 
-        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
-        checkEquals(tokenIterator.next(), CrescentToken.Bracket.OPEN)
+        checkEquals(CrescentToken.Parenthesis.CLOSE, tokenIterator.next())
+        checkEquals(CrescentToken.Bracket.OPEN, tokenIterator.next())
 
         readNextUntilClosed(tokenIterator) {
 
@@ -704,7 +704,7 @@ object CrescentParser {
 
                 CrescentToken.Operator.DOT -> {
 
-                    checkEquals(tokenIterator.next(), CrescentToken.Operator.DOT)
+                    checkEquals(CrescentToken.Operator.DOT, tokenIterator.next())
                     val identifier = readExpressionNode(tokenIterator) as CrescentAST.Node.Identifier
                     //checkEquals(tokenIterator.next(), CrescentToken.Operator.RETURN)
 
@@ -713,8 +713,8 @@ object CrescentParser {
 
                 CrescentToken.Statement.ELSE -> {
 
-                    checkEquals(tokenIterator.next(), CrescentToken.Statement.ELSE)
-                    checkEquals(tokenIterator.next(), CrescentToken.Operator.RETURN)
+                    checkEquals(CrescentToken.Statement.ELSE, tokenIterator.next())
+                    checkEquals(CrescentToken.Operator.RETURN, tokenIterator.next())
 
                     CrescentAST.Node.Statement.When.Else(readBlock(tokenIterator))
                 }
@@ -736,7 +736,7 @@ object CrescentParser {
                 return@readNextUntilClosed
             }
 
-            checkEquals(tokenIterator.next(), CrescentToken.Operator.RETURN)
+            checkEquals(CrescentToken.Operator.RETURN, tokenIterator.next())
 
             val thenExpressions =
                 if (tokenIterator.peekNext() == CrescentToken.Bracket.OPEN) {
@@ -767,7 +767,7 @@ object CrescentParser {
                 // TODO: Maybe support array of results
 
                 // Skip Array close
-                checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.CLOSE)
+                checkEquals(CrescentToken.SquareBracket.CLOSE, tokenIterator.next())
             }
 
             is CrescentToken.Key -> {
@@ -817,16 +817,16 @@ object CrescentParser {
 
             CrescentToken.Parenthesis.OPEN -> {
                 readExpression(tokenIterator).also {
-                    checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
+                    checkEquals(CrescentToken.Parenthesis.CLOSE, tokenIterator.next())
                 }
             }
 
             CrescentToken.Statement.IF -> {
 
-                checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
+                checkEquals(CrescentToken.Parenthesis.OPEN, tokenIterator.next())
 
                 val argument = readExpression(tokenIterator).also {
-                    checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
+                    checkEquals(CrescentToken.Parenthesis.CLOSE, tokenIterator.next())
                 }
 
                 val ifBlock = readBlock(tokenIterator)
