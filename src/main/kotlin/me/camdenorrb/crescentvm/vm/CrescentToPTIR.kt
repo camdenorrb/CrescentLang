@@ -71,6 +71,16 @@ object CrescentToPTIR {
                         builder.push(0)
                         builder.placeLabel(afterL)
                     }
+                    CrescentToken.Operator.GREATER_EQUALS_COMPARE -> {
+                        val afterL = builder.newLabel()
+                        val elseL = builder.newLabel()
+                        builder.ifGreaterThanEqual(elseL)
+                        builder.push(1)
+                        builder.jmp(afterL)
+                        builder.placeLabel(elseL)
+                        builder.push(0)
+                        builder.placeLabel(afterL)
+                    }
                     CrescentToken.Operator.LESSER_COMPARE -> {
                         val afterL = builder.newLabel()
                         val elseL = builder.newLabel()
@@ -81,7 +91,28 @@ object CrescentToPTIR {
                         builder.push(0)
                         builder.placeLabel(afterL)
                     }
+                    CrescentToken.Operator.LESSER_EQUALS_COMPARE -> {
+                        val afterL = builder.newLabel()
+                        val elseL = builder.newLabel()
+                        builder.ifLessThanEqual(elseL)
+                        builder.push(1)
+                        builder.jmp(afterL)
+                        builder.placeLabel(elseL)
+                        builder.push(0)
+                        builder.placeLabel(afterL)
+                    }
                     CrescentToken.Operator.NOT -> {
+                        val afterL = builder.newLabel()
+                        val elseL = builder.newLabel()
+                        builder.push(false)
+                        builder.ifEquals(elseL)
+                        builder.push(0)
+                        builder.jmp(afterL)
+                        builder.placeLabel(elseL)
+                        builder.push(1)
+                        builder.placeLabel(afterL)
+                    }
+                    CrescentToken.Operator.NOT_EQUALS_COMPARE -> {
                         val afterL = builder.newLabel()
                         val elseL = builder.newLabel()
                         builder.ifNotEquals(elseL)
@@ -233,7 +264,15 @@ object CrescentToPTIR {
                 }
             }
             is CrescentAST.Node.Identifier -> {
-                builder.getArg(node.name)
+                try {
+                    builder.getArg(node.name)
+                } catch (_: NullPointerException) {
+                    builder.getVar(node.name)
+                }
+            }
+            is CrescentAST.Node.Variable -> {
+                nodeToCode(builder, node.value, methods)
+                builder.setVar(node.name)
             }
             else -> error("Unknown Node: ${node::class.java}")
         }
