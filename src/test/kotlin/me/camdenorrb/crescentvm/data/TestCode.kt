@@ -137,7 +137,7 @@ internal object TestCode {
                 
 				while (x <= 10) {
 					println(x)
-					x = x + 1
+					x += 1
 				}
             }
 		"""
@@ -257,7 +257,7 @@ internal object TestCode {
 			}
 			
 			fun main {
-				printer(510)
+				printer(100)
 			}
 		"""
 

@@ -69,7 +69,12 @@ internal class PTIRTests {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorlds))
         val result = CrescentToPTIR.craft(file)
         assertEquals(
-            "Hello World\n",
+            """
+                Hello World
+                Hello World
+                Hello World
+                
+            """.trimIndent(),
             collectSystemOut {
                 CrescentToPTIR.execute("static.main", result)
             }
