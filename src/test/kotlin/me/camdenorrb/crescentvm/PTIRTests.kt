@@ -43,7 +43,7 @@ internal class PTIRTests {
         assertEquals(
             "Hello World\n",
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result, "Hello World", "Cats")
+                CrescentToPTIR.execute("static.main", result, "Hello World")
             }
         )
     }
