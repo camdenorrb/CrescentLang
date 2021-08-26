@@ -110,7 +110,7 @@ object CrescentLexer {
 
                 // Infix Operators
                 "in" -> CrescentToken.Operator.CONTAINS
-                ".." -> CrescentToken.Operator.RANGE
+                ".." -> CrescentToken.Operator.RANGE_TO
                 "as" -> CrescentToken.Operator.AS
 
                 // Variables

@@ -268,7 +268,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
 						CrescentToken.Operator.CONTAINS -> TODO()
-						CrescentToken.Operator.RANGE -> TODO()
+						CrescentToken.Operator.RANGE_TO -> TODO()
 						CrescentToken.Operator.TYPE_PREFIX -> TODO()
 						CrescentToken.Operator.RETURN -> TODO()
 						CrescentToken.Operator.RESULT -> TODO()

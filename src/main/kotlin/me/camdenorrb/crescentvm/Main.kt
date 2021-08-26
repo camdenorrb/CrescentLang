@@ -20,7 +20,7 @@ object Main {
 
         val code =
             """
-Clefun printSpaces(count: Any) {
+fun printSpaces(count: Any) {
                 print(" ")
                 if (count > 0) {
                     printSpaces(count - 1)

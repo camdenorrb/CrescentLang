@@ -153,7 +153,7 @@ interface CrescentToken {
         NOT_EQUALS_COMPARE("!="),
         NOT_EQUALS_REFERENCE_COMPARE("!=="),
         CONTAINS("in"),
-        RANGE(".."),
+        RANGE_TO(".."),
         TYPE_PREFIX(":"),
         RETURN("->"),
         RESULT("?"),

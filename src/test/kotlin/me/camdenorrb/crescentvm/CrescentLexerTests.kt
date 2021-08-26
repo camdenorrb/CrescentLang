@@ -105,11 +105,11 @@ internal class CrescentLexerTests {
                 VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0),
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
 
-                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0), RANGE, Data.Number(10), Bracket.OPEN,
+                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0), RANGE_TO, Data.Number(10), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
 
-                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0), RANGE, Data.Number(10), COMMA, Data.Number(0), RANGE, Data.Number(10), COMMA, Data.Number(0), RANGE, Data.Number(10), Bracket.OPEN,
+                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0), RANGE_TO, Data.Number(10), COMMA, Data.Number(0), RANGE_TO, Data.Number(10), COMMA, Data.Number(0), RANGE_TO, Data.Number(10), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
 

@@ -132,7 +132,38 @@ internal class CrescentParserTests {
 
         val tokens = CrescentLexer.invoke(TestCode.forLoop)
 
+        val mainFunction = assertNotNull(
+            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
+            "No main function found"
+        )
 
+        assertContentEquals(
+            listOf(
+
+                Variable("x", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
+                Variable("y", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
+                Variable("z", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
+
+                IdentifierCall("println", listOf(String("\$x\$y\$z"))),
+
+                Statement.For(
+                    listOf(Identifier("x"), Identifier("y"), Identifier("z")),
+                    listOf(Statement.Range(Number(0), Number(10))),
+                    Statement.Block(listOf(
+                        IdentifierCall("println", listOf(String("\$x\$y\$z"))),
+                    ))
+                ),
+                Statement.For(
+                    listOf(Identifier("x"), Identifier("y"), Identifier("z")),
+                    listOf(Statement.Range(Number(0), Number(10)), Statement.Range(Number(0), Number(10)), Statement.Range(Number(0), Number(10))),
+                    Statement.Block(listOf(
+                        IdentifierCall("println", listOf(String("\$x\$y\$z"))),
+                    ))
+                ),
+                IdentifierCall("println", listOf(String("Hello World")))
+            ),
+            mainFunction.innerCode.nodes,
+        )
     }
 
     @Test
@@ -257,7 +288,6 @@ internal class CrescentParserTests {
         val tokens = CrescentLexer.invoke(TestCode.impl)
         val parsed = CrescentParser.invoke(Path.of("example.crescent"), tokens)
         val mainFunction = assertNotNull(parsed.mainFunction, "No main function found")
-
 
         assertContentEquals(
             listOf(

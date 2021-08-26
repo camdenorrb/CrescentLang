@@ -390,7 +390,6 @@ object CrescentParser {
     }
 
 
-    // TODO: Maybe just take a list of modifier tokens
     fun readFunction(tokenIterator: PeekingTokenIterator, visibility: CrescentToken.Visibility, modifiers: List<CrescentToken.Modifier>): CrescentAST.Node.Function {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
@@ -447,7 +446,7 @@ object CrescentParser {
                     }
 
                     CrescentToken.Statement.FOR -> {
-                        TODO()
+                        readFor(tokenIterator)
                     }
 
                     else -> {
@@ -596,6 +595,43 @@ object CrescentParser {
         val block = readBlock(tokenIterator)
 
         return CrescentAST.Node.Statement.While(predicate, block)
+    }
+
+    fun readFor(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Statement.For {
+
+        checkEquals(CrescentToken.Statement.FOR, tokenIterator.next())
+
+        val identifiers = mutableListOf<CrescentAST.Node.Identifier>()
+
+        while (tokenIterator.hasNext()) {
+
+            identifiers += readExpressionNode(tokenIterator) as CrescentAST.Node.Identifier
+
+            if (tokenIterator.peekNext() != CrescentToken.Operator.COMMA) {
+                break
+            }
+
+            checkEquals(CrescentToken.Operator.COMMA, tokenIterator.next())
+        }
+
+        checkEquals(CrescentToken.Operator.CONTAINS, tokenIterator.next())
+
+        val ranges = mutableListOf<CrescentAST.Node.Statement.Range>()
+
+        while (tokenIterator.hasNext()) {
+
+            ranges += readExpressionNode(tokenIterator) as CrescentAST.Node.Statement.Range
+
+            if (tokenIterator.peekNext() != CrescentToken.Operator.COMMA) {
+                break
+            }
+
+            checkEquals(CrescentToken.Operator.COMMA, tokenIterator.next())
+        }
+
+        val block = readBlock(tokenIterator)
+
+        return CrescentAST.Node.Statement.For(identifiers, ranges, block)
     }
 
     fun readParameters(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Parameter> {
@@ -846,10 +882,32 @@ object CrescentParser {
             is CrescentToken.Data -> {
                 when (next) {
 
-                    is CrescentToken.Data.String -> CrescentAST.Node.Primitive.String(next.kotlinString)
-                    is CrescentToken.Data.Char -> CrescentAST.Node.Primitive.Char(next.kotlinChar)
+                    is CrescentToken.Data.String -> {
+                        // TODO: Break string into strings + expressions based on interpolation
+                        CrescentAST.Node.Primitive.String(next.kotlinString)
+                    }
+
+                    is CrescentToken.Data.Char -> {
+                        if (tokenIterator.peekNext() == CrescentToken.Operator.RANGE_TO) {
+                            checkEquals(CrescentToken.Operator.RANGE_TO, tokenIterator.next())
+                            CrescentAST.Node.Statement.Range(CrescentAST.Node.Primitive.Char(next.kotlinChar), readExpressionNode(tokenIterator)!!)
+                        }
+                        else {
+                            CrescentAST.Node.Primitive.Char(next.kotlinChar)
+                        }
+                    }
+
                     is CrescentToken.Data.Boolean -> CrescentAST.Node.Primitive.Boolean(next.kotlinBoolean)
-                    is CrescentToken.Data.Number -> CrescentAST.Node.Primitive.Number(next.number)
+
+                    is CrescentToken.Data.Number -> {
+                        if (tokenIterator.peekNext() == CrescentToken.Operator.RANGE_TO) {
+                            checkEquals(CrescentToken.Operator.RANGE_TO, tokenIterator.next())
+                            CrescentAST.Node.Statement.Range(CrescentAST.Node.Primitive.Number(next.number), readExpressionNode(tokenIterator)!!)
+                        }
+                        else {
+                            CrescentAST.Node.Primitive.Number(next.number)
+                        }
+                    }
 
                     else -> error("Unknown data token: $next")
                 }
