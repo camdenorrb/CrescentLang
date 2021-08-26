@@ -1,6 +1,7 @@
 package me.camdenorrb.crescentvm.vm
 
 import tech.poder.ir.instructions.common.Method
+import tech.poder.ir.instructions.common.special.Label
 import tech.poder.ir.instructions.common.special.SpecialCalls
 import tech.poder.ir.instructions.simple.CodeBuilder
 import tech.poder.ir.std.Basic
@@ -184,6 +185,52 @@ object CrescentToPTIR {
                 nodeToCode(builder, node.block, methods)
                 builder.jmp(before)
                 builder.placeLabel(after)
+            }
+            is CrescentAST.Node.Statement.For -> {
+                val data = Array(node.identifiers.size) {
+                    Triple<Label?, Label?, String>(null, null, "")
+                }
+                repeat(node.identifiers.size) {
+                    val name = node.identifiers[it].name
+                    val range = node.ranges[it]
+                    nodeToCode(builder, range.start, methods)
+                    builder.setVar(name)
+                    nodeToCode(builder, range.start, methods)
+                    nodeToCode(builder, range.end, methods)
+                    val tmpElse = builder.newLabel()
+                    builder.push(true)
+                    val goesUp = "\$_Goes-Up%$name"
+                    builder.setVar(goesUp)
+                    builder.ifGreaterThan(tmpElse)
+                    builder.push(false)
+                    builder.setVar(goesUp)
+                    builder.placeLabel(tmpElse)
+                    val after = builder.newLabel()
+                    val before = builder.newLabel()
+                    builder.placeLabel(before)
+                    builder.getVar(name)
+                    nodeToCode(builder, range.end, methods)
+                    builder.ifNotEquals(after)
+                    data[it] = Triple(before, after, goesUp)
+                }
+                nodeToCode(builder, node.block, methods)
+                repeat(node.identifiers.size) {
+                    val name = node.identifiers[it].name
+                    val storage = data[it]
+                    builder.getVar(name)
+                    val tmpElse = builder.newLabel()
+                    val tmpAfter = builder.newLabel()
+                    builder.getVar(storage.third)
+                    builder.push(0)
+                    builder.ifNotEquals(tmpElse)
+                    builder.inc()
+                    builder.jmp(tmpAfter)
+                    builder.placeLabel(tmpElse)
+                    builder.dec()
+                    builder.placeLabel(tmpAfter)
+                    builder.jmp(storage.first!!)
+                    builder.placeLabel(storage.second!!)
+                }
             }
             is CrescentAST.Node.Identifier -> {
                 builder.getArg(node.name)
