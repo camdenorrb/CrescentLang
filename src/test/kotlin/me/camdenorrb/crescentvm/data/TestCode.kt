@@ -5,6 +5,8 @@ TODO:
 	- Bit shifting
 	- Triangles
 	- Negative numbers and multiplication through parenthesis
+	- Function blocks as parameters and values for variables
+	- Function references
 */
 internal object TestCode {
 
@@ -12,6 +14,8 @@ internal object TestCode {
 		"""
 			fun main {
                 println("Hello World")
+                println(("Hello World"))
+                println(((((((((("Hello World"))))))))))
             }
 		"""
 
@@ -219,7 +223,7 @@ internal object TestCode {
 	const val math =
 		"""
             fun main {
-                println((1.0 + 1.0) + 1.0 / 10.0 + 1000.0 * 10.0 / 11.0 ^ 10.0)
+                println((1.0 + 1) + 1.0 / 10.0 + 1000.0 * 10.0 / 11.0 ^ 10.0)
             }
 		"""
 

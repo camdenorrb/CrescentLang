@@ -12,6 +12,7 @@ import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
 import me.camdenorrb.crescentvm.vm.CrescentToken.Visibility
 import org.junit.Test
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.test.assertContentEquals
 import kotlin.test.assertNotNull
 
@@ -142,6 +143,27 @@ internal class CrescentParserTests {
 
         val tokens = CrescentLexer.invoke(TestCode.whileLoop)
 
+        val mainFunction = assertNotNull(
+            CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
+            "No main function found"
+        )
+
+        assertContentEquals(
+            listOf(
+                Variable("x", false, Visibility.PUBLIC, Type.Implicit, Expression(listOf(Number(1)))),
+                Statement.While(
+                    Expression(listOf(
+                        Identifier("x"), Number(10), Operator(LESSER_EQUALS_COMPARE)
+                    )),
+                    Statement.Block(listOf(
+                        IdentifierCall("println", listOf(Expression(listOf(Identifier("x"))))),
+                        Expression(listOf(Identifier("x"), Number(1), Operator(ADD_ASSIGN))),
+                    ))
+                )
+
+            ),
+            mainFunction.innerCode.nodes,
+        )
     }
 
     @Test

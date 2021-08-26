@@ -196,6 +196,15 @@ internal class CrescentLexerTests {
 
                 IMPL, Key("Example"), Bracket.OPEN,
                 Data.Comment("All implementation methods"),
+                FUN, Key("printValues"), Bracket.OPEN,
+                Key("println"), Parenthesis.OPEN, Key("aNumber"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("aValue1"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("aValue2"), Parenthesis.CLOSE,
+                Bracket.CLOSE,
+                Bracket.CLOSE,
+
+                Data.Comment("Can't use self in static syntax"),
+                IMPL, Modifier.STATIC, Key("Example"), Bracket.OPEN,
                 FUN, Key("add"), Parenthesis.OPEN, Key("value1"), Key("value2"), TYPE_PREFIX, Key("Int"), Parenthesis.CLOSE, RETURN, Key("Int"), Bracket.OPEN,
                 RETURN, Key("value1"), ADD, Key("value2"),
                 Bracket.CLOSE,
@@ -204,9 +213,16 @@ internal class CrescentLexerTests {
                 Bracket.CLOSE,
                 Bracket.CLOSE,
 
-                Data.Comment("Can't use self in static syntax"),
-                IMPL, Modifier.STATIC, Key("Example"), Bracket.OPEN,
-                Bracket.CLOSE
+                FUN, Key("main"), Bracket.OPEN,
+                VAL, Key("example"), ASSIGN, Key("Example"), Parenthesis.OPEN, Data.Number(1), COMMA, Data.String("Meow"), COMMA, Data.String("Mew"), Parenthesis.CLOSE,
+                Key("example"), DOT, Key("printValues"), Parenthesis.OPEN, Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("example"), DOT, Key("aNumber"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("example"), DOT, Key("aValue1"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("example"), DOT, Key("aValue2"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("Example"), DOT, Key("add"), Parenthesis.OPEN, Data.Number(1), COMMA, Data.Number(2), Parenthesis.CLOSE, Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("Example"), DOT, Key("sub"), Parenthesis.OPEN, Data.Number(1), COMMA, Data.Number(2), Parenthesis.CLOSE, Parenthesis.CLOSE,
+                Bracket.CLOSE,
             ),
             tokens
         )
@@ -223,8 +239,8 @@ internal class CrescentLexerTests {
                 FUN, Key("main"), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN,
                 Parenthesis.OPEN, Data.Number(1.0), ADD, Data.Number(1), Parenthesis.CLOSE,
-                ADD, Data.Number(1), DIV, Data.Number(10), ADD, Data.Number(1000), MUL, Data.Number(10),
-                DIV, Data.Number(10), POW, Data.Number(10),
+                ADD, Data.Number(1.0), DIV, Data.Number(10.0), ADD, Data.Number(1000.0), MUL, Data.Number(10.0),
+                DIV, Data.Number(11.0), POW, Data.Number(10.0),
                 Parenthesis.CLOSE,
                 Bracket.CLOSE,
             ),

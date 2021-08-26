@@ -9,6 +9,8 @@ import java.nio.file.Path
 
 // TODO: Maybe support comments
 // TODO: Shunting yard :C
+// TODO: Unwrap expressions of size 1, and make everything take in a node rather than an expression
+// Example: Variable("x", false, Visibility.PUBLIC, Type.Implicit, Expression(listOf(Number(1))))
 object CrescentParser {
 
     fun invoke(filePath: Path, tokens: List<CrescentToken>): CrescentAST.Node.File {
@@ -426,14 +428,28 @@ object CrescentParser {
             val peekNext = tokenIterator.peekNext()
 
             if (peekNext == CrescentToken.Variable.VAL || peekNext == CrescentToken.Variable.VAR) {
+
                 tokenIterator.next()
+
                 readVariables(tokenIterator, CrescentToken.Visibility.PUBLIC, peekNext == CrescentToken.Variable.VAL).forEach {
                     expressionNodes += it
                 }
             }
             else {
 
-                val expressionNode = readExpressionNode(tokenIterator)
+                val expressionNode = when (tokenIterator.peekNext()) {
+                    CrescentToken.Statement.WHILE -> {
+                        readWhile(tokenIterator)
+                    }
+                    CrescentToken.Statement.FOR -> {
+                        TODO()
+                    }
+
+                    else -> {
+                        readExpressionNode(tokenIterator)
+                    }
+                }
+
 
                 if (expressionNode != null) {
                     expressionNodes += expressionNode
@@ -563,6 +579,18 @@ object CrescentParser {
         return names.map { name ->
             CrescentAST.Node.Variable(name, isFinal, visibility, type, expression)
         }
+    }
+
+    fun readWhile(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Statement.While {
+
+        checkEquals(tokenIterator.next(), CrescentToken.Statement.WHILE)
+        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.OPEN)
+
+        val predicate = readExpression(tokenIterator)
+        checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
+        val block = readBlock(tokenIterator)
+
+        return CrescentAST.Node.Statement.While(predicate, block)
     }
 
     fun readParameters(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Parameter> {

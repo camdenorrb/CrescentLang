@@ -144,6 +144,7 @@ class CrescentAST {
 
         }
 
+        // TODO: Make the token implement Node
         @JvmInline
         value class Operator(
             val operator: CrescentToken.Operator
