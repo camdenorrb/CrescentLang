@@ -8,7 +8,7 @@ import kotlin.system.measureNanoTime
 
 internal object Bench {
 
-	const val DEFAULT_CYCLES = 1_000_000
+	const val DEFAULT_CYCLES = 5_000_000
 
 	val filePath = Path.of("example.crescent")
 
@@ -71,7 +71,13 @@ internal object Bench {
 		}
 
 
-		data class Result(val name: String, val subName: String, val state: State, val totalNS: Long, val averageNS: Long) {
+		data class Result(
+			val name: String,
+			val subName: String,
+			val state: State,
+			val totalNS: Long,
+			val averageNS: Long
+		) {
 
 			override fun toString(): String {
 				return (

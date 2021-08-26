@@ -114,7 +114,7 @@ object CrescentToPTIR {
                 builder.getVar(node.identifier)
                 builder.getArrayItem()
             }
-            is CrescentAST.Node.FunctionCall -> {
+            is CrescentAST.Node.IdentifierCall -> {
                 node.arguments.reversed().forEach { arg ->
                     nodeToCode(builder, arg, methods)
                 }

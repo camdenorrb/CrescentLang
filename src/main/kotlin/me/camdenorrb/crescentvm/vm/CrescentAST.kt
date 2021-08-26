@@ -4,6 +4,8 @@ import java.nio.file.Path
 
 
 // https://github.com/cretz/kastree/blob/master/ast/ast-common/src/main/kotlin/kastree/ast/Node.kt
+
+// TODO: Store line numbers and start/end char positions
 class CrescentAST {
 
     interface Node {
@@ -92,7 +94,7 @@ class CrescentAST {
 
         }
 
-        data class FunctionCall(
+        data class IdentifierCall(
             val identifier: String,
             val arguments: List<Expression>
         ) : Node {

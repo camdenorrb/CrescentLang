@@ -162,6 +162,7 @@ object CrescentLexer {
                 "ushr" -> CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT
                 "and" -> CrescentToken.Operator.BIT_AND
                 "or" -> CrescentToken.Operator.BIT_OR
+                "xor" -> CrescentToken.Operator.BIT_XOR
 
                 // Assign
                 "=" -> CrescentToken.Operator.ASSIGN

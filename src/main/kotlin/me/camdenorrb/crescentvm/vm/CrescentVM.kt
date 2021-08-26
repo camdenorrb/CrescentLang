@@ -82,7 +82,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				return node
 			}
 
-			is Node.FunctionCall -> {
+			is Node.IdentifierCall -> {
 				return runFunctionCall(node, context)
 			}
 
@@ -345,7 +345,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					stack.push(runNode(node, context))
 				}
 
-				is Node.FunctionCall -> {
+				is Node.IdentifierCall -> {
 
 					val returnValue = runFunctionCall(node, context)
 
@@ -364,7 +364,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		//return CrescentAST.Node.Type.Unit
 	}
 
-	fun runFunctionCall(node: Node.FunctionCall, context: FunctionContext): Node {
+	fun runFunctionCall(node: Node.IdentifierCall, context: FunctionContext): Node {
 
 		when (node.identifier) {
 

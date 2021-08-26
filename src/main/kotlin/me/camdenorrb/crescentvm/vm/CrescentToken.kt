@@ -5,6 +5,7 @@ package me.camdenorrb.crescentvm.vm
 // TODO: Add Operator keyword
 // TODO: Error keyword
 // TODO: Maybe remove majority of these and let the parser determine it, EX: Import, while
+// TODO: Store line numbers, start/end char positions
 interface CrescentToken {
 
     // Used only by the token iterator
@@ -14,28 +15,33 @@ interface CrescentToken {
         val string: String
     ) : CrescentToken
 
-    sealed class Data : CrescentToken {
+    interface Data : CrescentToken {
 
-        data class Number(
+        @JvmInline
+        value class Number(
             val number: kotlin.Number
-        ) : Data()
+        ) : Data
 
         // TODO: Take in expressions
-        data class String(
+        @JvmInline
+        value class String(
             val kotlinString: kotlin.String
-        ) : Data()
+        ) : Data
 
-        data class Boolean(
+        @JvmInline
+        value class Boolean(
             val kotlinBoolean: kotlin.Boolean
-        ) : Data()
+        ) : Data
 
-        data class Char(
+        @JvmInline
+        value class Char(
             val kotlinChar: kotlin.Char
-        ) : Data()
+        ) : Data
 
-        data class Comment(
+        @JvmInline
+        value class Comment(
             val string: kotlin.String
-        ) : Data()
+        ) : Data
 
     }
 

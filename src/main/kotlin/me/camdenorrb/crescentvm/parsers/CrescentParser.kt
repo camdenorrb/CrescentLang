@@ -610,11 +610,11 @@ object CrescentParser {
 
         while (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
 
-            if (tokenIterator.peekNext() == CrescentToken.Operator.COMMA) {
-                tokenIterator.next()
-            }
-
             arguments += readExpression(tokenIterator)
+
+            if (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
+                checkEquals(tokenIterator.next(), CrescentToken.Operator.COMMA)
+            }
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.Parenthesis.CLOSE)
@@ -622,7 +622,7 @@ object CrescentParser {
         return arguments
     }
 
-    // TODO: Merge with get arguments
+    // TODO: Merge with readArguments
     fun readGetArguments(tokenIterator: PeekingTokenIterator): List<CrescentAST.Node.Expression> {
 
         if (tokenIterator.peekNext() != CrescentToken.SquareBracket.OPEN) {
@@ -633,7 +633,12 @@ object CrescentParser {
         val arguments = mutableListOf<CrescentAST.Node.Expression>()
 
         while (tokenIterator.peekNext() != CrescentToken.SquareBracket.CLOSE) {
+
             arguments += readExpression(tokenIterator)
+
+            if (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
+                checkEquals(tokenIterator.next(), CrescentToken.Operator.COMMA)
+            }
         }
 
         checkEquals(tokenIterator.next(), CrescentToken.SquareBracket.CLOSE)
@@ -824,7 +829,7 @@ object CrescentParser {
                 val keyNode = when (tokenIterator.peekNext()) {
 
                     CrescentToken.Parenthesis.OPEN -> {
-                        CrescentAST.Node.FunctionCall(identifier, readArguments(tokenIterator))
+                        CrescentAST.Node.IdentifierCall(identifier, readArguments(tokenIterator))
                     }
 
                     CrescentToken.SquareBracket.OPEN -> {
@@ -881,6 +886,7 @@ object CrescentParser {
                 }
 
                 else -> {
+
                     if (nodes.isNotEmpty()) {
                         if (peekNext is CrescentToken.Operator) {
                             when (peekNext) {
@@ -898,8 +904,12 @@ object CrescentParser {
             }
         }
 
-        // TODO: Only run ShuntingYard if operators are used
-        return CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
+        return if (nodes.any { it is CrescentAST.Node.Operator }) {
+            CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
+        }
+        else {
+            CrescentAST.Node.Expression(nodes)
+        }
     }
 
     inline fun readNextUntilClosed(tokenIterator: PeekingTokenIterator, block: (token: CrescentToken) -> Unit) {

@@ -7,6 +7,7 @@ import kotlin.io.path.Path
 
 object Main {
 
+    // TODO: Replace all checkEquals in project with check and a custom message
     @JvmStatic
     fun main(args: Array<String>) {
 
@@ -20,8 +21,7 @@ object Main {
         val code =
             """
                 fun main {
-                    
-                    println((1.0 + 1) + 1 / 10 + 1000 * 10 / 10 ^ 10)
+                    println(1 xor 1)
                 }
             """.trimIndent()
             /*
@@ -60,7 +60,7 @@ object Main {
             """*/
 
 
-        val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
+        val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code).also { println(it) })
         println(file.mainFunction?.innerCode)
         CrescentVM(listOf(file), file).invoke()
     }

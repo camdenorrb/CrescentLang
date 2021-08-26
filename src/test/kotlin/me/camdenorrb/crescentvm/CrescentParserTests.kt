@@ -29,7 +29,7 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                FunctionCall("println", listOf(Expression(listOf(String("Hello World")))))
+                IdentifierCall("println", listOf(Expression(listOf(String("Hello World")))))
             ),
             mainFunction.innerCode.nodes,
         )
@@ -57,10 +57,10 @@ internal class CrescentParserTests {
                         GetCall("args", listOf(Expression(listOf(Number(0))))), String("true"), Operator(EQUALS_COMPARE)
                     )),
                     Statement.Block(listOf(
-                        FunctionCall("println", listOf(Expression(listOf(String("Meow")))))
+                        IdentifierCall("println", listOf(Expression(listOf(String("Meow")))))
                     )),
                     Statement.Block(listOf(
-                        FunctionCall("println", listOf(Expression(listOf(String("Hiss")))))
+                        IdentifierCall("println", listOf(Expression(listOf(String("Hiss")))))
                     )),
                 ),
             ),
@@ -86,7 +86,7 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 Variable("input", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
-                    FunctionCall(
+                    IdentifierCall(
                         "readBoolean",
                         listOf(Expression(listOf(String("Enter a boolean value [true/false]"))))
                     )
@@ -96,10 +96,10 @@ internal class CrescentParserTests {
                         Identifier("input")
                     )),
                     Statement.Block(listOf(
-                        FunctionCall("println", listOf(Expression(listOf(String("Meow")))))
+                        IdentifierCall("println", listOf(Expression(listOf(String("Meow")))))
                     )),
                     Statement.Block(listOf(
-                        FunctionCall("println", listOf(Expression(listOf(String("Hiss")))))
+                        IdentifierCall("println", listOf(Expression(listOf(String("Hiss")))))
                     )),
                 ),
             ),
@@ -123,7 +123,7 @@ internal class CrescentParserTests {
                 Variable("x", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(Number(0)))),
                 Variable("y", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(Number(0)))),
                 Variable("z", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(Number(0)))),
-                FunctionCall("println", listOf(Expression(listOf(String("\$x\$y\$z")))))
+                IdentifierCall("println", listOf(Expression(listOf(String("\$x\$y\$z")))))
             ),
             mainFunction.innerCode.nodes,
         )
@@ -162,13 +162,13 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 Variable("input1", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
-                    FunctionCall("readDouble", listOf(Expression(listOf(String("Enter your first number")))))
+                    IdentifierCall("readDouble", listOf(Expression(listOf(String("Enter your first number")))))
                 ))),
                 Variable("input2", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
-                    FunctionCall("readDouble", listOf(Expression(listOf(String("Enter your second number")))))
+                    IdentifierCall("readDouble", listOf(Expression(listOf(String("Enter your second number")))))
                 ))),
                 Variable("operation", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(
-                    FunctionCall("readLine", listOf(Expression(listOf(String("Enter an operation [+, -, *, /]")))))
+                    IdentifierCall("readLine", listOf(Expression(listOf(String("Enter an operation [+, -, *, /]")))))
                 ))),
                 Variable("result", true, Visibility.PUBLIC, Type.Implicit,
                     Expression(listOf(
@@ -203,7 +203,7 @@ internal class CrescentParserTests {
                         ),
                     ))
                 ),
-                FunctionCall("println", listOf(Expression(listOf(Identifier("result")))))
+                IdentifierCall("println", listOf(Expression(listOf(Identifier("result")))))
             ),
             mainFunction.innerCode.nodes,
         )
@@ -316,7 +316,7 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                FunctionCall("println", listOf(Expression(listOf(
+                IdentifierCall("println", listOf(Expression(listOf(
                     Number(1.0), Number(1), Operator(ADD),
                     Number(1), Number(10), Operator(DIV), Operator(ADD), Number(1000), Number(10), Operator(MUL), Number(10), Number(10), Operator(POW), Operator(DIV), Operator(ADD)
                 ))))
@@ -380,12 +380,12 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable("color", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(DotChain(listOf(Identifier("Color"), FunctionCall("random", emptyList())))))),
+                Variable("color", true, Visibility.PUBLIC, Type.Implicit, Expression(listOf(DotChain(listOf(Identifier("Color"), IdentifierCall("random", emptyList())))))),
                 When(Expression(listOf(Identifier("color"))), listOf(
                     When.Clause(
                         When.EnumShortHand("RED"),
                         Statement.Block(listOf(
-                            FunctionCall("println", listOf(Expression(listOf(String("Meow")))))
+                            IdentifierCall("println", listOf(Expression(listOf(String("Meow")))))
                         ))
                     ),
                     When.Clause(
@@ -403,7 +403,7 @@ internal class CrescentParserTests {
                         String("Red"),
                         Statement.Block(listOf(
                             Expression(listOf(
-                                FunctionCall("println", listOf(Expression(listOf(Identifier("name"))))),
+                                IdentifierCall("println", listOf(Expression(listOf(Identifier("name"))))),
                             ))
                         ))
                     ),
