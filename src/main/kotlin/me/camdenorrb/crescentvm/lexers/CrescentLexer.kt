@@ -35,7 +35,7 @@ object CrescentLexer {
                     val next = charIterator.next()
                     val peek = charIterator.peekNext()
 
-                    if (next == '-' && (peek.isDigit() || (peek == '.' && charIterator.peekNext(2).isDigit()))) {
+                    if (next == '-' && (peek.isDigit() || (peek == '.' && charIterator.peekNext(1).isDigit()))) {
                         isANumber = true
                         "-${readNumber(charIterator)}"
                     }

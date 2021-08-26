@@ -21,7 +21,7 @@ object Main {
         val code =
             """
 fun main() {
-    println(round(-2.5))
+    println(-.5)
 }
 		    """
             /*
