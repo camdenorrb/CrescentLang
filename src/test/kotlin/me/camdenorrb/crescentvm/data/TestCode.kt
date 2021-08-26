@@ -137,7 +137,7 @@ internal object TestCode {
                 
 				while (x <= 10) {
 					println(x)
-					x += 1
+					x = x + 1
 				}
             }
 		"""
