@@ -681,8 +681,7 @@ object CrescentParser {
 
             arguments += readExpression(tokenIterator)
 
-            println(arguments)
-            if (tokenIterator.peekNext().also { println(it) } != CrescentToken.Parenthesis.CLOSE) {
+            if (tokenIterator.peekNext() != CrescentToken.Parenthesis.CLOSE) {
                 checkEquals(CrescentToken.Operator.COMMA, tokenIterator.next())
             }
         }

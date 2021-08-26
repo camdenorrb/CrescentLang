@@ -21,14 +21,7 @@ object Main {
         val code =
             """
 fun main() {
-println("       /\")
-println("      /__\")
-println("     /\  /\")
-println("    /__\/__\")
-println("   /\      /\")
-println("  /__\    /__\")
-println(" /\  /\  /\  /\")
-println("/__\/__\/__\/__\")
+    println(round(2.5))
 }
 		    """
             /*
