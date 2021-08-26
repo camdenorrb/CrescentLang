@@ -407,8 +407,8 @@ class CrescentAST {
             ) : Statement
 
             data class For(
-                val variable: Variable,
-                val predicate: Expression,
+                val identifiers: List<Identifier>,
+                val ranges: List<Range>,
                 val block: Block,
             ) : Statement
 
