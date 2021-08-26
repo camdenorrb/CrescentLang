@@ -44,16 +44,6 @@ object CrescentToPTIR {
             }
             is CrescentAST.Node.Operator -> {
                 when (node.operator) {
-                    CrescentToken.Operator.EQUALS_COMPARE -> {
-                        val afterL = builder.newLabel()
-                        val elseL = builder.newLabel()
-                        builder.ifEquals(elseL)
-                        builder.push(1)
-                        builder.jmp(afterL)
-                        builder.placeLabel(elseL)
-                        builder.push(0)
-                        builder.placeLabel(afterL)
-                    }
                     CrescentToken.Operator.ADD -> {
                         builder.add()
                     }
@@ -90,6 +80,32 @@ object CrescentToPTIR {
                         builder.push(0)
                         builder.placeLabel(afterL)
                     }
+                    CrescentToken.Operator.NOT -> {
+                        val afterL = builder.newLabel()
+                        val elseL = builder.newLabel()
+                        builder.ifNotEquals(elseL)
+                        builder.push(1)
+                        builder.jmp(afterL)
+                        builder.placeLabel(elseL)
+                        builder.push(0)
+                        builder.placeLabel(afterL)
+                    }
+                    CrescentToken.Operator.EQUALS_COMPARE -> {
+                        val afterL = builder.newLabel()
+                        val elseL = builder.newLabel()
+                        builder.ifEquals(elseL)
+                        builder.push(1)
+                        builder.jmp(afterL)
+                        builder.placeLabel(elseL)
+                        builder.push(0)
+                        builder.placeLabel(afterL)
+                    }
+                    CrescentToken.Operator.BIT_SHIFT_RIGHT -> builder.signedShiftRight()
+                    CrescentToken.Operator.BIT_SHIFT_LEFT -> builder.signedShiftLeft()
+                    CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> builder.unsignedShiftRight()
+                    CrescentToken.Operator.BIT_OR -> builder.or()
+                    CrescentToken.Operator.BIT_XOR -> builder.xor()
+                    CrescentToken.Operator.BIT_AND -> builder.and()
                     else -> error("Unknown operator: ${node.operator}")
                 }
             }
@@ -157,6 +173,17 @@ object CrescentToPTIR {
                     nodeToCode(builder, node.elseBlock!!, methods)
                     builder.placeLabel(afterLabel)
                 }
+            }
+            is CrescentAST.Node.Statement.While -> {
+                val after = builder.newLabel()
+                val before = builder.newLabel()
+                builder.placeLabel(before)
+                nodeToCode(builder, node.predicate, methods)
+                builder.push(0)
+                builder.ifNotEquals(after)
+                nodeToCode(builder, node.block, methods)
+                builder.jmp(before)
+                builder.placeLabel(after)
             }
             is CrescentAST.Node.Identifier -> {
                 builder.getArg(node.name)

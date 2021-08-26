@@ -225,34 +225,36 @@ internal object TestCode {
 
 	const val tree =
 		"""
-fun repeatPrint(input amount: Any) {
-  print(input)
-  
-  if (amount > 1) {
-      repeatPrint(input, amount - 1)
-  }
-}
-fun printStars(number size countUp: Any) {
-  repeatPrint("* ", number)
-  println("")
-   
-  if (countUp) {
-    if (number < size) {
-      printStars(number + 1, size, true)
-    }
-    else {
-      printStars(number - 1, size, false)
-    }
-  }
-  else {
-    if (number > 1) {
-      printStars(number - 1, size, false)
-    }
-  }
-}
-fun main {
-    printStars(1, 10, true)
-}
+			fun printSpaces(count: Any) {
+				print(" ")
+				if (count > 0) {
+					printSpaces(count - 1)
+				}
+			}
+			
+			fun printStars(count: Any) {
+				print("* ")
+				if (count > 1) {
+					printStars(count - 1)
+				}
+			}
+			
+			fun printTriangle(size: Any, max: Any) {
+				if (size > 0) {
+					printSpaces(size)
+					printStars((max - size) + 1)
+					println("")
+					printTriangle(size - 1, max)
+				}
+			}
+			
+			fun printer(size: Any) {
+				printTriangle(size, size)
+			}
+			
+			fun main {
+				printer(510)
+			}
 		"""
 
 	const val sealed =
