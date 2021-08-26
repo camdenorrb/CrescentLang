@@ -7,6 +7,7 @@ import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Type
 import java.util.*
 import kotlin.math.pow
+import kotlin.math.sqrt
 
 // TODO: Add a way to add external functions
 // TODO: Find a way to remove recursion
@@ -375,7 +376,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					stack.push(node)
 				}
 
-
 				else -> {}
 			}
 		}
@@ -389,6 +389,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	fun runFunctionCall(node: Node.IdentifierCall, context: BlockContext): Node {
 
 		when (node.identifier) {
+
+			"sqrt" -> {
+				checkEquals(1, node.arguments.size)
+				return Primitive.Number(sqrt((runNode(node.arguments[0], context) as Primitive.Number).data.toDouble()))
+			}
 
 			"print" -> {
 				checkEquals(1, node.arguments.size)

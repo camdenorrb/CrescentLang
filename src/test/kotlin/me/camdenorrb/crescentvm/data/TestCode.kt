@@ -225,11 +225,11 @@ internal object TestCode {
 	// TODO: Add traits and inheriting  impl Example : Cat
 	const val impl =
 		"""
+			
             struct Example(
                 val aNumber: Int          # New lines makes commas redundant
                 val aValue1 aValue2 = ""  # Multi declaration of same type, can all be set to one or multiple default values
             )
-
 
             impl Example {
 
