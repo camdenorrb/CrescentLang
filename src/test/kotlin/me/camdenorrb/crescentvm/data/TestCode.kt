@@ -28,12 +28,38 @@ internal object TestCode {
 
 	const val funThing =
 		"""         
-			fun funThing {
+			
+			fun funThing1 {
 			    println("I am a fun thing :)")
 			}
 			
+			fun funThing2(input: String) {
+			    println(input)
+			}
+			
+			fun funThing3(input1 input2: String) {
+			    println(input1 + input2)
+			}
+			
+			fun funThing4(input1: String, input2: String) {
+			    println(input1 + input2)
+			}
+			
+			fun funThing5 -> String {
+				-> "Meow"
+			}
+			
+			fun funThing6() -> String {
+				-> "Meow"
+			}
+			
 			fun main {
-				funThing()
+				funThing1()
+				funThing2("Meow")
+				funThing3("Me", "ow")
+				funThing4("Me", "ow")
+				println(funThing5())
+				println(funThing6())
 			}
 		"""
 
@@ -160,15 +186,24 @@ internal object TestCode {
                 println(result)
             }
         """
+
 	const val constantsAndObject =
 		"""
-            const thing = "Meow"
+            const thing1 = "Mew"
             
             object Constants {
             
-                const thing = "Meow"
+                const thing2 = "Meow"
             
+				fun printThing() {
+					println(thing1)
+					println(thing2)
+				}
             }
+			
+			fun main {
+				Constants.printThings()
+			}
         """
 
 	const val impl =
@@ -224,6 +259,7 @@ internal object TestCode {
 		"""
             fun main {
                 println((1.0 + 1) + 1.0 / 10.0 + 1000.0 * 10.0 / 11.0 ^ 10.0)
+				println(4(3) + 1)
             }
 		"""
 
@@ -324,11 +360,14 @@ internal object TestCode {
 		"""
             # Current idea, Package -> Type
             import crescent.examples::Thing
+            import crescent.examples::Thing2 as Thing3
+            import crescent.examples::*
 
             # import crescent.examples as examples
             
             # Short hand method (If in same package)
-            import ::Thing	
+            import ::Thing
+            import ::Thing2 as Thing3			
 		"""
 
 }
