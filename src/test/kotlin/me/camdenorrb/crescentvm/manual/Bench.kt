@@ -3,21 +3,26 @@ package me.camdenorrb.crescentvm.manual
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
+import me.camdenorrb.crescentvm.vm.CrescentToPTIR
+import me.camdenorrb.crescentvm.vm.CrescentVM
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
 import java.nio.file.Path
+import kotlin.io.path.Path
 import kotlin.system.measureNanoTime
 
 internal object Bench {
 
-	const val DEFAULT_CYCLES = 5_000_000
+	const val DEFAULT_CYCLES = 1_000_000
 
 	val filePath = Path.of("example.crescent")
 
 	val lexerBenchmark = Benchmark("Lexer")
 
 	val parserBenchmark = Benchmark("Parser")
+
+	val vmBenchmark = Benchmark("VM")
 
 	val originalSystemOut = System.out
 
@@ -46,7 +51,8 @@ internal object Bench {
 	@JvmStatic
 	fun main(args: Array<String>) {
 
-		benchCode("Hello World", TestCode.helloWorlds)
+		/*
+		benchCode("Hello Worlds", TestCode.helloWorlds)
 		benchCode("If Statement", TestCode.ifStatement)
 		benchCode("If Input Statement", TestCode.ifInputStatement)
 		benchCode("Calculator", TestCode.calculator)
@@ -57,8 +63,11 @@ internal object Bench {
 		benchCode("Enum", TestCode.enum)
 		benchCode("Comments", TestCode.comments)
 		benchCode("Imports", TestCode.imports)
+		*/
 
-		Benchmark("")
+		//benchVM("Hello Worlds", TestCode.helloWorlds)
+		benchVM("Triangles", TestCode.triangleRecursion)
+
 	}
 
 	fun benchCode(name: String, code: String) {
@@ -78,6 +87,25 @@ internal object Bench {
 		}
 
 		println()
+	}
+
+	fun benchVM(name: String, code: String) {
+
+		val tokens = CrescentLexer.invoke(code)
+		val parsed = CrescentParser.invoke(Path("example.moo"), tokens)
+		val result = CrescentToPTIR.craft(parsed)
+
+		vmBenchmark.bench("Moo:$name") {
+			collectSystemOut {
+				CrescentToPTIR.execute("static.main", result)
+			}
+		}
+
+		vmBenchmark.bench("Kat:$name") {
+			collectSystemOut {
+				CrescentVM(listOf(parsed), parsed)
+			}
+		}
 	}
 
 

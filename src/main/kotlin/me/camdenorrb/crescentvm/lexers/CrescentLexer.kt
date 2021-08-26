@@ -1,6 +1,7 @@
 package me.camdenorrb.crescentvm.lexers
 
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
+import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.vm.CrescentToken
 
@@ -34,7 +35,11 @@ object CrescentLexer {
                     val next = charIterator.next()
                     val peek = charIterator.peekNext()
 
-                    if (peek == '=' || next == '-' && peek == '>') {
+                    if (next == '-' && (peek.isDigit() || (peek == '.' && charIterator.peekNext(2).isDigit()))) {
+                        isANumber = true
+                        "-${readNumber(charIterator)}"
+                    }
+                    else if (peek == '=' || next == '-' && peek == '>') {
                         "$next${charIterator.next()}"
                     }
                     else {
@@ -56,14 +61,7 @@ object CrescentLexer {
                             isANumber = true
 
                             // Select number, stop if rangeTo (..) is found
-                            charIterator.nextUntil {
-                                if (it == '.' && charIterator.peekNext(1) != '.') {
-                                    false
-                                }
-                                else {
-                                    !it.isDigit()
-                                }
-                            }
+                            readNumber(charIterator)
                         }
 
                         peekNext.isLetter() -> {
@@ -223,6 +221,17 @@ object CrescentLexer {
         }
 
         return tokens
+    }
+
+    fun readNumber(charIterator: PeekingCharIterator): String {
+        return charIterator.nextUntil {
+            if (it == '.' && charIterator.peekNext(1) != '.') {
+                false
+            }
+            else {
+                !it.isDigit()
+            }
+        }
     }
 
 }
