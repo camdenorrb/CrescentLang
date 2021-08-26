@@ -119,8 +119,14 @@ interface CrescentToken {
     }
 
 
+    enum class Keyword(val literal: String) : CrescentToken, CrescentAST.Node {
+        SELF("self"),
+        BREAK("break"),
+        CONTINUE("continue"),
+    }
+
     // TODO: Precedence
-    enum class Operator(val literal: String) : CrescentToken {
+    enum class Operator(val literal: String) : CrescentToken, CrescentAST.Node {
         //NEW_LINE("\n"),
         NOT("!"),
         ADD("+"),
@@ -153,6 +159,7 @@ interface CrescentToken {
         NOT_EQUALS_COMPARE("!="),
         NOT_EQUALS_REFERENCE_COMPARE("!=="),
         CONTAINS("in"),
+        NOT_CONTAINS("!in"),
         RANGE_TO(".."),
         TYPE_PREFIX(":"),
         RETURN("->"),

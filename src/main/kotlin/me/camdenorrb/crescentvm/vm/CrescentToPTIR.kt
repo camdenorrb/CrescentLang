@@ -43,8 +43,8 @@ object CrescentToPTIR {
                     nodeToCode(builder, it, methods)
                 }
             }
-            is CrescentAST.Node.Operator -> {
-                when (node.operator) {
+            is CrescentToken.Operator -> {
+                when (node) {
                     CrescentToken.Operator.ADD -> {
                         builder.add()
                     }
@@ -138,7 +138,7 @@ object CrescentToPTIR {
                     CrescentToken.Operator.BIT_OR -> builder.or()
                     CrescentToken.Operator.BIT_XOR -> builder.xor()
                     CrescentToken.Operator.BIT_AND -> builder.and()
-                    else -> error("Unknown operator: ${node.operator}")
+                    else -> error("Unknown operator: $node")
                 }
             }
             is CrescentAST.Node.Primitive.Char -> {

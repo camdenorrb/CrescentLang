@@ -1,4 +1,4 @@
-package me.camdenorrb.crescentvm
+package me.camdenorrb.crescentvm.manual
 
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer

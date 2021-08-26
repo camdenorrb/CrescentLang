@@ -14,7 +14,7 @@ object ShuntingYard {
         // Stack -> Push/Pop
 
         val outputQueue   = LinkedList<CrescentAST.Node>()
-        val operatorStack = LinkedList<CrescentAST.Node.Operator>()
+        val operatorStack = LinkedList<CrescentToken.Operator>()
 
         val nodeIterator = PeekingNodeIterator(input)
 
@@ -31,7 +31,7 @@ object ShuntingYard {
                     outputQueue.addAll(invoke(next.nodes))
                 }
 
-                is CrescentAST.Node.Operator -> {
+                is CrescentToken.Operator -> {
 
                     while (operatorStack.isNotEmpty() && precedence(operatorStack.first) <= precedence(next)) {
                         outputQueue.add(operatorStack.pop())
@@ -52,7 +52,7 @@ object ShuntingYard {
     }
 
     // Lower is higher precedence (Runs operations top to bottom)
-    fun precedence(operator: CrescentAST.Node.Operator) = when (operator.operator) {
+    fun precedence(operator: CrescentToken.Operator) = when (operator) {
 
         CrescentToken.Operator.POW -> 1
 

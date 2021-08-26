@@ -844,7 +844,7 @@ object CrescentParser {
             }
 
             is CrescentToken.Operator -> {
-                CrescentAST.Node.Operator(next)
+                next
             }
 
             CrescentToken.Statement.WHEN -> {
@@ -985,7 +985,7 @@ object CrescentParser {
                                 else -> {}
                             }
                         }
-                        else if (nodes.lastOrNull() !is CrescentAST.Node.Operator) {
+                        else if (nodes.lastOrNull() !is CrescentToken.Operator) {
                             break
                         }
                     }
@@ -998,7 +998,7 @@ object CrescentParser {
         return if (nodes.size == 1) {
             nodes[0]
         }
-        else if (nodes.any { it is CrescentAST.Node.Operator }) {
+        else if (nodes.any { it is CrescentToken.Operator }) {
             CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
         }
         else {

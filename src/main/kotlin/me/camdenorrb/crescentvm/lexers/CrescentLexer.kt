@@ -202,6 +202,11 @@ object CrescentLexer {
                 // Comment
                 "#" -> CrescentToken.Data.Comment(charIterator.nextUntil('\n').trim())
 
+                // Keywords
+                "break" -> CrescentToken.Keyword.BREAK
+                "continue" -> CrescentToken.Keyword.CONTINUE
+
+
                 //"\n" -> CrescentToken.Operator.NEW_LINE
                 "is" -> CrescentToken.Operator.INSTANCE_OF
                 "->" -> CrescentToken.Operator.RETURN

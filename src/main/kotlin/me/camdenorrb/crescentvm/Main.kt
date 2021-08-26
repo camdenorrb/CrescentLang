@@ -20,37 +20,16 @@ object Main {
 
         val code =
             """
-fun printSpaces(count: Any) {
-                print(" ")
-                if (count > 0) {
-                    printSpaces(count - 1)
+                fun main {
+                
+                    var thing = 1
+                    
+                    while (thing <= 10) {
+                        println(thing)
+                        thing = thing + 1
+                    }
                 }
-            }
-
-            fun printStars(count: Any) {
-                print("* ")
-                if (count > 0) {
-                    printStars(count - 1)
-                }
-            }
-
-            fun printTriangle(size: Any, max: Any) {
-                if (size > 0) {
-                    printSpaces(size)
-                    printStars((max - size))
-                    println("")
-                    printTriangle(size - 1, max)
-                }
-            }
-
-            fun printer(size: Any) {
-                printTriangle(size, size)
-            }
-
-            fun main {
-                printer(35)
-            }
-		"""
+		    """
             /*
             """             
                 fun repeatPrint(input: Any, amount: Any) {
