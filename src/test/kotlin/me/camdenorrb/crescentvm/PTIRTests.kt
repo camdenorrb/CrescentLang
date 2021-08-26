@@ -89,6 +89,13 @@ internal class PTIRTests {
     }
 
     @Test
+    fun forLoop() {
+        val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.forLoop2))
+        val result = CrescentToPTIR.craft(file)
+        CrescentToPTIR.execute("static.main", result)
+    }
+
+    @Test
     fun funThing() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.funThing))
         val result = CrescentToPTIR.craft(file)

@@ -246,8 +246,9 @@ object CrescentToPTIR {
                 }
                 nodeToCode(builder, node.block, methods)
                 repeat(node.identifiers.size) {
-                    val name = node.identifiers[it].name
-                    val storage = data[it]
+                    val backwards = (node.identifiers.size - it) - 1
+                    val name = node.identifiers[backwards].name
+                    val storage = data[backwards]
                     builder.getVar(name)
                     val tmpElse = builder.newLabel()
                     val tmpAfter = builder.newLabel()
@@ -259,6 +260,7 @@ object CrescentToPTIR {
                     builder.placeLabel(tmpElse)
                     builder.dec()
                     builder.placeLabel(tmpAfter)
+                    builder.setVar(name)
                     builder.jmp(storage.first!!)
                     builder.placeLabel(storage.second!!)
                 }

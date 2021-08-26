@@ -155,6 +155,22 @@ internal object TestCode {
             }
 		"""
 
+	val forLoop2 =
+		"""
+		    fun main {
+		     
+		        val x, y, z = 0
+                
+				println("" + x + y + z)
+			
+			    for x, y, z in 0..10, 0..10, 0..10 {
+			        println("x: " + x + " y: " + y + " z: " + z)
+			    }
+
+                println("Hello World")
+            }
+		"""
+
 	val whileLoop =
 		"""
 		    fun main {
