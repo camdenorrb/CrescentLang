@@ -27,8 +27,8 @@ object CrescentParser {
         val objects = mutableMapOf<String, CrescentAST.Node.Object>()
 
         val functions = mutableMapOf<String, CrescentAST.Node.Function>()
-        val variables = mutableMapOf<String, CrescentAST.Node.Variable>()
-        val constants = mutableMapOf<String, CrescentAST.Node.Constant>()
+        val variables = mutableMapOf<String, CrescentAST.Node.Variable.Basic>()
+        val constants = mutableMapOf<String, CrescentAST.Node.Variable.Constant>()
 
         var mainFunction: CrescentAST.Node.Function? = null
         val tokenIterator = PeekingTokenIterator(tokens)
@@ -247,9 +247,9 @@ object CrescentParser {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
 
-        val objectVariables = mutableListOf<CrescentAST.Node.Variable>()
+        val objectVariables = mutableListOf<CrescentAST.Node.Variable.Basic>()
         val objectFunctions = mutableListOf<CrescentAST.Node.Function>()
-        val objectConstants = mutableListOf<CrescentAST.Node.Constant>()
+        val objectConstants = mutableListOf<CrescentAST.Node.Variable.Constant>()
 
         var innerVisibility = CrescentToken.Visibility.PUBLIC
         val innerModifiers = mutableListOf<CrescentToken.Modifier>()
@@ -297,7 +297,7 @@ object CrescentParser {
     fun readStruct(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Struct {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
-        val innerVariables = mutableListOf<CrescentAST.Node.Variable>()
+        val variables = mutableListOf<CrescentAST.Node.Variable.Basic>()
 
         // Skip open bracket
         checkEquals(CrescentToken.Parenthesis.OPEN, tokenIterator.next())
@@ -322,7 +322,7 @@ object CrescentParser {
                 }
 
                 is CrescentToken.Variable -> {
-                    innerVariables.addAll(
+                    variables.addAll(
                         readVariables(
                             tokenIterator,
                             variableVisibility,
@@ -338,7 +338,7 @@ object CrescentParser {
             variableVisibility = CrescentToken.Visibility.PUBLIC
         }
 
-        return CrescentAST.Node.Struct(name, innerVariables)
+        return CrescentAST.Node.Struct(name, variables)
     }
 
     fun readImpl(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Impl {
@@ -488,7 +488,7 @@ object CrescentParser {
     fun readConstant(
         tokenIterator: PeekingTokenIterator,
         visibility: CrescentToken.Visibility,
-    ): CrescentAST.Node.Constant {
+    ): CrescentAST.Node.Variable.Constant {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
 
@@ -511,14 +511,14 @@ object CrescentParser {
             }
 
 
-        return CrescentAST.Node.Constant(name, visibility, type, expression)
+        return CrescentAST.Node.Variable.Constant(name, visibility, type, expression)
     }
 
     fun readVariable(
         tokenIterator: PeekingTokenIterator,
         visibility: CrescentToken.Visibility,
         isFinal: Boolean,
-    ): CrescentAST.Node.Variable {
+    ): CrescentAST.Node.Variable.Basic {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
 
@@ -540,14 +540,14 @@ object CrescentParser {
                 CrescentAST.Node.Expression(emptyList())
             }
 
-        return CrescentAST.Node.Variable(name, isFinal, visibility, type, expression)
+        return CrescentAST.Node.Variable.Basic(name, isFinal, visibility, type, expression)
     }
 
     fun readVariables(
         tokenIterator: PeekingTokenIterator,
         visibility: CrescentToken.Visibility,
         isFinal: Boolean,
-    ): List<CrescentAST.Node.Variable> {
+    ): List<CrescentAST.Node.Variable.Basic> {
 
         val names = tokenIterator.nextUntil { it !is CrescentToken.Key && it != CrescentToken.Operator.COMMA }.mapNotNull {
             if (it == CrescentToken.Operator.COMMA) {
@@ -581,7 +581,7 @@ object CrescentParser {
             }
 
         return names.map { name ->
-            CrescentAST.Node.Variable(name, isFinal, visibility, type, expression)
+            CrescentAST.Node.Variable.Basic(name, isFinal, visibility, type, expression)
         }
     }
 

@@ -270,7 +270,7 @@ object CrescentToPTIR {
                     builder.getVar(node.name)
                 }
             }
-            is CrescentAST.Node.Variable -> {
+            is CrescentAST.Node.Variable.Basic -> {
                 nodeToCode(builder, node.value, methods)
                 builder.setVar(node.name)
             }

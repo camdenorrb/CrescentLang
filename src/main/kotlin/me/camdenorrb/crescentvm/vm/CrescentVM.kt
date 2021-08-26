@@ -119,7 +119,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				}
 			}
 
-			is Node.Variable -> {
+			is Node.Variable.Basic -> {
 				context.variableValues[node.name] = runNode(node.value, context)
 			}
 

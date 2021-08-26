@@ -188,7 +188,7 @@ class CrescentAST {
 
         data class Struct(
             val name: String,
-            val variables: List<Variable>,
+            val variables: List<Variable.Basic>,
         ) : Node
 
         data class Sealed(
@@ -205,8 +205,8 @@ class CrescentAST {
         // TODO: Force variables to be val not var
         data class Object(
             val name: String,
-            val variables: List<Variable>,
-            val constants: List<Constant>,
+            val variables: List<Variable.Basic>,
+            val constants: List<Variable.Constant>,
             val functions: List<Function>,
         ) : Node
 
@@ -245,30 +245,40 @@ class CrescentAST {
 
         }
 
-        data class Constant(
-            val name: String,
-            val visibility: CrescentToken.Visibility,
-            val type: Type,
-            val value: Node,
-        ) : Node {
 
-            override fun toString(): String {
-                return "const $name: ${type::class.simpleName} = $value"
+        interface Variable : Node {
+
+            data class Basic(
+                val name: String,
+                val isFinal: Boolean,
+                val visibility: CrescentToken.Visibility,
+                val type: Type,
+                val value: Node,
+            ) : Variable {
+
+                override fun toString(): String {
+                    return "$visibility ${if (isFinal) "val" else "var"} $name: ${type::class.simpleName} = $value"
+                }
+
             }
 
-        }
+            data class Constant(
+                val name: String,
+                val visibility: CrescentToken.Visibility,
+                val type: Type,
+                val value: Node,
+            ) : Variable {
 
-        data class Variable(
-            val name: String,
-            val isFinal: Boolean,
-            val visibility: CrescentToken.Visibility,
-            val type: Type,
-            val value: Node,
-        ) : Node {
-
-            override fun toString(): String {
-                return "$visibility ${if (isFinal) "val" else "var"} $name: ${type::class.simpleName} = $value"
+                override fun toString(): String {
+                    return "const $name: ${type::class.simpleName} = $value"
+                }
             }
+
+            data class Local(
+                val name: String,
+                val type: Type,
+                val value: Node
+            ) : Variable
 
         }
 
@@ -292,8 +302,8 @@ class CrescentAST {
             val traits: Map<String, Trait>,
             val objects: Map<String, Object>,
             val enums: Map<String, Enum>,
-            val variables: Map<String, Variable>,
-            val constants: Map<String, Constant>,
+            val variables: Map<String, Variable.Basic>,
+            val constants: Map<String, Variable.Constant>,
             val functions: Map<String, Function>,
             val mainFunction: Function?,
         ) : Node
