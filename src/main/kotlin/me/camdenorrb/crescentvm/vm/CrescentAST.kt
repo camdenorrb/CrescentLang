@@ -1,6 +1,7 @@
 package me.camdenorrb.crescentvm.vm
 
 import java.nio.file.Path
+import kotlin.math.pow
 
 
 // https://github.com/cretz/kastree/blob/master/ast/ast-common/src/main/kotlin/kastree/ast/Node.kt
@@ -11,15 +12,737 @@ class CrescentAST {
 
     interface Node {
 
-        sealed class Primitive {
+        interface Typed {
 
-            @JvmInline
-            value class Number(
-                val data: kotlin.Number,
-            ) : Node {
+            val type: Type
 
-                override fun toString(): kotlin.String {
-                    return "$data"
+        }
+
+        interface Primitive : Node, Typed {
+
+            interface Number : Primitive {
+
+                @JvmInline
+                value class U8(val data: UByte) : Number {
+
+                    override val type get() = U8.type
+
+                    companion object {
+
+                        val type = Type.Basic("U8")
+
+                    }
+                }
+
+                @JvmInline
+                value class U16(val data: UShort) : Number {
+
+                    override val type get() = U16.type
+
+                    companion object {
+
+                        val type = Type.Basic("U16")
+
+                    }
+                }
+
+                @JvmInline
+                value class U32(val data: UInt) : Number {
+
+                    override val type get() = U32.type
+
+                    companion object {
+
+                        val type = Type.Basic("U32")
+
+                    }
+                }
+
+                @JvmInline
+                value class U64(val data: ULong) : Number {
+
+                    override val type get() = U64.type
+
+                    companion object {
+
+                        val type = Type.Basic("U64")
+
+                    }
+                }
+
+                @JvmInline
+                value class I8(val data: Byte) : Number {
+
+                    override val type get() = I8.type
+
+                    companion object {
+
+                        val type = Type.Basic("I8")
+
+                    }
+                }
+
+                @JvmInline
+                value class I16(val data: Short) : Number {
+
+                    override val type get() = I16.type
+
+                    companion object {
+
+                        val type = Type.Basic("I16")
+
+                    }
+                }
+
+                @JvmInline
+                value class I32(val data: Int) : Number {
+
+                    override val type get() = I32.type
+
+                    companion object {
+
+                        val type = Type.Basic("I32")
+
+                    }
+                }
+
+                @JvmInline
+                value class I64(val data: Long) : Number {
+
+                    override val type get() = I64.type
+
+                    companion object {
+
+                        val type = Type.Basic("I64")
+
+                    }
+                }
+
+                @JvmInline
+                value class F32(val data: Float) : Number {
+
+                    override val type get() = F32.type
+
+                    companion object {
+
+                        val type = Type.Basic("F32")
+
+                    }
+                }
+
+                @JvmInline
+                value class F64(val data: Double) : Number {
+
+                    override val type get() = F64.type
+
+                    companion object {
+
+                        val type = Type.Basic("F64")
+
+                    }
+                }
+
+                fun toU8() = when (this) {
+                    is U8  -> this
+                    is U16 -> U8(data.toUByte())
+                    is U32 -> U8(data.toUByte())
+                    is U64 -> U8(data.toUByte())
+                    is I8  -> U8(data.toUByte())
+                    is I16 -> U8(data.toUByte())
+                    is I32 -> U8(data.toUByte())
+                    is I64 -> U8(data.toUByte())
+                    else -> error("Can't convert $type to U8")
+                }
+                fun toU16() = when (this) {
+                    is U8  -> U16(data.toUShort())
+                    is U16 -> this
+                    is U32 -> U16(data.toUShort())
+                    is U64 -> U16(data.toUShort())
+                    is I8  -> U16(data.toUShort())
+                    is I16 -> U16(data.toUShort())
+                    is I32 -> U16(data.toUShort())
+                    is I64 -> U16(data.toUShort())
+                    else -> error("Can't convert $type to U16")
+                }
+                fun toU32() = when (this) {
+                    is U8  -> U32(data.toUInt())
+                    is U16 -> U32(data.toUInt())
+                    is U32 -> this
+                    is U64 -> U32(data.toUInt())
+                    is I8  -> U32(data.toUInt())
+                    is I16 -> U32(data.toUInt())
+                    is I32 -> U32(data.toUInt())
+                    is I64 -> U32(data.toUInt())
+                    else -> error("Can't convert $type to U32")
+                }
+                fun toU64() = when (this) {
+                    is U8  -> U64(data.toULong())
+                    is U16 -> U64(data.toULong())
+                    is U32 -> U64(data.toULong())
+                    is U64 -> this
+                    is I8  -> U64(data.toULong())
+                    is I16 -> U64(data.toULong())
+                    is I32 -> U64(data.toULong())
+                    is I64 -> U64(data.toULong())
+                    else -> error("Can't convert $type to U64")
+                }
+
+                fun toI8() = when (this) {
+                    is U8  -> I8(data.toByte())
+                    is U16 -> I8(data.toByte())
+                    is U32 -> I8(data.toByte())
+                    is U64 -> I8(data.toByte())
+                    is I8  -> this
+                    is I16 -> I8(data.toByte())
+                    is I32 -> I8(data.toByte())
+                    is I64 -> I8(data.toByte())
+                    is F32 -> I8(data.toInt().toByte())
+                    is F64 -> I8(data.toInt().toByte())
+                    else -> error("Can't convert $type to I8")
+                }
+                fun toI16() = when (this) {
+                    is U8  -> I16(data.toShort())
+                    is U16 -> I16(data.toShort())
+                    is U32 -> I16(data.toShort())
+                    is U64 -> I16(data.toShort())
+                    is I8  -> I16(data.toShort())
+                    is I16 -> this
+                    is I32 -> I16(data.toShort())
+                    is I64 -> I16(data.toShort())
+                    is F32 -> I16(data.toInt().toShort())
+                    is F64 -> I16(data.toInt().toShort())
+                    else -> error("Can't convert $type to I16")
+                }
+                fun toI32() = when (this) {
+                    is U8  -> I32(data.toInt())
+                    is U16 -> I32(data.toInt())
+                    is U32 -> I32(data.toInt())
+                    is U64 -> I32(data.toInt())
+                    is I8  -> I32(data.toInt())
+                    is I16 -> I32(data.toInt())
+                    is I32 -> this
+                    is I64 -> I32(data.toInt())
+                    is F32 -> I32(data.toInt())
+                    is F64 -> I32(data.toInt())
+                    else -> error("Can't convert $type to I32")
+                }
+                fun toI64() = when (this) {
+                    is U8  -> I64(data.toLong())
+                    is U16 -> I64(data.toLong())
+                    is U32 -> I64(data.toLong())
+                    is U64 -> I64(data.toLong())
+                    is I8  -> I64(data.toLong())
+                    is I16 -> I64(data.toLong())
+                    is I32 -> I64(data.toLong())
+                    is I64 -> this
+                    is F32 -> I64(data.toLong())
+                    is F64 -> I64(data.toLong())
+                    else -> error("Can't convert $type to I64")
+                }
+
+                fun toF32() = when (this) {
+                    is U8  -> F32(data.toFloat())
+                    is U16 -> F32(data.toFloat())
+                    is U32 -> F32(data.toFloat())
+                    is U64 -> F32(data.toFloat())
+                    is I8  -> F32(data.toFloat())
+                    is I16 -> F32(data.toFloat())
+                    is I32 -> F32(data.toFloat())
+                    is I64 -> F32(data.toFloat())
+                    is F32 -> this
+                    is F64 -> F32(data.toFloat())
+                    else -> error("Can't convert $type to F32")
+                }
+                fun toF64() = when (this) {
+                    is U8  -> F64(data.toDouble())
+                    is U16 -> F64(data.toDouble())
+                    is U32 -> F64(data.toDouble())
+                    is U64 -> F64(data.toDouble())
+                    is I8  -> F64(data.toDouble())
+                    is I16 -> F64(data.toDouble())
+                    is I32 -> F64(data.toDouble())
+                    is I64 -> F64(data.toDouble())
+                    is F32 -> F64(data.toDouble())
+                    is F64 -> this
+                    else -> error("Can't convert $type to F64")
+                }
+
+                fun toKotlinNumber() = when (this) {
+                    is U8  -> data
+                    is U16 -> data
+                    is U32 -> data
+                    is U64 -> data
+                    is I8  -> data
+                    is I16 -> data
+                    is I32 -> data
+                    is I64 -> data
+                    is F32 -> data
+                    is F64 -> data
+                    else -> error("Can't convert $type to F64")
+                }
+
+                fun pow(number: Number): Number {
+                    return F64(toF64().data.pow(number.toF64().data))
+                }
+
+                operator fun minus(number: Number): Number = when (this) {
+
+                    is U8 -> when (number) {
+                        is U8  -> U32(this.data - number.data)
+                        is U16 -> U32(this.data - number.data)
+                        is U32 -> U32(this.data - number.data)
+                        is U64 -> U64(this.data - number.data)
+                        else -> error("Can't subtract an unsigned to a signed")
+                    }
+                    is U16 -> when (number) {
+                        is U8  -> U32(this.data - number.data)
+                        is U16 -> U32(this.data - number.data)
+                        is U32 -> U32(this.data - number.data)
+                        is U64 -> U64(this.data - number.data)
+                        else -> error("Can't subtract an unsigned to a signed")
+                    }
+                    is U32 -> when (number) {
+                        is U8  -> U32(this.data - number.data)
+                        is U16 -> U32(this.data - number.data)
+                        is U32 -> U32(this.data - number.data)
+                        is U64 -> U64(this.data - number.data)
+                        else -> error("Can't subtract an unsigned to a signed")
+                    }
+                    is U64 -> when (number) {
+                        is U8  -> U64(this.data - number.data)
+                        is U16 -> U64(this.data - number.data)
+                        is U32 -> U64(this.data - number.data)
+                        is U64 -> U64(this.data - number.data)
+                        else -> error("Can't subtract an unsigned to a signed")
+                    }
+
+                    is I8 -> when (number) {
+                        is I8  -> I32(this.data - number.data)
+                        is I16 -> I32(this.data - number.data)
+                        is I32 -> I32(this.data - number.data)
+                        is I64 -> I64(this.data - number.data)
+                        is F32 -> F32(this.data - number.data)
+                        is F64 -> F64(this.data - number.data)
+                        else -> error("Can't subtract an signed to a unsigned")
+                    }
+                    is I16 -> when (number) {
+                        is I8  -> I32(this.data - number.data)
+                        is I16 -> I32(this.data - number.data)
+                        is I32 -> I32(this.data - number.data)
+                        is I64 -> I64(this.data - number.data)
+                        is F32 -> F32(this.data - number.data)
+                        is F64 -> F64(this.data - number.data)
+                        else -> error("Can't subtract an signed to a unsigned")
+                    }
+                    is I32 -> when (number) {
+                        is I8  -> I32(this.data - number.data)
+                        is I16 -> I32(this.data - number.data)
+                        is I32 -> I32(this.data - number.data)
+                        is I64 -> I64(this.data - number.data)
+                        is F32 -> F32(this.data - number.data)
+                        is F64 -> F64(this.data - number.data)
+                        else -> error("Can't subtract an signed to a unsigned")
+                    }
+                    is I64 -> when (number) {
+                        is I8  -> I64(this.data - number.data)
+                        is I16 -> I64(this.data - number.data)
+                        is I32 -> I64(this.data - number.data)
+                        is I64 -> I64(this.data - number.data)
+                        is F32 -> F32(this.data - number.data)
+                        is F64 -> F64(this.data - number.data)
+                        else -> error("Can't subtract an signed to a unsigned")
+                    }
+                    is F32 -> when (number) {
+                        is I8  -> F32(this.data - number.data)
+                        is I16 -> F32(this.data - number.data)
+                        is I32 -> F32(this.data - number.data)
+                        is I64 -> F32(this.data - number.data)
+                        is F32 -> F32(this.data - number.data)
+                        is F64 -> F64(this.data - number.data)
+                        else -> error("Can't subtract an signed to a unsigned")
+                    }
+                    is F64 -> when (number) {
+                        is I8  -> F64(this.data - number.data)
+                        is I16 -> F64(this.data - number.data)
+                        is I32 -> F64(this.data - number.data)
+                        is I64 -> F64(this.data - number.data)
+                        is F32 -> F64(this.data - number.data)
+                        is F64 -> F64(this.data - number.data)
+                        else -> error("Can't subtract an signed to a unsigned")
+                    }
+
+                    else -> error("Unknown type: $this")
+                }
+
+                operator fun plus(number: Number): Number = when (this) {
+
+                    is U8 -> when (number) {
+                        is U8  -> U32(this.data + number.data)
+                        is U16 -> U32(this.data + number.data)
+                        is U32 -> U32(this.data + number.data)
+                        is U64 -> U64(this.data + number.data)
+                        else -> error("Can't add an unsigned to a signed")
+                    }
+                    is U16 -> when (number) {
+                        is U8  -> U32(this.data + number.data)
+                        is U16 -> U32(this.data + number.data)
+                        is U32 -> U32(this.data + number.data)
+                        is U64 -> U64(this.data + number.data)
+                        else -> error("Can't add an unsigned to a signed")
+                    }
+                    is U32 -> when (number) {
+                        is U8  -> U32(this.data + number.data)
+                        is U16 -> U32(this.data + number.data)
+                        is U32 -> U32(this.data + number.data)
+                        is U64 -> U64(this.data + number.data)
+                        else -> error("Can't add an unsigned to a signed")
+                    }
+                    is U64 -> when (number) {
+                        is U8  -> U64(this.data + number.data)
+                        is U16 -> U64(this.data + number.data)
+                        is U32 -> U64(this.data + number.data)
+                        is U64 -> U64(this.data + number.data)
+                        else -> error("Can't add an unsigned to a signed")
+                    }
+
+                    is I8 -> when (number) {
+                        is I8  -> I32(this.data + number.data)
+                        is I16 -> I32(this.data + number.data)
+                        is I32 -> I32(this.data + number.data)
+                        is I64 -> I64(this.data + number.data)
+                        is F32 -> F32(this.data + number.data)
+                        is F64 -> F64(this.data + number.data)
+                        else -> error("Can't add an signed to a unsigned")
+                    }
+                    is I16 -> when (number) {
+                        is I8  -> I32(this.data + number.data)
+                        is I16 -> I32(this.data + number.data)
+                        is I32 -> I32(this.data + number.data)
+                        is I64 -> I64(this.data + number.data)
+                        is F32 -> F32(this.data + number.data)
+                        is F64 -> F64(this.data + number.data)
+                        else -> error("Can't add an signed to a unsigned")
+                    }
+                    is I32 -> when (number) {
+                        is I8  -> I32(this.data + number.data)
+                        is I16 -> I32(this.data + number.data)
+                        is I32 -> I32(this.data + number.data)
+                        is I64 -> I64(this.data + number.data)
+                        is F32 -> F32(this.data + number.data)
+                        is F64 -> F64(this.data + number.data)
+                        else -> error("Can't add an signed to a unsigned")
+                    }
+                    is I64 -> when (number) {
+                        is I8  -> I64(this.data + number.data)
+                        is I16 -> I64(this.data + number.data)
+                        is I32 -> I64(this.data + number.data)
+                        is I64 -> I64(this.data + number.data)
+                        is F32 -> F32(this.data + number.data)
+                        is F64 -> F64(this.data + number.data)
+                        else -> error("Can't add an signed to a unsigned")
+                    }
+                    is F32 -> when (number) {
+                        is I8  -> F32(this.data + number.data)
+                        is I16 -> F32(this.data + number.data)
+                        is I32 -> F32(this.data + number.data)
+                        is I64 -> F32(this.data + number.data)
+                        is F32 -> F32(this.data + number.data)
+                        is F64 -> F64(this.data + number.data)
+                        else -> error("Can't add an signed to a unsigned")
+                    }
+                    is F64 -> when (number) {
+                        is I8  -> F64(this.data + number.data)
+                        is I16 -> F64(this.data + number.data)
+                        is I32 -> F64(this.data + number.data)
+                        is I64 -> F64(this.data + number.data)
+                        is F32 -> F64(this.data + number.data)
+                        is F64 -> F64(this.data + number.data)
+                        else -> error("Can't add an signed to a unsigned")
+                    }
+
+                    else -> error("Unknown type: $this")
+                }
+
+                operator fun div(number: Number): Number = when (this) {
+
+                    is U8 -> when (number) {
+                        is U8  -> U32(this.data / number.data)
+                        is U16 -> U32(this.data / number.data)
+                        is U32 -> U32(this.data / number.data)
+                        is U64 -> U64(this.data / number.data)
+                        else -> error("Can't divide an unsigned to a signed")
+                    }
+                    is U16 -> when (number) {
+                        is U8  -> U32(this.data / number.data)
+                        is U16 -> U32(this.data / number.data)
+                        is U32 -> U32(this.data / number.data)
+                        is U64 -> U64(this.data / number.data)
+                        else -> error("Can't divide an unsigned to a signed")
+                    }
+                    is U32 -> when (number) {
+                        is U8  -> U32(this.data / number.data)
+                        is U16 -> U32(this.data / number.data)
+                        is U32 -> U32(this.data / number.data)
+                        is U64 -> U64(this.data / number.data)
+                        else -> error("Can't divide an unsigned to a signed")
+                    }
+                    is U64 -> when (number) {
+                        is U8  -> U64(this.data / number.data)
+                        is U16 -> U64(this.data / number.data)
+                        is U32 -> U64(this.data / number.data)
+                        is U64 -> U64(this.data / number.data)
+                        else -> error("Can't divide an unsigned to a signed")
+                    }
+
+                    is I8 -> when (number) {
+                        is I8  -> I32(this.data / number.data)
+                        is I16 -> I32(this.data / number.data)
+                        is I32 -> I32(this.data / number.data)
+                        is I64 -> I64(this.data / number.data)
+                        is F32 -> F32(this.data / number.data)
+                        is F64 -> F64(this.data / number.data)
+                        else -> error("Can't divide an signed to a unsigned")
+                    }
+                    is I16 -> when (number) {
+                        is I8  -> I32(this.data / number.data)
+                        is I16 -> I32(this.data / number.data)
+                        is I32 -> I32(this.data / number.data)
+                        is I64 -> I64(this.data / number.data)
+                        is F32 -> F32(this.data / number.data)
+                        is F64 -> F64(this.data / number.data)
+                        else -> error("Can't divide an signed to a unsigned")
+                    }
+                    is I32 -> when (number) {
+                        is I8  -> I32(this.data / number.data)
+                        is I16 -> I32(this.data / number.data)
+                        is I32 -> I32(this.data / number.data)
+                        is I64 -> I64(this.data / number.data)
+                        is F32 -> F32(this.data / number.data)
+                        is F64 -> F64(this.data / number.data)
+                        else -> error("Can't divide an signed to a unsigned")
+                    }
+                    is I64 -> when (number) {
+                        is I8  -> I64(this.data / number.data)
+                        is I16 -> I64(this.data / number.data)
+                        is I32 -> I64(this.data / number.data)
+                        is I64 -> I64(this.data / number.data)
+                        is F32 -> F32(this.data / number.data)
+                        is F64 -> F64(this.data / number.data)
+                        else -> error("Can't divide an signed to a unsigned")
+                    }
+                    is F32 -> when (number) {
+                        is I8  -> F32(this.data / number.data)
+                        is I16 -> F32(this.data / number.data)
+                        is I32 -> F32(this.data / number.data)
+                        is I64 -> F32(this.data / number.data)
+                        is F32 -> F32(this.data / number.data)
+                        is F64 -> F64(this.data / number.data)
+                        else -> error("Can't divide an signed to a unsigned")
+                    }
+                    is F64 -> when (number) {
+                        is I8  -> F64(this.data / number.data)
+                        is I16 -> F64(this.data / number.data)
+                        is I32 -> F64(this.data / number.data)
+                        is I64 -> F64(this.data / number.data)
+                        is F32 -> F64(this.data / number.data)
+                        is F64 -> F64(this.data / number.data)
+                        else -> error("Can't divide an signed to a unsigned")
+                    }
+
+                    else -> error("Unknown type: $this")
+                }
+
+                operator fun times(number: Number): Number = when (this) {
+
+                    is U8 -> when (number) {
+                        is U8  -> U32(this.data * number.data)
+                        is U16 -> U32(this.data * number.data)
+                        is U32 -> U32(this.data * number.data)
+                        is U64 -> U64(this.data * number.data)
+                        else -> error("Can't multiply an unsigned to a signed")
+                    }
+                    is U16 -> when (number) {
+                        is U8  -> U32(this.data * number.data)
+                        is U16 -> U32(this.data * number.data)
+                        is U32 -> U32(this.data * number.data)
+                        is U64 -> U64(this.data * number.data)
+                        else -> error("Can't multiply an unsigned to a signed")
+                    }
+                    is U32 -> when (number) {
+                        is U8  -> U32(this.data * number.data)
+                        is U16 -> U32(this.data * number.data)
+                        is U32 -> U32(this.data * number.data)
+                        is U64 -> U64(this.data * number.data)
+                        else -> error("Can't multiply an unsigned to a signed")
+                    }
+                    is U64 -> when (number) {
+                        is U8  -> U64(this.data * number.data)
+                        is U16 -> U64(this.data * number.data)
+                        is U32 -> U64(this.data * number.data)
+                        is U64 -> U64(this.data * number.data)
+                        else -> error("Can't multiply an unsigned to a signed")
+                    }
+
+                    is I8 -> when (number) {
+                        is I8  -> I32(this.data * number.data)
+                        is I16 -> I32(this.data * number.data)
+                        is I32 -> I32(this.data * number.data)
+                        is I64 -> I64(this.data * number.data)
+                        is F32 -> F32(this.data * number.data)
+                        is F64 -> F64(this.data * number.data)
+                        else -> error("Can't multiply an signed to a unsigned")
+                    }
+                    is I16 -> when (number) {
+                        is I8  -> I32(this.data * number.data)
+                        is I16 -> I32(this.data * number.data)
+                        is I32 -> I32(this.data * number.data)
+                        is I64 -> I64(this.data * number.data)
+                        is F32 -> F32(this.data * number.data)
+                        is F64 -> F64(this.data * number.data)
+                        else -> error("Can't multiply an signed to a unsigned")
+                    }
+                    is I32 -> when (number) {
+                        is I8  -> I32(this.data * number.data)
+                        is I16 -> I32(this.data * number.data)
+                        is I32 -> I32(this.data * number.data)
+                        is I64 -> I64(this.data * number.data)
+                        is F32 -> F32(this.data * number.data)
+                        is F64 -> F64(this.data * number.data)
+                        else -> error("Can't multiply an signed to a unsigned")
+                    }
+                    is I64 -> when (number) {
+                        is I8  -> I64(this.data * number.data)
+                        is I16 -> I64(this.data * number.data)
+                        is I32 -> I64(this.data * number.data)
+                        is I64 -> I64(this.data * number.data)
+                        is F32 -> F32(this.data * number.data)
+                        is F64 -> F64(this.data * number.data)
+                        else -> error("Can't multiply an signed to a unsigned")
+                    }
+                    is F32 -> when (number) {
+                        is I8  -> F32(this.data * number.data)
+                        is I16 -> F32(this.data * number.data)
+                        is I32 -> F32(this.data * number.data)
+                        is I64 -> F32(this.data * number.data)
+                        is F32 -> F32(this.data * number.data)
+                        is F64 -> F64(this.data * number.data)
+                        else -> error("Can't multiply an signed to a unsigned")
+                    }
+                    is F64 -> when (number) {
+                        is I8  -> F64(this.data * number.data)
+                        is I16 -> F64(this.data * number.data)
+                        is I32 -> F64(this.data * number.data)
+                        is I64 -> F64(this.data * number.data)
+                        is F32 -> F64(this.data * number.data)
+                        is F64 -> F64(this.data * number.data)
+                        else -> error("Can't multiply an signed to a unsigned")
+                    }
+
+                    else -> error("Unknown type: $this")
+                }
+
+                operator fun rem(number: Number): Number = when (this) {
+
+                    is U8 -> when (number) {
+                        is U8  -> U32(this.data % number.data)
+                        is U16 -> U32(this.data % number.data)
+                        is U32 -> U32(this.data % number.data)
+                        is U64 -> U64(this.data % number.data)
+                        else -> error("Can't take the remainder of an unsigned to a signed")
+                    }
+                    is U16 -> when (number) {
+                        is U8  -> U32(this.data % number.data)
+                        is U16 -> U32(this.data % number.data)
+                        is U32 -> U32(this.data % number.data)
+                        is U64 -> U64(this.data % number.data)
+                        else -> error("Can't take the remainder of an unsigned to a signed")
+                    }
+                    is U32 -> when (number) {
+                        is U8  -> U32(this.data % number.data)
+                        is U16 -> U32(this.data % number.data)
+                        is U32 -> U32(this.data % number.data)
+                        is U64 -> U64(this.data % number.data)
+                        else -> error("Can't take the remainder of an unsigned to a signed")
+                    }
+                    is U64 -> when (number) {
+                        is U8  -> U64(this.data % number.data)
+                        is U16 -> U64(this.data % number.data)
+                        is U32 -> U64(this.data % number.data)
+                        is U64 -> U64(this.data % number.data)
+                        else -> error("Can't take the remainder of an unsigned to a signed")
+                    }
+
+                    is I8 -> when (number) {
+                        is I8  -> I32(this.data % number.data)
+                        is I16 -> I32(this.data % number.data)
+                        is I32 -> I32(this.data % number.data)
+                        is I64 -> I64(this.data % number.data)
+                        is F32 -> F32(this.data % number.data)
+                        is F64 -> F64(this.data % number.data)
+                        else -> error("Can't take the remainder of an signed to a unsigned")
+                    }
+                    is I16 -> when (number) {
+                        is I8  -> I32(this.data % number.data)
+                        is I16 -> I32(this.data % number.data)
+                        is I32 -> I32(this.data % number.data)
+                        is I64 -> I64(this.data % number.data)
+                        is F32 -> F32(this.data % number.data)
+                        is F64 -> F64(this.data % number.data)
+                        else -> error("Can't take the remainder of an signed to a unsigned")
+                    }
+                    is I32 -> when (number) {
+                        is I8  -> I32(this.data % number.data)
+                        is I16 -> I32(this.data % number.data)
+                        is I32 -> I32(this.data % number.data)
+                        is I64 -> I64(this.data % number.data)
+                        is F32 -> F32(this.data % number.data)
+                        is F64 -> F64(this.data % number.data)
+                        else -> error("Can't take the remainder of an signed to a unsigned")
+                    }
+                    is I64 -> when (number) {
+                        is I8  -> I64(this.data % number.data)
+                        is I16 -> I64(this.data % number.data)
+                        is I32 -> I64(this.data % number.data)
+                        is I64 -> I64(this.data % number.data)
+                        is F32 -> F32(this.data % number.data)
+                        is F64 -> F64(this.data % number.data)
+                        else -> error("Can't take the remainder of an signed to a unsigned")
+                    }
+                    is F32 -> when (number) {
+                        is I8  -> F32(this.data % number.data)
+                        is I16 -> F32(this.data % number.data)
+                        is I32 -> F32(this.data % number.data)
+                        is I64 -> F32(this.data % number.data)
+                        is F32 -> F32(this.data % number.data)
+                        is F64 -> F64(this.data % number.data)
+                        else -> error("Can't take the remainder of an signed to a unsigned")
+                    }
+                    is F64 -> when (number) {
+                        is I8  -> F64(this.data % number.data)
+                        is I16 -> F64(this.data % number.data)
+                        is I32 -> F64(this.data % number.data)
+                        is I64 -> F64(this.data % number.data)
+                        is F32 -> F64(this.data % number.data)
+                        is F64 -> F64(this.data % number.data)
+                        else -> error("Can't take the remainder of an signed to a unsigned")
+                    }
+
+                    else -> error("Unknown type: $this")
+                }
+
+
+                companion object {
+
+                    fun from(number: kotlin.Number): Number = when (number) {
+                        is Byte   -> I8(number)
+                        is Short  -> I16(number)
+                        is Int    -> I32(number)
+                        is Long   -> I64(number)
+                        is Float  -> F32(number)
+                        is Double -> F64(number)
+                        else -> error("Unknown type: ${number::class.simpleName}")
+                    }
+
                 }
 
             }
@@ -27,42 +750,69 @@ class CrescentAST {
             @JvmInline
             value class Boolean(
                 val data: kotlin.Boolean,
-            ) : Node {
+            ) : Primitive {
+
+                override val type get() = Boolean.type
+
 
                 override fun toString(): kotlin.String {
                     return "$data"
                 }
 
+
+                companion object {
+
+                    val type = Type.Basic("Boolean")
+
+                }
             }
 
             @JvmInline
             value class String(
                 val data: kotlin.String,
-            ) : Node {
+            ) : Primitive {
+
+                override val type get() = String.type
+
 
                 override fun toString(): kotlin.String {
                     return "\"$data\""
                 }
 
+
+                companion object {
+
+                    val type = Type.Basic("String")
+
+                }
             }
 
             @JvmInline
             value class Char(
                 val data: kotlin.Char,
-            ) : Node {
+            ) : Primitive {
+
+                override val type get() = Char.type
+
 
                 override fun toString(): kotlin.String {
                     return "'$data'"
                 }
 
+
+                companion object {
+
+                    val type = Type.Basic("Char")
+
+                }
             }
 
         }
 
         data class Array(
-            val type: Type.Array,
+            override val type: Type.Array,
             val values: kotlin.Array<Node>,
-        ) : Node {
+        ) : Node, Typed {
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
@@ -195,12 +945,20 @@ class CrescentAST {
             val name: String,
             val structs: List<Struct>,
             val objects: List<Object>
-        ) : Node
+        ) : Node, Typed {
+
+            override val type = Type.Basic(name)
+
+        }
 
         data class Trait(
             val name: String,
             val functionTraits: List<FunctionTrait>,
-        ) : Node
+        ) : Node, Typed {
+
+            override val type = Type.Basic(name)
+
+        }
 
         // TODO: Force variables to be val not var
         data class Object(
@@ -208,25 +966,37 @@ class CrescentAST {
             val variables: List<Variable.Basic>,
             val constants: List<Variable.Constant>,
             val functions: List<Function>,
-        ) : Node
+        ) : Node, Typed {
+
+            override val type = Type.Basic(name)
+
+        }
 
         data class Impl(
-            val type: Type,
+            override val type: Type,
             val modifiers: List<CrescentToken.Modifier>,
             val extends: List<Type>,
             val functions: List<Function>,
-        ) : Node
+        ) : Node, Typed
 
         data class Enum(
             val name: String,
             val parameters: List<Parameter>,
             val structs: List<EnumEntry>,
-        ) : Node
+        ) : Node, Typed {
+
+            override val type = Type.Basic(name)
+
+        }
 
         data class EnumEntry(
             val name: String,
             val arguments: List<Node>,
-        ) : Node
+        ) : Node, Typed {
+
+            override val type = Type.Basic(name)
+
+        }
 
         data class FunctionTrait(
             val name: String,
@@ -246,13 +1016,13 @@ class CrescentAST {
         }
 
 
-        interface Variable : Node {
+        interface Variable : Node, Typed {
 
             data class Basic(
                 val name: String,
                 val isFinal: Boolean,
                 val visibility: CrescentToken.Visibility,
-                val type: Type,
+                override val type: Type,
                 val value: Node,
             ) : Variable {
 
@@ -265,7 +1035,7 @@ class CrescentAST {
             data class Constant(
                 val name: String,
                 val visibility: CrescentToken.Visibility,
-                val type: Type,
+                override val type: Type,
                 val value: Node,
             ) : Variable {
 
@@ -276,7 +1046,7 @@ class CrescentAST {
 
             data class Local(
                 val name: String,
-                val type: Type,
+                override val type: Type,
                 val value: Node
             ) : Variable
 
@@ -316,8 +1086,8 @@ class CrescentAST {
 
             data class Basic(
                 override val name: String,
-                val type: Type,
-            ) : Parameter()
+                override val type: Type,
+            ) : Parameter(), Typed
 
             data class WithDefault(
                 override val name: String,
@@ -327,6 +1097,7 @@ class CrescentAST {
         }
 
         // TODO: Add toStrings
+        // TODO: Implement objects for primitive types
         interface Type : Node {
 
             // Should only be used for variables

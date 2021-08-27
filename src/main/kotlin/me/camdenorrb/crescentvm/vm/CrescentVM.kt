@@ -59,15 +59,13 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	fun runBlock(block: Node.Statement.Block, context: BlockContext): Node {
 
 		block.nodes.forEachIndexed { index, node ->
-
 			// If is last node in the block
-			if (index + 1 == block.nodes.size) {
+			if (index + 1 == block.nodes.size || node is Node.Return) {
 				return runNode(node, context)
 			}
 			else {
 				runNode(node, context)
 			}
-
 		}
 
 		return Type.Unit
@@ -92,13 +90,26 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 
 			is Node.IdentifierCall -> {
+				// TODO: Determine if it's a constructor call
 				return runFunctionCall(node, context)
+			}
+
+			is Node.Return -> {
+				return runNode(node.expression, context)
 			}
 
 			// TODO: Account for operator overloading
 			is Node.GetCall -> {
 				val arrayNode = (context.parameters[node.identifier] ?: context.variableValues[node.identifier]) as Node.Array
-				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).data.toInt()]
+				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
+			}
+
+			is Node.DotChain -> {
+				/*
+				node.nodes.forEach {
+					runNode()
+				}
+				*/
 			}
 
 			is Node.Expression -> {
@@ -127,11 +138,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				val forContext = context.copy()
 
 				val ranges = node.ranges.map {
-					(it.start as Primitive.Number).data.toInt()..(it.end as Primitive.Number).data.toInt()
+					(it.start as Primitive.Number.I32).data..(it.end as Primitive.Number.I32).data
 				}
 
 				node.identifiers.forEachIndexed { index, identifier ->
-					forContext.variableValues[identifier.name] = Primitive.Number((ranges.getOrNull(index) ?: ranges[0]).first)
+					forContext.variableValues[identifier.name] = Primitive.Number.I32(ranges.getOrNull(index)?.first ?: ranges[0].first)
 				}
 
 				/*
@@ -179,44 +190,44 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 									Primitive.String(pop2.asString() + pop1.asString())
 								}
 								else {
-									Primitive.Number((pop2 as Primitive.Number).data.toDouble() + (pop1 as Primitive.Number).data.toDouble())
+									(pop2 as Primitive.Number) + (pop1 as Primitive.Number)
 								}
 							)
 						}
 						CrescentToken.Operator.SUB -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-							stack.push(Primitive.Number(pop2 - pop1))
+							stack.push(pop2 - pop1)
 						}
 						CrescentToken.Operator.MUL -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-							stack.push(Primitive.Number(pop2 * pop1))
+							stack.push(pop2 * pop1)
 						}
 						CrescentToken.Operator.DIV -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-							stack.push(Primitive.Number(pop2 / pop1))
+							stack.push(pop2 / pop1)
 						}
 						CrescentToken.Operator.POW -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-							stack.push(Primitive.Number(pop2.pow(pop1)))
+							stack.push(pop2.pow(pop1))
 						}
 						CrescentToken.Operator.REM -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-							stack.push(Primitive.Number(pop2 % pop1))
+							stack.push(pop2 % pop1)
 						}
 
 						CrescentToken.Operator.ASSIGN -> {
@@ -268,7 +279,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 							// TODO: Override !=, ==, >=, <=, <, > on number, then merging this if statement into one statement and remove pop1 and pop2
 							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
-								stack.push(Primitive.Boolean(pop2.data.toDouble() == pop1.data.toDouble()))
+								stack.push(Primitive.Boolean(pop2.toF64().data == pop1.toF64().data))
 							}
 							else {
 								stack.push(Primitive.Boolean(pop2 == pop1))
@@ -276,30 +287,30 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						}
 						CrescentToken.Operator.LESSER_EQUALS_COMPARE -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
 
 							stack.push(Primitive.Boolean(pop2 <= pop1))
 						}
 						CrescentToken.Operator.GREATER_EQUALS_COMPARE -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
 
 							stack.push(Primitive.Boolean(pop2 >= pop1))
 						}
 
 						CrescentToken.Operator.LESSER_COMPARE -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
 
 							stack.push(Primitive.Boolean(pop2 < pop1))
 						}
 						CrescentToken.Operator.GREATER_COMPARE -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toDouble()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
 
 							stack.push(Primitive.Boolean(pop2 > pop1))
 						}
@@ -314,7 +325,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 							// TODO: Override !=, ==, >=, <=, <, >, xor, or, and, etc on number, then merging this if statement into one statement and remove pop1 and pop2
 							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
-								stack.push(Primitive.Boolean(pop2.data.toDouble() != pop1.data.toDouble()))
+								stack.push(Primitive.Boolean(pop2.toF64().data != pop1.toF64().data))
 							}
 							else {
 								stack.push(Primitive.Boolean(pop2 != pop1))
@@ -335,49 +346,49 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 						CrescentToken.Operator.BIT_SHIFT_RIGHT -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							stack.push(Primitive.Number(pop2 shr pop1))
+							stack.push(Primitive.Number.I32(pop2 shr pop1))
 						}
 
 						CrescentToken.Operator.BIT_SHIFT_LEFT -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							stack.push(Primitive.Number(pop2 shl pop1))
+							stack.push(Primitive.Number.I32(pop2 shl pop1))
 						}
 
 						CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							stack.push(Primitive.Number(pop2 ushr pop1))
+							stack.push(Primitive.Number.I32(pop2 ushr pop1))
 						}
 
 						CrescentToken.Operator.BIT_OR -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							stack.push(Primitive.Number(pop2 or pop1))
+							stack.push(Primitive.Number.I32(pop2 or pop1))
 						}
 
 						CrescentToken.Operator.BIT_AND -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							stack.push(Primitive.Number(pop2 and pop1))
+							stack.push(Primitive.Number.I32(pop2 and pop1))
 						}
 						CrescentToken.Operator.BIT_XOR -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).data.toInt()
+							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							stack.push(Primitive.Number(pop2 xor pop1))
+							stack.push(Primitive.Number.I32(pop2 xor pop1))
 						}
 
 						CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()
@@ -413,17 +424,17 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			"sqrt" -> {
 				checkEquals(1, node.arguments.size)
-				return Primitive.Number(sqrt((runNode(node.arguments[0], context) as Primitive.Number).data.toDouble()))
+				return Primitive.Number.F64(sqrt((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
 			}
 
 			"sin" -> {
 				checkEquals(1, node.arguments.size)
-				return Primitive.Number(sin((runNode(node.arguments[0], context) as Primitive.Number).data.toDouble()))
+				return Primitive.Number.F64(sin((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
 			}
 
 			"round" -> {
 				checkEquals(1, node.arguments.size)
-				return Primitive.Number(round((runNode(node.arguments[0], context) as Primitive.Number).data.toDouble()))
+				return Primitive.Number.F64(round((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
 			}
 
 			"print" -> {
@@ -464,6 +475,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	}
 
 	fun Node.asString(): String {
+
 		return when (this) {
 
 			is Primitive.String -> {
@@ -479,7 +491,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 
 			is Primitive.Number -> {
-				"${this.data}"
+				"$this"
 			}
 
 			is Primitive.Boolean -> {
@@ -494,10 +506,16 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				// TODO: Attempt to find a toString()
 				error("Unknown node $this")
 			}
-
 		}
 	}
 
+
+	fun findType(value: Node) = when (value) {
+
+		is Node.Typed -> value.type
+
+		else -> error("")
+	}
 
 	fun checkIsSameType(parameter: Node.Parameter, arg: Node) = when (parameter) {
 
@@ -537,5 +555,12 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		//val variables: MutableMap<String, Node.Variable> = mutableMapOf(),
 		val variableValues: MutableMap<String, Node> = mutableMapOf(),
 	)
+
+	/*
+	data class Instance(
+		val type: Type,
+		val value: Node
+	)
+	*/
 
 }

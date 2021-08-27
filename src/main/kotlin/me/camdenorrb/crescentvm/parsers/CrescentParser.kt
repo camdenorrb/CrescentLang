@@ -902,10 +902,10 @@ object CrescentParser {
                     is CrescentToken.Data.Number -> {
                         if (tokenIterator.peekNext() == CrescentToken.Operator.RANGE_TO) {
                             checkEquals(CrescentToken.Operator.RANGE_TO, tokenIterator.next())
-                            CrescentAST.Node.Statement.Range(CrescentAST.Node.Primitive.Number(next.number), readExpressionNode(tokenIterator)!!)
+                            CrescentAST.Node.Statement.Range(CrescentAST.Node.Primitive.Number.from(next.number), readExpressionNode(tokenIterator)!!)
                         }
                         else {
-                            CrescentAST.Node.Primitive.Number(next.number)
+                            CrescentAST.Node.Primitive.Number.from(next.number)
                         }
                     }
 

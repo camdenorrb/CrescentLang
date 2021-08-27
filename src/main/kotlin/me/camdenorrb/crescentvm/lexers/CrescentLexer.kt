@@ -3,6 +3,7 @@ package me.camdenorrb.crescentvm.lexers
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.project.checkEquals
+import me.camdenorrb.crescentvm.project.extensions.minimize
 import me.camdenorrb.crescentvm.vm.CrescentToken
 
 // TODO: Support negative numbers
@@ -84,10 +85,10 @@ object CrescentLexer {
 
                 tokens +=
                     if ('.' in key) {
-                        CrescentToken.Data.Number(key.toDouble())
+                        CrescentToken.Data.Number(key.toDouble().minimize())
                     }
                     else {
-                        CrescentToken.Data.Number(key.toInt())
+                        CrescentToken.Data.Number(key.toLong().minimize())
                     }
 
                 continue

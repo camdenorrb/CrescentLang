@@ -17,11 +17,10 @@ object Main {
         */
 
         /*path.readText()*/
-
         val code =
             """
 fun main() {
-    println(1 -(.5))
+    println(1)
 }
 		    """
             /*

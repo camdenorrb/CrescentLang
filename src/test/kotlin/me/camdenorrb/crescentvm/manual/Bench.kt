@@ -52,7 +52,6 @@ internal object Bench {
 	@JvmStatic
 	fun main(args: Array<String>) {
 
-		/*
 		benchCode("Hello Worlds", TestCode.helloWorlds)
 		benchCode("If Statement", TestCode.ifStatement)
 		benchCode("If Input Statement", TestCode.ifInputStatement)
@@ -64,9 +63,16 @@ internal object Bench {
 		benchCode("Enum", TestCode.enum)
 		benchCode("Comments", TestCode.comments)
 		benchCode("Imports", TestCode.imports)
-		*/
 
-		benchVM("Hello Worlds", TestCode.helloWorlds)
+
+		/*
+		benchVM("Hello Worlds", 	"""
+			fun main {
+                print("Hello World")
+                print("Hello World")
+                print("Hello World")
+            }
+		""")*/
 		//benchVM("Triangles", TestCode.triangleRecursion)
 
 	}
@@ -96,19 +102,19 @@ internal object Bench {
 		val parsed = CrescentParser.invoke(Path("example.moo"), tokens)
 		val methods = CrescentToPTIR.craft(parsed)
 
-		Machine.loadCode(*methods.toTypedArray())
-
-		vmBenchmark.bench("Moo:$name") {
-			collectSystemOut {
-				Machine.execute("static.main")
-			}
-		}
-
 		val vm = CrescentVM(listOf(parsed), parsed)
 
 		vmBenchmark.bench("Kat:$name") {
 			collectSystemOut {
 				vm.invoke()
+			}
+		}
+
+		Machine.loadCode(*methods.toTypedArray())
+
+		vmBenchmark.bench("Moo:$name") {
+			collectSystemOut {
+				Machine.execute("static.main")
 			}
 		}
 	}

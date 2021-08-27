@@ -157,7 +157,7 @@ object CrescentToPTIR {
                 builder.push(node.data)
             }
             is CrescentAST.Node.Primitive.Number -> {
-                builder.push(node.data)
+                builder.push(node.toKotlinNumber())
             }
             is CrescentAST.Node.Expression -> {
                 node.nodes.forEach {

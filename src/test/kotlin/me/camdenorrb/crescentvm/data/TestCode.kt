@@ -7,6 +7,7 @@ TODO:
 	- Negative numbers and multiplication through parenthesis
 	- Function blocks as parameters and values for variables
 	- Function references
+	- Arrays
 */
 internal object TestCode {
 
