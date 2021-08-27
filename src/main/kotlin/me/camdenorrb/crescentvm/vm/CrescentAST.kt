@@ -27,6 +27,10 @@ class CrescentAST {
 
                     override val type get() = U8.type
 
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
+
                     companion object {
 
                         val type = Type.Basic("U8")
@@ -38,6 +42,10 @@ class CrescentAST {
                 value class U16(val data: UShort) : Number {
 
                     override val type get() = U16.type
+
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
 
                     companion object {
 
@@ -51,6 +59,10 @@ class CrescentAST {
 
                     override val type get() = U32.type
 
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
+
                     companion object {
 
                         val type = Type.Basic("U32")
@@ -62,6 +74,10 @@ class CrescentAST {
                 value class U64(val data: ULong) : Number {
 
                     override val type get() = U64.type
+
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
 
                     companion object {
 
@@ -75,6 +91,10 @@ class CrescentAST {
 
                     override val type get() = I8.type
 
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
+
                     companion object {
 
                         val type = Type.Basic("I8")
@@ -86,6 +106,10 @@ class CrescentAST {
                 value class I16(val data: Short) : Number {
 
                     override val type get() = I16.type
+
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
 
                     companion object {
 
@@ -99,6 +123,10 @@ class CrescentAST {
 
                     override val type get() = I32.type
 
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
+
                     companion object {
 
                         val type = Type.Basic("I32")
@@ -110,6 +138,10 @@ class CrescentAST {
                 value class I64(val data: Long) : Number {
 
                     override val type get() = I64.type
+
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
 
                     companion object {
 
@@ -123,6 +155,10 @@ class CrescentAST {
 
                     override val type get() = F32.type
 
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
+
                     companion object {
 
                         val type = Type.Basic("F32")
@@ -134,6 +170,10 @@ class CrescentAST {
                 value class F64(val data: Double) : Number {
 
                     override val type get() = F64.type
+
+                    override fun toString(): kotlin.String {
+                        return "$data"
+                    }
 
                     companion object {
 
