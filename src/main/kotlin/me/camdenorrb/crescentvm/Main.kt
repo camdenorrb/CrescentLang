@@ -20,32 +20,13 @@ object Main {
 
         val code =
             """
-                    
-            fun printCircleLine(size radius: Any) {           
-
-               var count = 0
-               while (count < ((radius / 2) - size)) {
-                 count = count + 1
-               }
-
-               count = 0
-               while (count < size) {
-                  print('*')
-                  count = count + 1
-               }
-            }
-
-            fun printCircle(radius: Any) {
-              var count = 0
-              while (count < radius) {
-                printCircleLine(count, radius)
-              }
-            }
 
             fun main {
-              printCircle(10)
+                var thing = [1, 2, 3]
+                println(thing[0])
+                thing[0] = 2
+                println(thing[0])
             }
-                
 		    """
             /*
             """             
@@ -87,7 +68,7 @@ object Main {
 
         println()
 
-        println(file.functions["printCircleLine"]?.innerCode)
+        println(file.mainFunction?.innerCode)
         CrescentVM(listOf(file), file).invoke()
     }
 

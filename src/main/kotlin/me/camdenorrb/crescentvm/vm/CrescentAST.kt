@@ -388,27 +388,25 @@ class CrescentAST {
         }
 
         data class Array(
-            override val type: Type.Array,
+            //override val type: Type.Array,
             val values: kotlin.Array<Node>,
-        ) : Node, Typed {
+        ) : Node/*, Typed*/ {
 
-            override fun equals(other: Any?): kotlin.Boolean {
+            override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (javaClass != other?.javaClass) return false
 
                 other as Array
 
-                if (type != other.type) return false
                 if (!values.contentEquals(other.values)) return false
 
                 return true
             }
 
             override fun hashCode(): Int {
-                var result = type.hashCode()
-                result = 31 * result + values.contentHashCode()
-                return result
+                return values.contentHashCode()
             }
+
         }
 
         interface Primitive : Node, Typed {

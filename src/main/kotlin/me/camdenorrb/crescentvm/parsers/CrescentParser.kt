@@ -31,7 +31,7 @@ object CrescentParser {
         val constants = mutableMapOf<String, CrescentAST.Node.Variable.Constant>()
 
         var mainFunction: CrescentAST.Node.Function? = null
-        val tokenIterator = PeekingTokenIterator(tokens)
+        val tokenIterator = PeekingTokenIterator(tokens.filter { it !is CrescentToken.Data.Comment })
 
         var visibility = CrescentToken.Visibility.PUBLIC
         val modifiers = mutableListOf<CrescentToken.Modifier>()
@@ -434,7 +434,8 @@ object CrescentParser {
                     expressionNodes += it
                 }
             }
-            else if (tokenIterator.peekNext(2) is CrescentToken.Operator) {
+            // If assign after identifier || If assign after get
+            else if (tokenIterator.peekNext(2) is CrescentToken.Operator || tokenIterator.peekNext(5) is CrescentToken.Operator) {
                 expressionNodes += readExpression(tokenIterator)
             }
             else {
@@ -456,6 +457,7 @@ object CrescentParser {
 
 
                 if (expressionNode != null) {
+                    println("'$expressionNode' ${tokenIterator.peekNext()}")
                     expressionNodes += expressionNode
                 }
             }
@@ -835,6 +837,21 @@ object CrescentParser {
 
             is CrescentToken.Data.Comment -> {
                 null
+            }
+
+            CrescentToken.SquareBracket.OPEN -> {
+
+                val nodes = mutableListOf<CrescentAST.Node>()
+
+                while (
+                    tokenIterator.hasNext() &&
+                    tokenIterator.peekNext() != CrescentToken.SquareBracket.CLOSE
+                ) {
+                    nodes += readExpressionNode(tokenIterator)!!
+                }
+
+                checkEquals(CrescentToken.SquareBracket.CLOSE, tokenIterator.next())
+                CrescentAST.Node.Array(nodes.toTypedArray())
             }
 
             CrescentToken.Operator.RETURN -> {

@@ -10,6 +10,7 @@ import kotlin.math.pow
 import kotlin.math.round
 import kotlin.math.sin
 import kotlin.math.sqrt
+import kotlin.reflect.typeOf
 
 // TODO: Add a way to add external functions
 // TODO: Find a way to remove recursion
@@ -26,7 +27,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			runFunction(
 				mainFile,
 				mainFunction,
-				listOf(Node.Array(Type.Array(Type.Basic("String")), Array(args.size) { Primitive.String(args[it]) }))
+				listOf(Node.Array(Array(args.size) { Primitive.String(args[it]) }))
 			)
 		}
 	}
@@ -101,7 +102,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			// TODO: Account for operator overloading
 			is Node.GetCall -> {
-				val arrayNode = (context.parameters[node.identifier] ?: context.variableValues[node.identifier]) as Node.Array
+				val arrayNode = (context.parameters[node.identifier] ?: context.variableValues.getValue(node.identifier).value) as Node.Array
 				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
 			}
 
@@ -237,16 +238,28 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.ASSIGN -> {
 
 							val value = runNode(stack.pop(), context)
-							val identifier = (stack.pop() as Node.Identifier)
+							val pop2 = stack.pop()
 
-							check(identifier.name in context.variableValues) {
-								"Variable ${identifier.name} not found for reassignment."
+
+							when (pop2) {
+
+								is Node.GetCall -> {
+									checkEquals(1, pop2.arguments.size)
+									val index = (pop2.arguments.first() as Primitive.Number).toI32().data
+									(context.variableValues.getValue(pop2.identifier).value as Node.Array).values[index] = value
+								}
+								is Node.Identifier -> {
+
+									check(pop2.name in context.variableValues) {
+										"Variable ${pop2.name} not found for reassignment."
+									}
+
+									// TODO: Type checking
+									// TODO: Checking if the variable is final
+
+									context.variableValues[pop2.name] = Instance(findType(value), value)
+								}
 							}
-
-							// TODO: Type checking
-							// TODO: Checking if the variable is final
-
-							context.variableValues[identifier.name] = Instance(findType(value), value)
 
 							return Type.unit
 						}
@@ -555,6 +568,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 		is Node.Typed -> value.type
 		is Type.Basic -> value
+		is Node.Array -> Type.Array(Type.any) // TODO: Do better
 
 		else -> error("Unexpected value: ${value::class}")
 	}
@@ -565,10 +579,12 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		is Node.Parameter.Basic -> {
 			when (parameter.type) {
 
+				/*
 				is Type.Array -> {
 					check(arg is Node.Array)
-					checkEquals(parameter.type, arg.type)
+					checkEquals(parameter.type, typeOf(arg.values.first()))
 				}
+				*/
 
 				is Type.Basic -> {
 					if (parameter.type.name != "Any") {
