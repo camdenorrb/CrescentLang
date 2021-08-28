@@ -401,7 +401,7 @@ object CrescentParser {
                 readType(tokenIterator)
             }
             else {
-                CrescentAST.Node.Type.Unit
+                CrescentAST.Node.Type.unit
             }
 
         val expressions = readBlock(tokenIterator)
@@ -479,7 +479,7 @@ object CrescentParser {
                 readType(tokenIterator)
             }
             else {
-                CrescentAST.Node.Type.Unit
+                CrescentAST.Node.Type.unit
             }
 
         return CrescentAST.Node.FunctionTrait(name, parameters, type)
@@ -738,6 +738,8 @@ object CrescentParser {
 
             val ifExpressionNode = when (tokenIterator.peekNext()) {
 
+                // TODO: Add contains operator here
+
                 CrescentToken.Operator.DOT -> {
 
                     checkEquals(CrescentToken.Operator.DOT, tokenIterator.next())
@@ -839,9 +841,11 @@ object CrescentParser {
                 CrescentAST.Node.Return(readExpression(tokenIterator))
             }
 
+            /*
             CrescentToken.Operator.INSTANCE_OF -> {
                 CrescentAST.Node.InstanceOf(readExpression(tokenIterator))
             }
+            */
 
             is CrescentToken.Operator -> {
                 next
@@ -897,7 +901,9 @@ object CrescentParser {
                         }
                     }
 
-                    is CrescentToken.Data.Boolean -> CrescentAST.Node.Primitive.Boolean(next.kotlinBoolean)
+                    is CrescentToken.Data.Boolean -> {
+                        CrescentAST.Node.Primitive.Boolean(next.kotlinBoolean)
+                    }
 
                     is CrescentToken.Data.Number -> {
                         if (tokenIterator.peekNext() == CrescentToken.Operator.RANGE_TO) {

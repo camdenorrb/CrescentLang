@@ -19,9 +19,14 @@ object Main {
         /*path.readText()*/
         val code =
             """
-fun main() {
-    println(1)
-}
+                
+                fun thing(input: String) {
+                    println(input)
+                }
+                    
+                fun main {
+                    thing("Meow")
+                }
 		    """
             /*
             """             

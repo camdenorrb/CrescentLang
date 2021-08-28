@@ -85,17 +85,23 @@ internal object TestCode {
 				var thing1 = "Meow"
 				var thing2 = 1
 				var thing3: Char = 'c'
-				var thing4: i32
+				var thing4: I32
+				var thing5 = [1]
+				var thing6 = ["Meow"]
 				
 				thing1 = "Mew"
 				thing2 += 1
 				thing3 = 'a'
 				thing4 = 1
+				thing5[0] = 2
+				thing6[0] = "Mew"
 				
 				println(thing1)
 				println(thing2)
 				println(thing3)
 				println(thing4)
+				println(thing5)
+				println(thing6)
 			}
 		"""
 
@@ -136,7 +142,7 @@ internal object TestCode {
 		"""
 
 	// Can't be constant due to lack of escaping $'s :C
-	val forLoop =
+	val forLoop1 =
 		"""
 		    fun main {
 		     

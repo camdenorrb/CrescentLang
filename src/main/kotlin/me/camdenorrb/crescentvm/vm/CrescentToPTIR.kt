@@ -16,7 +16,7 @@ object CrescentToPTIR {
                 Method.create(
                     u.name,
                     u.params.size.toUByte(),
-                    u.returnType != CrescentAST.Node.Type.Unit
+                    u.returnType != CrescentAST.Node.Type.unit
                 ) { builder ->
                     builder.idArgs(*u.params.map { it.name }.toTypedArray())
                     u.innerCode.nodes.forEach { node ->
