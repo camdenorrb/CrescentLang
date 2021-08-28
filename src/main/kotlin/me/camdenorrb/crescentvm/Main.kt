@@ -17,11 +17,35 @@ object Main {
         */
 
         /*path.readText()*/
+
         val code =
             """
-                fun main {
-                    println(10 < 11 && 5 < 10)
-                }
+                    
+            fun printCircleLine(size radius: Any) {           
+
+               var count = 0
+               while (count < ((radius / 2) - size)) {
+                 count = count + 1
+               }
+
+               count = 0
+               while (count < size) {
+                  print('*')
+                  count = count + 1
+               }
+            }
+
+            fun printCircle(radius: Any) {
+              var count = 0
+              while (count < radius) {
+                printCircleLine(count, radius)
+              }
+            }
+
+            fun main {
+              printCircle(10)
+            }
+                
 		    """
             /*
             """             
@@ -63,7 +87,7 @@ object Main {
 
         println()
 
-        println(file.mainFunction?.innerCode)
+        println(file.functions["printCircleLine"]?.innerCode)
         CrescentVM(listOf(file), file).invoke()
     }
 

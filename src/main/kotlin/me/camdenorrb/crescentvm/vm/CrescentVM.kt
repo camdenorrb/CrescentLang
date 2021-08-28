@@ -605,7 +605,4 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		val variableValues: MutableMap<String, Instance> = mutableMapOf(),
 	)
 
-
-
-
 }

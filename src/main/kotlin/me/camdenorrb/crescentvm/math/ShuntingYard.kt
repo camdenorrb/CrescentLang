@@ -28,7 +28,8 @@ object ShuntingYard {
                 }
 
                 is CrescentAST.Node.Expression -> {
-                    outputQueue.addAll(invoke(next.nodes))
+                    // Don't need to invoke again due to how the parser works
+                    outputQueue.addAll(next.nodes)
                 }
 
                 is CrescentToken.Operator -> {
