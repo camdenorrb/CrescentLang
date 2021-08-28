@@ -26,6 +26,7 @@ object Main {
                 println(thing[0])
                 thing[0] = 2
                 println(thing[0])
+                println(thing)
             }
 		    """
             /*

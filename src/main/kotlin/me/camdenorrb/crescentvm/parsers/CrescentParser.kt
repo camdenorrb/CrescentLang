@@ -847,7 +847,12 @@ object CrescentParser {
                     tokenIterator.hasNext() &&
                     tokenIterator.peekNext() != CrescentToken.SquareBracket.CLOSE
                 ) {
+
                     nodes += readExpressionNode(tokenIterator)!!
+
+                    if (tokenIterator.peekNext() != CrescentToken.SquareBracket.CLOSE) {
+                        checkEquals(CrescentToken.Operator.COMMA, tokenIterator.next())
+                    }
                 }
 
                 checkEquals(CrescentToken.SquareBracket.CLOSE, tokenIterator.next())
