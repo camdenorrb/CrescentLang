@@ -395,4 +395,40 @@ internal object TestCode {
             import ::Thing2 as Thing3			
 		"""
 
+
+	// This breaks Crescent due to the parenthesis in the while
+	/*
+        val code =
+            """
+
+            fun printCircleLine(size radius: Any) {
+
+               print(radius)
+               print(" ")
+               print(size)
+
+               var count = 0
+               while (count < ((radius / 2) - size)) {
+                 count = count + 1
+               }
+
+               count = 0
+               while (count < size) {
+                  print('*')
+                  count = count + 1
+               }
+            }
+
+            fun printCircle(radius: Any) {
+              var count = 0
+              while (count < radius) {
+                printCircleLine(count, radius)
+              }
+            }
+
+            fun main {
+              printCircle(10)
+            }
+		    """
+	*/
 }

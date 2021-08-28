@@ -74,13 +74,17 @@ object ShuntingYard {
         CrescentToken.Operator.BIT_XOR -> 6
         CrescentToken.Operator.BIT_OR -> 7
 
-        CrescentToken.Operator.AND_COMPARE -> 8
-        CrescentToken.Operator.OR_COMPARE -> 9
-
         CrescentToken.Operator.INSTANCE_OF -> 10
 
+        CrescentToken.Operator.LESSER_EQUALS_COMPARE,
+        CrescentToken.Operator.LESSER_COMPARE,
+        -> 11
+
+        CrescentToken.Operator.AND_COMPARE -> 12
+        CrescentToken.Operator.OR_COMPARE -> 13
+
         // Should always be higher than any operators, for stuff like assignment
-        else -> 11
+        else -> 12
     }
 
 }

@@ -6,6 +6,7 @@ import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Statement.When
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.*
+import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.Number.I32
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.String
 import me.camdenorrb.crescentvm.vm.CrescentToken
 import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
@@ -56,7 +57,7 @@ internal class CrescentParserTests {
             listOf(
                 Statement.If(
                     Expression(listOf(
-                        GetCall("args", listOf(Number(0))), String("true"), EQUALS_COMPARE
+                        GetCall("args", listOf(I32(0))), String("true"), EQUALS_COMPARE
                     )),
                     Statement.Block(listOf(
                         IdentifierCall("println", listOf(String("Meow")))

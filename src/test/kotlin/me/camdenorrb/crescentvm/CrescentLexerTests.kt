@@ -96,7 +96,7 @@ internal class CrescentLexerTests {
     @Test
     fun forLoop() {
 
-        val tokens = CrescentLexer.invoke(TestCode.forLoop)
+        val tokens = CrescentLexer.invoke(TestCode.forLoop1)
 
         assertContentEquals(
             listOf(

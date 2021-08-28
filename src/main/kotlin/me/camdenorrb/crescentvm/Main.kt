@@ -19,13 +19,8 @@ object Main {
         /*path.readText()*/
         val code =
             """
-                
-                fun thing(input: String) {
-                    println(input)
-                }
-                    
                 fun main {
-                    thing("Meow")
+                    println(10 < 11 && 5 < 10)
                 }
 		    """
             /*
@@ -65,6 +60,9 @@ object Main {
 
 
         val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code).also { println(it) })
+
+        println()
+
         println(file.mainFunction?.innerCode)
         CrescentVM(listOf(file), file).invoke()
     }
