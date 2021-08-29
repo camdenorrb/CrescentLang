@@ -22,10 +22,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		val mainFunction = checkNotNull(mainFile.mainFunction)
 
 		if (mainFunction.params.isEmpty()) {
-			runFunction(mainFile, mainFunction, emptyList())
+			runFunction(mainFile, mainFile, mainFunction, emptyList())
 		}
 		else {
 			runFunction(
+				mainFile,
 				mainFile,
 				mainFunction,
 				listOf(Node.Array(Array(args.size) { Primitive.String(args[it]) }))
@@ -33,7 +34,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		}
 	}
 
-	fun runFunction(holder: Node, function: Node.Function, args: List<Node>): Node {
+	fun runFunction(file: Node.File, holder: Node, function: Node.Function, args: List<Node>): Node {
 
 		// TODO: Account for default params
 		checkEquals(function.params.size, args.size)
@@ -46,6 +47,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		}
 
 		val context = BlockContext(
+			file,
 			holder,
 			paramsToValue
 		)
@@ -88,6 +90,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			is Node.Identifier -> {
 				return context.parameters[node.name]
 					?: context.variableValues[node.name]?.value
+					?: context.file.constants[node.name]?.value
 					?: Node.Identifier(node.name)
 					//?: error("Unknown variable: ${node.name}")
 			}
@@ -517,7 +520,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					}
 				}
 
-				return runFunction(functionFile, function, argumentValues)
+				return runFunction(functionFile, functionFile, function, argumentValues)
 			}
 
 		}
@@ -616,7 +619,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	 * @constructor
 	 */
 	data class BlockContext(
-		val self: Node,
+		val file: Node.File,
+		val holder: Node,
 		val parameters: MutableMap<String, Node>,
 		//val variables: MutableMap<String, Node.Variable> = mutableMapOf(),
 		val variableValues: MutableMap<String, Instance> = mutableMapOf(),
