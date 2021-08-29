@@ -457,7 +457,6 @@ object CrescentParser {
 
 
                 if (expressionNode != null) {
-                    println("'$expressionNode' ${tokenIterator.peekNext()}")
                     expressionNodes += expressionNode
                 }
             }

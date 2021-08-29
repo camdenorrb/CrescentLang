@@ -21,13 +21,34 @@ object Main {
         val code =
             """
 
-            fun main {
-                var thing = [1, 2, 3]
-                println(thing[0])
-                thing[0] = 2
-                println(thing[0])
-                println(thing)
-            }
+fun repeatPrint(input: String, amount: Any) {
+  var count = 0
+  while (count < amount) {
+    print(input)
+    count = count + 1
+  }
+}
+
+fun printSquare(size: Any) {
+  
+  repeatPrint("* ", size + 2)
+  println()
+  
+  var count = 0
+  while (count < size) {
+    print('*')
+    repeatPrint(" ", size * 2 + 1)
+    println('*')
+    count = count + 1
+  }
+
+  repeatPrint("* ", size + 2)
+}
+
+fun main {
+  printSquare(29)
+}
+            
 		    """
             /*
             """             

@@ -14,6 +14,7 @@ import kotlin.reflect.typeOf
 
 // TODO: Add a way to add external functions
 // TODO: Find a way to remove recursion
+// TODO: Don't modify the AST
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 	fun invoke(args: List<String> = emptyList()) {
