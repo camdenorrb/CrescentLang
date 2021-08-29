@@ -79,6 +79,11 @@ object ShuntingYard {
 
         CrescentToken.Operator.LESSER_EQUALS_COMPARE,
         CrescentToken.Operator.LESSER_COMPARE,
+        CrescentToken.Operator.GREATER_COMPARE,
+        CrescentToken.Operator.EQUALS_COMPARE,
+        CrescentToken.Operator.NOT_EQUALS_COMPARE,
+        CrescentToken.Operator.EQUALS_REFERENCE_COMPARE,
+        CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE,
         -> 11
 
         CrescentToken.Operator.AND_COMPARE -> 12

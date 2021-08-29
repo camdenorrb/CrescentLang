@@ -20,33 +20,27 @@ object Main {
 
         val code =
             """
+fun makeCircle(radius: Any, width: Any, symbol: Any) {
+        var y = -radius
+        var x = -radius
 
-fun repeatPrint(input: String, amount: Any) {
-  var count = 0
-  while (count < amount) {
-    print(input)
-    count = count + 1
-  }
-}
-
-fun printSquare(size: Any) {
-  
-  repeatPrint("* ", size + 2)
-  println()
-  
-  var count = 0
-  while (count < size) {
-    print('*')
-    repeatPrint(" ", size * 2 + 1)
-    println('*')
-    count = count + 1
-  }
-
-  repeatPrint("* ", size + 2)
+        while(y <= radius) {
+                while(x <= radius) {
+                        var edge = (x * x + y * y) / radius - radius
+                        if(edge > width * 4 / 3 && edge < 1) {
+                                print(symbol)
+                        } else {
+                                print(" ")
+                        }
+                        x = x + 1
+                }
+                println("")
+                y = y + 1
+        }
 }
 
 fun main {
-  printSquare(29)
+        makeCircle(16, 3.0, "*")
 }
             
 		    """
@@ -86,11 +80,11 @@ fun main {
             """*/
 
 
-        val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code).also { println(it) })
+        val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
 
         println()
 
-        println(file.mainFunction?.innerCode)
+        println(file.functions.forEach { println("\n$it\n") })
         CrescentVM(listOf(file), file).invoke()
     }
 
