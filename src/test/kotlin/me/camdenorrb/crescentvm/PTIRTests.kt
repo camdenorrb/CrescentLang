@@ -5,6 +5,7 @@ import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToPTIR
 import me.camdenorrb.crescentvm.vm.CrescentVM
+import tech.poder.ir.Machine
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -40,10 +41,12 @@ internal class PTIRTests {
     fun argsHelloWorld() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.argsHelloWorld))
         val result = CrescentToPTIR.craft(file)
+        val vm = Machine()
+        vm.loadPackage(result)
         assertEquals(
             "Hello World\n",
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result, "Hello World")
+                vm.execute("static.main", "Hello World")
             }
         )
     }
@@ -52,15 +55,19 @@ internal class PTIRTests {
     fun maths() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.math))
         val result = CrescentToPTIR.craft(file)
-        CrescentToPTIR.execute("static.main", result)
+        val vm = Machine()
+        vm.loadPackage(result)
+        vm.execute("static.main")
     }
 
     @Test
     fun tree() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.triangleRecursion))
         val result = CrescentToPTIR.craft(file)
+        val vm = Machine()
+        vm.loadPackage(result)
         collectSystemOut {
-            CrescentToPTIR.execute("static.main", result)
+            vm.execute("static.main")
         }
     }
 
@@ -68,6 +75,8 @@ internal class PTIRTests {
     fun helloWorld() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.helloWorlds))
         val result = CrescentToPTIR.craft(file)
+        val vm = Machine()
+        vm.loadPackage(result)
         assertEquals(
             """
                 Hello World
@@ -76,7 +85,7 @@ internal class PTIRTests {
                 
             """.trimIndent(),
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result)
+                vm.execute("static.main")
             }
         )
     }
@@ -85,24 +94,30 @@ internal class PTIRTests {
     fun whileLoop() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.whileLoop))
         val result = CrescentToPTIR.craft(file)
-        CrescentToPTIR.execute("static.main", result)
+        val vm = Machine()
+        vm.loadPackage(result)
+        vm.execute("static.main")
     }
 
     @Test
     fun forLoop() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.forLoop2))
         val result = CrescentToPTIR.craft(file)
-        CrescentToPTIR.execute("static.main", result)
+        val vm = Machine()
+        vm.loadPackage(result)
+        vm.execute("static.main")
     }
 
     @Test
     fun funThing() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.funThing))
         val result = CrescentToPTIR.craft(file)
+        val vm = Machine()
+        vm.loadPackage(result)
         assertEquals(
             "I am a fun thing :)\n",
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result)
+                vm.execute("static.main")
             }
         )
     }
@@ -111,17 +126,19 @@ internal class PTIRTests {
     fun ifStatement() {
         val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifStatement))
         val result = CrescentToPTIR.craft(file)
+        val vm = Machine()
+        vm.loadPackage(result)
         assertEquals(
             "Meow\n",
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result, "true")
+                vm.execute("static.main", "true")
             }
         )
 
         assertEquals(
             "Hiss\n",
             collectSystemOut {
-                CrescentToPTIR.execute("static.main", result, "false")
+                vm.execute("static.main", "false")
             }
         )
     }

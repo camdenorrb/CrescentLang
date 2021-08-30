@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.30-RC"
+    kotlin("jvm") version "1.5.30"
 }
 
 group = "me.camdenorrb.vm"
@@ -12,6 +12,7 @@ repositories {
 }
 
 dependencies {
+    implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.capnproto:runtime:0.1.9")
     implementation("com.guardsquare:proguard-core:8.0.1")
