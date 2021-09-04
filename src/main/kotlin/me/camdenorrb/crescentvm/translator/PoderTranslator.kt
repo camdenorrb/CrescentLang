@@ -32,9 +32,10 @@ object PoderTranslator : Translator<Node.File, Package> {
 			thePackage.newFloatingMethod(function)
 		}
 
-		thePackage.newObject("", Visibility.PUBLIC).
+		//thePackage.newObject("", Visibility.PUBLIC).
 
-		input.mainFunction
+		//input.mainFunction
+		TODO()
 	}
 
 
@@ -47,7 +48,9 @@ object PoderTranslator : Translator<Node.File, Package> {
 	}
 
 	private fun Node.Type.toPoder(): Type? {
-		NamedType("Meow", )
+
+		TODO()
+		//NamedType("Meow", )
 	}
 
 	private fun Node.Parameter.toPoder(): NamedType {
@@ -79,13 +82,12 @@ object PoderTranslator : Translator<Node.File, Package> {
 	}
 
 	private fun compileNode(codeBuilder: CodeBuilder, node: Node) = when (node) {
-		is Node.Expression -> compileExpression(node)
+		is Node.Expression -> compileExpression(codeBuilder, node)
 		else -> error("Unexpected node: $node")
 	}
 
 	private fun compileExpression(codeBuilder: CodeBuilder, expression: Node.Expression) {
 
-		val stack = LinkedList<Node>()
 		val nodeIterator = PeekingNodeIterator(expression.nodes)
 
 		while (nodeIterator.hasNext()) {
@@ -94,7 +96,9 @@ object PoderTranslator : Translator<Node.File, Package> {
 				is CrescentToken.Operator -> {
 					when (node) {
 
-						CrescentToken.Operator.NOT -> TODO()
+						CrescentToken.Operator.NOT -> {
+							codeBuilder.neg()
+						}
 
 						// TODO: Override operators for these in Primitive.Number
 						CrescentToken.Operator.ADD -> {
@@ -124,6 +128,7 @@ object PoderTranslator : Translator<Node.File, Package> {
 						CrescentToken.Operator.ADD_ASSIGN -> {
 							TODO("Figure out")
 						}
+
 						CrescentToken.Operator.SUB_ASSIGN -> TODO("Figure out")
 						CrescentToken.Operator.MUL_ASSIGN -> TODO("Figure out")
 						CrescentToken.Operator.DIV_ASSIGN -> TODO("Figure out")
@@ -139,36 +144,18 @@ object PoderTranslator : Translator<Node.File, Package> {
 
 						CrescentToken.Operator.EQUALS_COMPARE -> {
 							val label = codeBuilder.newLabel()
-							codeBuilder.ifEquals(label)
 						}
 						CrescentToken.Operator.LESSER_EQUALS_COMPARE -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-
-							stack.push(Primitive.Boolean(pop2 <= pop1))
 						}
 						CrescentToken.Operator.GREATER_EQUALS_COMPARE -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-
-							stack.push(Primitive.Boolean(pop2 >= pop1))
 						}
-
 						CrescentToken.Operator.LESSER_COMPARE -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-
-							stack.push(Primitive.Boolean(pop2 < pop1))
 						}
 						CrescentToken.Operator.GREATER_COMPARE -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-
-							stack.push(Primitive.Boolean(pop2 > pop1))
 						}
 
 
@@ -176,16 +163,6 @@ object PoderTranslator : Translator<Node.File, Package> {
 
 						CrescentToken.Operator.NOT_EQUALS_COMPARE -> {
 
-							val pop1 = runNode(stack.pop(), context)
-							val pop2 = runNode(stack.pop(), context)
-
-							// TODO: Override !=, ==, >=, <=, <, >, xor, or, and, etc on number, then merging this if statement into one statement and remove pop1 and pop2
-							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
-								stack.push(Primitive.Boolean(pop2.toF64().data != pop1.toF64().data))
-							}
-							else {
-								stack.push(Primitive.Boolean(pop2 != pop1))
-							}
 						}
 
 						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
@@ -201,57 +178,29 @@ object PoderTranslator : Translator<Node.File, Package> {
 
 						CrescentToken.Operator.INSTANCE_OF -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Node.Identifier)
-							val pop2 = runNode(stack.pop(), context)
-
-							stack.push(Primitive.Boolean(pop1.name == Node.Type.any.name || "${findType(pop2)}" == pop1.name))
 						}
 
 						CrescentToken.Operator.BIT_SHIFT_RIGHT -> {
-
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-
-							stack.push(Primitive.Number.I32(pop2 shr pop1))
+							codeBuilder.signedShiftRight()
 						}
 
 						CrescentToken.Operator.BIT_SHIFT_LEFT -> {
-
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-
-							stack.push(Primitive.Number.I32(pop2 shl pop1))
+							codeBuilder.signedShiftLeft()
 						}
 
 						CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> {
-
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-
-							stack.push(Primitive.Number.I32(pop2 ushr pop1))
+							codeBuilder.unsignedShiftRight()
 						}
 
 						CrescentToken.Operator.BIT_OR -> {
-
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-
-							stack.push(Primitive.Number.I32(pop2 or pop1))
+							codeBuilder.or()
 						}
 
 						CrescentToken.Operator.BIT_AND -> {
-
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-
-							stack.push(Primitive.Number.I32(pop2 and pop1))
+							codeBuilder.and()
 						}
 						CrescentToken.Operator.BIT_XOR -> {
-
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-
-							stack.push(Primitive.Number.I32(pop2 xor pop1))
+							codeBuilder.xor()
 						}
 
 						CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()

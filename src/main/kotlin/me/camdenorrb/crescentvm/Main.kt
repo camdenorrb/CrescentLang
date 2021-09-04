@@ -6,6 +6,7 @@ import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentVM
 import tech.poder.ir.Machine
 import kotlin.io.path.Path
+import kotlin.random.Random
 
 
 object Main {
