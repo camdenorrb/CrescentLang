@@ -5,7 +5,7 @@ import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentToPTIR
 import me.camdenorrb.crescentvm.vm.CrescentVM
-import tech.poder.ir.vm.Machine
+import tech.poder.ir.Machine
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -110,6 +110,7 @@ internal object Bench {
 			}
 		}
 
+		/*
 		Machine.loadCode(*methods.toTypedArray())
 
 		vmBenchmark.bench("Moo:$name") {
@@ -117,6 +118,7 @@ internal object Bench {
 				Machine.execute("static.main")
 			}
 		}
+		*/
 	}
 
 

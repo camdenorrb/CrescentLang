@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.vm
 
+import tech.poder.ir.api.CodeHolder
 import java.nio.file.Path
 import kotlin.math.pow
 
@@ -234,7 +235,7 @@ class CrescentAST {
             val constants: Map<String, Variable.Constant>,
             val functions: Map<String, Function>,
             val mainFunction: Function?,
-        ) : Node
+        ) : Node, CodeHolder
 
 
         sealed class Parameter : Node {
@@ -387,11 +388,13 @@ class CrescentAST {
 
         }
 
-        data class Array(
+        @JvmInline
+        value class Array(
             //override val type: Type.Array,
             val values: kotlin.Array<Node>,
         ) : Node/*, Typed*/ {
 
+            /*
             override fun equals(other: Any?): Boolean {
                 if (this === other) return true
                 if (javaClass != other?.javaClass) return false
@@ -406,6 +409,7 @@ class CrescentAST {
             override fun hashCode(): Int {
                 return values.contentHashCode()
             }
+            */
 
         }
 

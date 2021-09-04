@@ -6,6 +6,7 @@ import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Statement.When
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.*
+import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.Number.F64
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.Number.I32
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.String
 import me.camdenorrb.crescentvm.vm.CrescentToken
@@ -119,9 +120,9 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("x", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
-                Variable.Basic("y", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
-                Variable.Basic("z", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
+                Variable.Basic("x", true, Visibility.PUBLIC, Type.Implicit, I32(0)),
+                Variable.Basic("y", true, Visibility.PUBLIC, Type.Implicit, I32(0)),
+                Variable.Basic("z", true, Visibility.PUBLIC, Type.Implicit, I32(0)),
                 IdentifierCall("println", listOf(String("\$x\$y\$z")))
             ),
             mainFunction.innerCode.nodes,
@@ -131,7 +132,7 @@ internal class CrescentParserTests {
     @Test
     fun forLoop() {
 
-        val tokens = CrescentLexer.invoke(TestCode.forLoop)
+        val tokens = CrescentLexer.invoke(TestCode.forLoop1)
 
         val mainFunction = assertNotNull(
             CrescentParser.invoke(Path.of("example.crescent"), tokens).mainFunction,
@@ -141,22 +142,22 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
 
-                Variable.Basic("x", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
-                Variable.Basic("y", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
-                Variable.Basic("z", true, Visibility.PUBLIC, Type.Implicit, Number(0)),
+                Variable.Basic("x", true, Visibility.PUBLIC, Type.Implicit, I32(0)),
+                Variable.Basic("y", true, Visibility.PUBLIC, Type.Implicit, I32(0)),
+                Variable.Basic("z", true, Visibility.PUBLIC, Type.Implicit, I32(0)),
 
                 IdentifierCall("println", listOf(String("\$x\$y\$z"))),
 
                 Statement.For(
                     listOf(Identifier("x"), Identifier("y"), Identifier("z")),
-                    listOf(Statement.Range(Number(0), Number(10))),
+                    listOf(Statement.Range(I32(0), I32(10))),
                     Statement.Block(listOf(
                         IdentifierCall("println", listOf(String("\$x\$y\$z"))),
                     ))
                 ),
                 Statement.For(
                     listOf(Identifier("x"), Identifier("y"), Identifier("z")),
-                    listOf(Statement.Range(Number(0), Number(10)), Statement.Range(Number(0), Number(10)), Statement.Range(Number(0), Number(10))),
+                    listOf(Statement.Range(I32(0), I32(10)), Statement.Range(I32(0), I32(10)), Statement.Range(I32(0), I32(10))),
                     Statement.Block(listOf(
                         IdentifierCall("println", listOf(String("\$x\$y\$z"))),
                     ))
@@ -179,14 +180,14 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("x", false, Visibility.PUBLIC, Type.Implicit, Number(1)),
+                Variable.Basic("x", false, Visibility.PUBLIC, Type.Implicit, I32(1)),
                 Statement.While(
                     Expression(listOf(
-                        Identifier("x"), Number(10), LESSER_EQUALS_COMPARE
+                        Identifier("x"), I32(10), LESSER_EQUALS_COMPARE
                     )),
                     Statement.Block(listOf(
                         IdentifierCall("println", listOf(Identifier("x"))),
-                        Expression(listOf(Identifier("x"), Number(1), ADD_ASSIGN)),
+                        Expression(listOf(Identifier("x"), I32(1), ADD_ASSIGN)),
                     ))
                 )
 
@@ -303,14 +304,14 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("example", true, Visibility.PUBLIC, Type.Implicit, IdentifierCall("Example", listOf(Number(1), String("Meow"), String("Mew")))),
+                Variable.Basic("example", true, Visibility.PUBLIC, Type.Implicit, IdentifierCall("Example", listOf(I32(1), String("Meow"), String("Mew")))),
                 DotChain(listOf(Identifier("example"), IdentifierCall("printValues"))),
                 IdentifierCall("println"),
                 IdentifierCall("println", listOf(DotChain(listOf(Identifier("example"), Identifier("aNumber"))))),
                 IdentifierCall("println", listOf(DotChain(listOf(Identifier("example"), Identifier("aValue1"))))),
                 IdentifierCall("println", listOf(DotChain(listOf(Identifier("example"), Identifier("aValue2"))))),
-                IdentifierCall("println", listOf(DotChain(listOf(Identifier("Example"), IdentifierCall("add", listOf(Number(1), Number(2))))))),
-                IdentifierCall("println", listOf(DotChain(listOf(Identifier("Example"), IdentifierCall("sub", listOf(Number(1), Number(2))))))),
+                IdentifierCall("println", listOf(DotChain(listOf(Identifier("Example"), IdentifierCall("add", listOf(I32(1), I32(2))))))),
+                IdentifierCall("println", listOf(DotChain(listOf(Identifier("Example"), IdentifierCall("sub", listOf(I32(1), I32(2))))))),
             ),
             mainFunction.innerCode.nodes,
         )
@@ -326,7 +327,7 @@ internal class CrescentParserTests {
                             modifiers = emptyList(),
                             visibility = Visibility.PUBLIC,
                             params = emptyList(),
-                            returnType = Type.Unit,
+                            returnType = Type.unit,
                             innerCode = Statement.Block(listOf(
                                 IdentifierCall("println", listOf(Identifier("aNumber"))),
                                 IdentifierCall("println", listOf(Identifier("aValue1"))),
@@ -394,8 +395,8 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 IdentifierCall("println", listOf(Expression(listOf(
-                    Number(1.0), Number(1), ADD,
-                    Number(1.0), Number(10.0), DIV, ADD, Number(1000.0), Number(10.0), MUL, Number(11.0), Number(10.0), POW, DIV, ADD
+                    F64(1.0), I32(1), ADD,
+                    F64(1.0), F64(10.0), DIV, ADD, F64(1000.0), F64(10.0), MUL, F64(11.0), F64(10.0), POW, DIV, ADD
                 ))))
             ),
             mainFunction.innerCode.nodes,
@@ -514,7 +515,7 @@ internal class CrescentParserTests {
             listOf(
                 Identifier("println"),
                 String("#meow"),
-                Expression(listOf(Number(1), Number(1), ADD, Number(1), Number(1), DIV, Number(1), MUL, SUB, ASSIGN)),
+                Expression(listOf(I32(1), I32(1), ADD, I32(1), I32(1), DIV, I32(1), MUL, SUB, ASSIGN)),
             ),
             mainFunction.innerCode.nodes,
         )

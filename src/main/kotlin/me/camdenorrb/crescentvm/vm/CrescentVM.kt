@@ -436,7 +436,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					stack.push(node)
 				}
 
-				else -> {}
+				else -> error("Unexpected node: $node")
 			}
 		}
 

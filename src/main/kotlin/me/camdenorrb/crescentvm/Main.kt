@@ -1,15 +1,20 @@
 package me.camdenorrb.crescentvm
 
+import jdk.incubator.foreign.MemorySegment
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.vm.*
+import me.camdenorrb.crescentvm.vm.CrescentVM
+import tech.poder.ir.Machine
 import kotlin.io.path.Path
+
 
 object Main {
 
     // TODO: Replace all checkEquals in project with check and a custom message
     @JvmStatic
     fun main(args: Array<String>) {
+
+        MemorySegment.allocateNative(2)
 
         /*
         val path = this::class.java.getResource("/crescent/examples/hello_world.moon")?.toURI()?.toPath()
@@ -20,71 +25,34 @@ object Main {
 
         val code =
             """
-fun makeCircle(radius: Any, width: Any, symbol: Any) {
-        var y = -radius
-        var x = -radius
-
-        while(y <= radius) {
-                while(x <= radius) {
-                        var edge = (x * x + y * y) / radius - radius
-                        if(edge > width * 4 / 3 && edge < 1) {
-                                print(symbol)
-                        } else {
-                                print(" ")
-                        }
-                        x = x + 1
-                }
-                println("")
-                y = y + 1
-        }
-}
-
-fun main {
-        makeCircle(16, 3.0, "*")
-}
+                fun makeCircle(radius: Any, width: Any, symbol: Any) {
+                    var y = -1 * radius
+                    var x = -1 * radius
             
-		    """
-            /*
-            """             
-                fun repeatPrint(input: Any, amount: Any) {
-                
-                  print(input)
-                  
-                  if (amount > 1) {
-                      repeatPrint('*', amount - 1)
-                  }
+                    while(y <= radius) {
+                            while(x <= radius) {
+                                    var edge = (x * x + y * y) / radius - radius
+                                    if(edge > -1 * width * 4 / 3 && edge < 1) {
+                                            print(symbol)
+                                    } else {
+                                            print("  ")
+                                    }
+                                    x = x + 1
+                            }
+                            
+                            println("")
+                            x = -1.0 * radius
+                            y = y + 1
+                    }
                 }
-                
-                fun printStars(number: Any, countUp: Any) {
-                
-                  repeatPrint('*', number)
-                  println("")
-                   
-                  if (countUp) {
-                    if (number < 10) {
-                      printStars(number + 1, true)
-                    }
-                    else {
-                      printStars(number - 1, false)
-                    }
-                  }
-                  else {
-                    if (number > 1) {
-                      printStars(number - 1, false)
-                    }
-                  }
-                }
+            
                 fun main {
-                    printStars(1, true)
+                    makeCircle(12, 3.0, "**")
                 }
-            """*/
-
+		    """
 
         val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
-
-        println()
-
-        println(file.functions.forEach { println("\n$it\n") })
+        file.functions.forEach { println("\n$it\n") }
         CrescentVM(listOf(file), file).invoke()
     }
 
