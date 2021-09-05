@@ -32,7 +32,7 @@ internal class CrescentLexerTests {
     @Test
     fun argsHelloWorld() {
 
-        val tokens = CrescentLexer.invoke(TestCode.helloWorlds)
+        //val tokens = CrescentLexer.invoke(TestCode.helloWorlds)
 
     }
 

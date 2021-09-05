@@ -2,12 +2,14 @@ package me.camdenorrb.crescentvm.translator
 
 import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
 import me.camdenorrb.crescentvm.project.checkEquals
+import me.camdenorrb.crescentvm.translator.PoderTranslator.newFloatingMethod
 import me.camdenorrb.crescentvm.vm.CrescentAST
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node
 import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
 import me.camdenorrb.crescentvm.vm.CrescentToken
 import me.camdenorrb.crescentvm.vm.CrescentVM
 import tech.poder.ir.api.Translator
+import tech.poder.ir.commands.SysCommand
 import tech.poder.ir.data.CodeBuilder
 import tech.poder.ir.data.base.Package
 import tech.poder.ir.data.storage.Label
@@ -25,39 +27,42 @@ object PoderTranslator : Translator<Node.File, Package> {
 
 
 	override fun translate(input: Node.File): Package {
-
-		val thePackage = Package(input.path.parent.pathString, Visibility.PUBLIC)
-
-		input.functions.forEach { (_, function) ->
-			thePackage.newFloatingMethod(function)
-		}
-
-		//thePackage.newObject("", Visibility.PUBLIC).
-
-		//input.mainFunction
-		TODO()
-	}
-
-
-	private fun CrescentToken.Visibility.toPoder(): Visibility {
-		return when (this) {
-			CrescentToken.Visibility.PRIVATE -> Visibility.PRIVATE
-			CrescentToken.Visibility.INTERNAL -> Visibility.INTERNAL
-			CrescentToken.Visibility.PUBLIC -> Visibility.PUBLIC
+		return Package(input.path.pathString, Visibility.PUBLIC).apply {
+			input.functions.forEach { (_, function) ->
+				newFloatingMethod(function)
+			}
 		}
 	}
 
-	private fun Node.Type.toPoder(): Type? {
 
-		TODO()
-		//NamedType("Meow", )
+	private fun CrescentToken.Visibility.toPoder(): Visibility = when (this) {
+		CrescentToken.Visibility.PRIVATE -> Visibility.PRIVATE
+		CrescentToken.Visibility.INTERNAL -> Visibility.INTERNAL
+		CrescentToken.Visibility.PUBLIC -> Visibility.PUBLIC
 	}
 
-	private fun Node.Parameter.toPoder(): NamedType {
-		return when (this) {
-			is Node.Parameter.Basic -> NamedType(name, type.toPoder()!!)
-			else -> error("Unknown parameter $this")
-		}
+	private fun Node.Type.toPoder(): Type? = when (this) {
+
+		Node.Type.unit -> null
+		Primitive.Number.I8.type -> Type.Primitive.Byte()
+		Primitive.Number.I16.type -> Type.Primitive.Short()
+		Primitive.Number.I32.type -> Type.Primitive.Int()
+		Primitive.Number.I64.type -> Type.Primitive.Long()
+		Primitive.Number.U8.type -> Type.Primitive.Byte()
+		Primitive.Number.U16.type -> Type.Primitive.Short()
+		Primitive.Number.U32.type -> Type.Primitive.Int()
+		Primitive.Number.U64.type -> Type.Primitive.Long()
+		Primitive.Number.F32.type -> Type.Primitive.Float()
+		Primitive.Number.F64.type -> Type.Primitive.Double()
+
+		is Node.Type.Basic -> Type.Struct(this.name, emptyList())
+
+		else -> error("Unexpected type: $this")
+	}
+
+	private fun Node.Parameter.toPoder(): NamedType = when (this) {
+		is Node.Parameter.Basic -> NamedType(name, type.toPoder()!!)
+		else -> error("Unknown parameter $this")
 	}
 
 	private fun List<Node.Parameter>.toPoder(): Set<NamedType> {
@@ -81,8 +86,48 @@ object PoderTranslator : Translator<Node.File, Package> {
 		}
 	}
 
-	private fun compileNode(codeBuilder: CodeBuilder, node: Node) = when (node) {
+	private fun compileNode(codeBuilder: CodeBuilder, node: Node): Unit = when (node) {
+
+		is Primitive.Char -> codeBuilder.push(node.data)
+		is Primitive.String -> codeBuilder.push(node.data)
+		is Primitive.Number.I8 -> codeBuilder.push(node.data)
+		is Primitive.Number.I16 -> codeBuilder.push(node.data)
+		is Primitive.Number.I32 -> codeBuilder.push(node.data)
+		is Primitive.Number.I64 -> codeBuilder.push(node.data)
+		is Primitive.Number.U8 -> codeBuilder.push(node.data)
+		is Primitive.Number.U16 -> codeBuilder.push(node.data)
+		is Primitive.Number.U32 -> codeBuilder.push(node.data)
+		is Primitive.Number.U64 -> codeBuilder.push(node.data)
+		is Primitive.Number.F32 -> codeBuilder.push(node.data)
+		is Primitive.Number.F64 -> codeBuilder.push(node.data)
+
 		is Node.Expression -> compileExpression(codeBuilder, node)
+
+		is Node.IdentifierCall -> {
+
+			node.arguments.asReversed().forEach {
+				compileNode(codeBuilder, it)
+			}
+
+			when (node.identifier) {
+
+				"print" -> {
+					codeBuilder.sysCall(SysCommand.PRINT)
+				}
+
+				"println" -> {
+					// TODO: codeBuilder.push('\n')
+					codeBuilder.push("\n")
+					codeBuilder.add()
+					codeBuilder.sysCall(SysCommand.PRINT)
+				}
+
+				else -> {
+
+				}
+			}
+		}
+
 		else -> error("Unexpected node: $node")
 	}
 
@@ -94,117 +139,7 @@ object PoderTranslator : Translator<Node.File, Package> {
 			when (val node = nodeIterator.next()) {
 
 				is CrescentToken.Operator -> {
-					when (node) {
-
-						CrescentToken.Operator.NOT -> {
-							codeBuilder.neg()
-						}
-
-						// TODO: Override operators for these in Primitive.Number
-						CrescentToken.Operator.ADD -> {
-							codeBuilder.add()
-						}
-						CrescentToken.Operator.SUB -> {
-							codeBuilder.sub()
-						}
-						CrescentToken.Operator.MUL -> {
-							codeBuilder.mul()
-						}
-						CrescentToken.Operator.DIV -> {
-							codeBuilder.div()
-						}
-						CrescentToken.Operator.POW -> {
-							TODO("Mooo ADD POW?!?!@?! D:")
-						}
-						CrescentToken.Operator.REM -> {
-							TODO("Mooo ADD remainder?!?!@?! D:")
-						}
-
-						CrescentToken.Operator.ASSIGN -> {
-							//codeBuilder.setField()
-							TODO("Figure out")
-						}
-
-						CrescentToken.Operator.ADD_ASSIGN -> {
-							TODO("Figure out")
-						}
-
-						CrescentToken.Operator.SUB_ASSIGN -> TODO("Figure out")
-						CrescentToken.Operator.MUL_ASSIGN -> TODO("Figure out")
-						CrescentToken.Operator.DIV_ASSIGN -> TODO("Figure out")
-						CrescentToken.Operator.REM_ASSIGN -> TODO("Figure out")
-						CrescentToken.Operator.POW_ASSIGN -> TODO("Figure out")
-
-						CrescentToken.Operator.OR_COMPARE -> {
-
-						}
-
-						CrescentToken.Operator.AND_COMPARE -> {
-						}
-
-						CrescentToken.Operator.EQUALS_COMPARE -> {
-							val label = codeBuilder.newLabel()
-						}
-						CrescentToken.Operator.LESSER_EQUALS_COMPARE -> {
-
-						}
-						CrescentToken.Operator.GREATER_EQUALS_COMPARE -> {
-
-						}
-						CrescentToken.Operator.LESSER_COMPARE -> {
-
-						}
-						CrescentToken.Operator.GREATER_COMPARE -> {
-
-						}
-
-
-						CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
-
-						CrescentToken.Operator.NOT_EQUALS_COMPARE -> {
-
-						}
-
-						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
-						CrescentToken.Operator.CONTAINS -> TODO()
-						CrescentToken.Operator.RANGE_TO -> TODO()
-						CrescentToken.Operator.TYPE_PREFIX -> TODO()
-						CrescentToken.Operator.RETURN -> TODO()
-						CrescentToken.Operator.RESULT -> TODO()
-						CrescentToken.Operator.COMMA -> TODO()
-						CrescentToken.Operator.DOT -> TODO()
-						CrescentToken.Operator.AS -> TODO()
-						CrescentToken.Operator.IMPORT_SEPARATOR -> TODO()
-
-						CrescentToken.Operator.INSTANCE_OF -> {
-
-						}
-
-						CrescentToken.Operator.BIT_SHIFT_RIGHT -> {
-							codeBuilder.signedShiftRight()
-						}
-
-						CrescentToken.Operator.BIT_SHIFT_LEFT -> {
-							codeBuilder.signedShiftLeft()
-						}
-
-						CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> {
-							codeBuilder.unsignedShiftRight()
-						}
-
-						CrescentToken.Operator.BIT_OR -> {
-							codeBuilder.or()
-						}
-
-						CrescentToken.Operator.BIT_AND -> {
-							codeBuilder.and()
-						}
-						CrescentToken.Operator.BIT_XOR -> {
-							codeBuilder.xor()
-						}
-
-						CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()
-					}
+					compileOperator(codeBuilder, node)
 				}
 
 				is Primitive.String,
@@ -225,6 +160,69 @@ object PoderTranslator : Translator<Node.File, Package> {
 		}
 	}
 
+	fun compileOperator(codeBuilder: CodeBuilder, operator: CrescentToken.Operator) = when (operator) {
+
+		CrescentToken.Operator.NOT -> codeBuilder.neg()
+		CrescentToken.Operator.ADD -> codeBuilder.add()
+		CrescentToken.Operator.SUB -> codeBuilder.sub()
+		CrescentToken.Operator.MUL -> codeBuilder.mul()
+		CrescentToken.Operator.DIV -> codeBuilder.div()
+
+
+		CrescentToken.Operator.BIT_SHIFT_RIGHT -> codeBuilder.signedShiftRight()
+		CrescentToken.Operator.BIT_SHIFT_LEFT -> codeBuilder.signedShiftLeft()
+		CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> codeBuilder.unsignedShiftRight()
+		CrescentToken.Operator.BIT_OR -> codeBuilder.or()
+		CrescentToken.Operator.BIT_AND -> codeBuilder.and()
+		CrescentToken.Operator.BIT_XOR -> codeBuilder.xor()
+
+
+		CrescentToken.Operator.POW -> {
+			TODO("Mooo ADD POW?!?!@?! D:")
+		}
+		CrescentToken.Operator.REM -> {
+			TODO("Mooo ADD remainder?!?!@?! D:")
+		}
+
+		CrescentToken.Operator.ASSIGN -> {
+			//codeBuilder.setField()
+			TODO("Figure out")
+		}
+
+		CrescentToken.Operator.ADD_ASSIGN -> {
+			TODO("Figure out")
+		}
+
+		CrescentToken.Operator.SUB_ASSIGN -> TODO("Figure out")
+		CrescentToken.Operator.MUL_ASSIGN -> TODO("Figure out")
+		CrescentToken.Operator.DIV_ASSIGN -> TODO("Figure out")
+		CrescentToken.Operator.REM_ASSIGN -> TODO("Figure out")
+		CrescentToken.Operator.POW_ASSIGN -> TODO("Figure out")
+
+		CrescentToken.Operator.OR_COMPARE -> TODO()
+		CrescentToken.Operator.AND_COMPARE -> TODO()
+		CrescentToken.Operator.EQUALS_COMPARE -> TODO()
+		CrescentToken.Operator.LESSER_EQUALS_COMPARE -> TODO()
+		CrescentToken.Operator.GREATER_EQUALS_COMPARE -> TODO()
+		CrescentToken.Operator.LESSER_COMPARE -> TODO()
+		CrescentToken.Operator.GREATER_COMPARE -> TODO()
+		CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
+		CrescentToken.Operator.NOT_EQUALS_COMPARE -> TODO()
+		CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
+		CrescentToken.Operator.CONTAINS -> TODO()
+		CrescentToken.Operator.RANGE_TO -> TODO()
+		CrescentToken.Operator.TYPE_PREFIX -> TODO()
+		CrescentToken.Operator.RETURN -> TODO()
+		CrescentToken.Operator.RESULT -> TODO()
+		CrescentToken.Operator.INSTANCE_OF -> TODO()
+		CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()
+
+		CrescentToken.Operator.AS -> {
+			/* Ignore */
+		}
+
+		else -> error("Unexpected operator: $operator")
+	}
 
 }
 

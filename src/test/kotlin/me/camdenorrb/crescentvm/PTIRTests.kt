@@ -4,6 +4,8 @@ import jdk.incubator.foreign.MemorySegment
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
+import me.camdenorrb.crescentvm.utils.collectSystemOut
+import me.camdenorrb.crescentvm.utils.fakeUserInput
 import me.camdenorrb.crescentvm.vm.CrescentToPTIR
 import me.camdenorrb.crescentvm.vm.CrescentVM
 import tech.poder.ir.Machine
@@ -15,28 +17,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class PTIRTests {
-
-    val originalSystemOut = System.out
-
-    val originalSystemIn = System.`in`
-
-    private inline fun collectSystemOut(block: () -> Unit): String {
-
-        val byteArrayOutputStream = ByteArrayOutputStream()
-        val printStream = PrintStream(byteArrayOutputStream)
-
-        System.setOut(printStream)
-        block()
-        System.setOut(originalSystemOut)
-
-        return byteArrayOutputStream.toString()
-    }
-
-    private inline fun fakeUserInput(input: String, block: () -> Unit) {
-        System.setIn(ByteArrayInputStream(input.toByteArray()))
-        block()
-        System.setIn(originalSystemIn)
-    }
 
     @Test
     fun argsHelloWorld() {
