@@ -3,7 +3,7 @@ package me.camdenorrb.crescentvm
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.translator.PoderTranslator
+import me.camdenorrb.crescentvm.translators.PoderTranslator
 import me.camdenorrb.crescentvm.utils.collectSystemOut
 import tech.poder.ir.Machine
 import kotlin.io.path.Path

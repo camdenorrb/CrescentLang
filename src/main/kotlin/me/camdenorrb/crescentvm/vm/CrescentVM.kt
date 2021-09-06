@@ -1,16 +1,15 @@
 package me.camdenorrb.crescentvm.vm
 
 import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
+import me.camdenorrb.crescentvm.language.token.CrescentToken
 import me.camdenorrb.crescentvm.project.checkEquals
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Type
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Type
 import java.util.*
-import kotlin.math.pow
 import kotlin.math.round
 import kotlin.math.sin
 import kotlin.math.sqrt
-import kotlin.reflect.typeOf
 
 // TODO: Add a way to add external functions
 // TODO: Find a way to remove recursion

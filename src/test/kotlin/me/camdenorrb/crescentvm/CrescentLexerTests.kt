@@ -2,11 +2,11 @@ package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
-import me.camdenorrb.crescentvm.vm.CrescentToken.*
-import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
-import me.camdenorrb.crescentvm.vm.CrescentToken.Statement.*
-import me.camdenorrb.crescentvm.vm.CrescentToken.Type.*
-import me.camdenorrb.crescentvm.vm.CrescentToken.Variable.*
+import me.camdenorrb.crescentvm.language.token.CrescentToken.*
+import me.camdenorrb.crescentvm.language.token.CrescentToken.Operator.*
+import me.camdenorrb.crescentvm.language.token.CrescentToken.Statement.*
+import me.camdenorrb.crescentvm.language.token.CrescentToken.Type.*
+import me.camdenorrb.crescentvm.language.token.CrescentToken.Variable.*
 import org.junit.Test
 import kotlin.test.assertContentEquals
 

@@ -1,10 +1,9 @@
 package me.camdenorrb.crescentvm.lexers
 
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
-import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.project.extensions.minimize
-import me.camdenorrb.crescentvm.vm.CrescentToken
+import me.camdenorrb.crescentvm.language.token.CrescentToken
 
 // TODO: Support negative numbers
 object CrescentLexer {

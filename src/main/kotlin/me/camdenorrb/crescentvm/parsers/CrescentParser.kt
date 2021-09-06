@@ -3,8 +3,8 @@ package me.camdenorrb.crescentvm.parsers
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.math.ShuntingYard
 import me.camdenorrb.crescentvm.project.checkEquals
-import me.camdenorrb.crescentvm.vm.CrescentAST
-import me.camdenorrb.crescentvm.vm.CrescentToken
+import me.camdenorrb.crescentvm.language.ast.CrescentAST
+import me.camdenorrb.crescentvm.language.token.CrescentToken
 import java.nio.file.Path
 
 // TODO: Maybe support comments
@@ -243,7 +243,7 @@ object CrescentParser {
     }
 
 
-    fun readObject(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Object {
+    private fun readObject(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Object {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
 
@@ -294,7 +294,7 @@ object CrescentParser {
         return CrescentAST.Node.Object(name, objectVariables, objectConstants, objectFunctions)
     }
 
-    fun readStruct(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Struct {
+    private fun readStruct(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Struct {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val variables = mutableListOf<CrescentAST.Node.Variable.Basic>()
@@ -341,7 +341,7 @@ object CrescentParser {
         return CrescentAST.Node.Struct(name, variables)
     }
 
-    fun readImpl(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Impl {
+    private fun readImpl(tokenIterator: PeekingTokenIterator): CrescentAST.Node.Impl {
 
         lateinit var type: CrescentAST.Node.Type
 
@@ -390,7 +390,7 @@ object CrescentParser {
     }
 
 
-    fun readFunction(tokenIterator: PeekingTokenIterator, visibility: CrescentToken.Visibility, modifiers: List<CrescentToken.Modifier>): CrescentAST.Node.Function {
+    private fun readFunction(tokenIterator: PeekingTokenIterator, visibility: CrescentToken.Visibility, modifiers: List<CrescentToken.Modifier>): CrescentAST.Node.Function {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val parameters = readParameters(tokenIterator)
@@ -416,7 +416,7 @@ object CrescentParser {
         )
     }
 
-    fun readBlock(tokenIterator: PeekingTokenIterator) : CrescentAST.Node.Statement.Block {
+    private fun readBlock(tokenIterator: PeekingTokenIterator) : CrescentAST.Node.Statement.Block {
 
         val expressionNodes = mutableListOf<CrescentAST.Node>()
 
@@ -469,7 +469,7 @@ object CrescentParser {
         return CrescentAST.Node.Statement.Block(expressionNodes)
     }
 
-    fun readFunctionTrait(tokenIterator: PeekingTokenIterator): CrescentAST.Node.FunctionTrait {
+    private fun readFunctionTrait(tokenIterator: PeekingTokenIterator): CrescentAST.Node.FunctionTrait {
 
         val name = (tokenIterator.next() as CrescentToken.Key).string
         val parameters = readParameters(tokenIterator)
@@ -486,7 +486,7 @@ object CrescentParser {
         return CrescentAST.Node.FunctionTrait(name, parameters, type)
     }
 
-    fun readConstant(
+    private fun readConstant(
         tokenIterator: PeekingTokenIterator,
         visibility: CrescentToken.Visibility,
     ): CrescentAST.Node.Variable.Constant {

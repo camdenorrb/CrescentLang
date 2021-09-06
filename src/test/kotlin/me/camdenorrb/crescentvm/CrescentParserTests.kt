@@ -1,17 +1,17 @@
 package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.data.TestCode
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.*
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Statement.When
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.*
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Statement.When
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.*
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.Number.F64
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.Number.I32
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive.String
-import me.camdenorrb.crescentvm.vm.CrescentToken
-import me.camdenorrb.crescentvm.vm.CrescentToken.Operator.*
-import me.camdenorrb.crescentvm.vm.CrescentToken.Visibility
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive.*
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive.Number.F64
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive.Number.I32
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive.String
+import me.camdenorrb.crescentvm.language.token.CrescentToken
+import me.camdenorrb.crescentvm.language.token.CrescentToken.Operator.*
+import me.camdenorrb.crescentvm.language.token.CrescentToken.Visibility
 import org.junit.Test
 import java.nio.file.Path
 import kotlin.test.assertContentEquals

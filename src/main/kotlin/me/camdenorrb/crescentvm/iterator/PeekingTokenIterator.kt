@@ -1,6 +1,6 @@
 package me.camdenorrb.crescentvm.iterator
 
-import me.camdenorrb.crescentvm.vm.CrescentToken
+import me.camdenorrb.crescentvm.language.token.CrescentToken
 
 // TODO: Make a peeking iterator interface
 class PeekingTokenIterator(val input: List<CrescentToken>) : Iterator<CrescentToken> {

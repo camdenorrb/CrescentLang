@@ -33,12 +33,14 @@ object Main {
                     while(y <= radius) {
                             while(x <= radius) {
                                     var edge = (x * x + y * y) / radius - radius
+                                    
                                     if(edge > -1 * width * 4 / 3 && edge < 1) {
-                                            print(symbol)
-                                    } else {
-                                            print("  ")
-                                    }
-                                    x = x + 1
+                                        print(symbol)
+                                    } 
+                                    else {
+                                        print("  ")
+                                }
+                                x = x + 1
                             }
                             
                             println("")

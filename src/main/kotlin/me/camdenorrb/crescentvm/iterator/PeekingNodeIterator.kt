@@ -1,6 +1,6 @@
 package me.camdenorrb.crescentvm.iterator
 
-import me.camdenorrb.crescentvm.vm.CrescentAST
+import me.camdenorrb.crescentvm.language.ast.CrescentAST
 
 // TODO: Make a peeking iterator interface
 class PeekingNodeIterator(val input: List<CrescentAST.Node>) : Iterator<CrescentAST.Node> {

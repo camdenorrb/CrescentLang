@@ -1,22 +1,16 @@
-package me.camdenorrb.crescentvm.translator
+package me.camdenorrb.crescentvm.translators
 
 import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
-import me.camdenorrb.crescentvm.project.checkEquals
-import me.camdenorrb.crescentvm.translator.PoderTranslator.newFloatingMethod
-import me.camdenorrb.crescentvm.vm.CrescentAST
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node
-import me.camdenorrb.crescentvm.vm.CrescentAST.Node.Primitive
-import me.camdenorrb.crescentvm.vm.CrescentToken
-import me.camdenorrb.crescentvm.vm.CrescentVM
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node
+import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive
+import me.camdenorrb.crescentvm.language.token.CrescentToken
 import tech.poder.ir.api.Translator
 import tech.poder.ir.commands.SysCommand
 import tech.poder.ir.data.CodeBuilder
 import tech.poder.ir.data.base.Package
-import tech.poder.ir.data.storage.Label
 import tech.poder.ir.data.storage.NamedType
 import tech.poder.ir.data.storage.Type
 import tech.poder.ir.metadata.Visibility
-import java.util.*
 import kotlin.io.path.pathString
 
 object PoderTranslator : Translator<Node.File, Package> {

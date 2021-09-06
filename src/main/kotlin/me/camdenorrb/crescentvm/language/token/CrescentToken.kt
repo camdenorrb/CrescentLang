@@ -1,4 +1,6 @@
-package me.camdenorrb.crescentvm.vm
+package me.camdenorrb.crescentvm.language.token
+
+import me.camdenorrb.crescentvm.language.ast.CrescentAST
 
 // TODO: Make a way to reconstruct the code through .toString
 // TODO: Add ++ and --

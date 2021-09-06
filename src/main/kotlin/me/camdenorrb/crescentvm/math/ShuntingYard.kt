@@ -1,9 +1,8 @@
 package me.camdenorrb.crescentvm.math
 
 import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
-import me.camdenorrb.crescentvm.vm.CrescentAST
-import me.camdenorrb.crescentvm.vm.CrescentToken
-import java.lang.Exception
+import me.camdenorrb.crescentvm.language.ast.CrescentAST
+import me.camdenorrb.crescentvm.language.token.CrescentToken
 import java.util.*
 
 object ShuntingYard {

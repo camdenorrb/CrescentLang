@@ -1,5 +1,6 @@
-package me.camdenorrb.crescentvm.vm
+package me.camdenorrb.crescentvm.language.ast
 
+import me.camdenorrb.crescentvm.language.token.CrescentToken
 import tech.poder.ir.api.CodeHolder
 import java.nio.file.Path
 import kotlin.math.pow
@@ -45,7 +46,7 @@ class CrescentAST {
         // Should usually only represent stuff inside (,)'s or return values
         @JvmInline
         value class Expression(
-            val nodes: List<Node>,
+	        val nodes: List<Node>,
         ) : Node {
 
             override fun toString(): String {
@@ -80,7 +81,7 @@ class CrescentAST {
 
         @JvmInline
         value class Return(
-            val expression: Node,
+	        val expression: Node,
         ) : Node {
 
             override fun toString(): String {
@@ -96,14 +97,14 @@ class CrescentAST {
         ) : Node
 
         data class Struct(
-            val name: String,
-            val variables: List<Variable.Basic>,
+	        val name: String,
+	        val variables: List<Variable.Basic>,
         ) : Node
 
         data class Sealed(
-            val name: String,
-            val structs: List<Struct>,
-            val objects: List<Object>
+	        val name: String,
+	        val structs: List<Struct>,
+	        val objects: List<Object>
         ) : Node, Typed {
 
             override val type = Type.Basic(name)
@@ -111,8 +112,8 @@ class CrescentAST {
         }
 
         data class Trait(
-            val name: String,
-            val functionTraits: List<FunctionTrait>,
+	        val name: String,
+	        val functionTraits: List<FunctionTrait>,
         ) : Node, Typed {
 
             override val type = Type.Basic(name)
@@ -121,10 +122,10 @@ class CrescentAST {
 
         // TODO: Force variables to be val not var
         data class Object(
-            val name: String,
-            val variables: List<Variable.Basic>,
-            val constants: List<Variable.Constant>,
-            val functions: List<Function>,
+	        val name: String,
+	        val variables: List<Variable.Basic>,
+	        val constants: List<Variable.Constant>,
+	        val functions: List<Function>,
         ) : Node, Typed {
 
             override val type = Type.Basic(name)
@@ -139,9 +140,9 @@ class CrescentAST {
         ) : Node, Typed
 
         data class Enum(
-            val name: String,
-            val parameters: List<Parameter>,
-            val structs: List<EnumEntry>,
+	        val name: String,
+	        val parameters: List<Parameter>,
+	        val structs: List<EnumEntry>,
         ) : Node, Typed {
 
             override val type = Type.Basic(name)
@@ -149,8 +150,8 @@ class CrescentAST {
         }
 
         data class EnumEntry(
-            val name: String,
-            val arguments: List<Node>,
+	        val name: String,
+	        val arguments: List<Node>,
         ) : Node, Typed {
 
             override val type = Type.Basic(name)
@@ -158,9 +159,9 @@ class CrescentAST {
         }
 
         data class FunctionTrait(
-            val name: String,
-            val params: List<Parameter>,
-            val returnType: Type,
+	        val name: String,
+	        val params: List<Parameter>,
+	        val returnType: Type,
         ) : Node
 
         @JvmInline
@@ -204,9 +205,9 @@ class CrescentAST {
             }
 
             data class Local(
-                val name: String,
-                override val type: Type,
-                val value: Node
+	            val name: String,
+	            override val type: Type,
+	            val value: Node
             ) : Variable
 
         }
@@ -222,19 +223,19 @@ class CrescentAST {
 
         // TODO: Make a better toString
         data class File(
-            val path: Path,
-            val imports: List<Import>,
-            val structs: Map<String, Struct>,
-            val sealeds: Map<String, Sealed>,
-            val impls: Map<String, Impl>,
-            val staticImpls: Map<String, Impl>,
-            val traits: Map<String, Trait>,
-            val objects: Map<String, Object>,
-            val enums: Map<String, Enum>,
-            val variables: Map<String, Variable.Basic>,
-            val constants: Map<String, Variable.Constant>,
-            val functions: Map<String, Function>,
-            val mainFunction: Function?,
+	        val path: Path,
+	        val imports: List<Import>,
+	        val structs: Map<String, Struct>,
+	        val sealeds: Map<String, Sealed>,
+	        val impls: Map<String, Impl>,
+	        val staticImpls: Map<String, Impl>,
+	        val traits: Map<String, Trait>,
+	        val objects: Map<String, Object>,
+	        val enums: Map<String, Enum>,
+	        val variables: Map<String, Variable.Basic>,
+	        val constants: Map<String, Variable.Constant>,
+	        val functions: Map<String, Function>,
+	        val mainFunction: Function?,
         ) : Node, CodeHolder
 
 
@@ -244,15 +245,15 @@ class CrescentAST {
 
 
             data class Basic(
-                override val name: String,
-                override val type: Type,
+	            override val name: String,
+	            override val type: Type,
             ) : Parameter(), Typed
 
             // TODO: Maybe have an implicit type from the expression
             data class WithDefault(
-                override val name: String,
-                override val type: Type,
-                val defaultValue: Expression,
+	            override val name: String,
+	            override val type: Type,
+	            val defaultValue: Expression,
             ) : Parameter(), Typed
 
         }
@@ -315,8 +316,8 @@ class CrescentAST {
         interface Statement : Node {
 
             data class When(
-                val argument: Node,
-                val predicateToBlock: List<Clause>,
+	            val argument: Node,
+	            val predicateToBlock: List<Clause>,
             ) : Statement {
 
                 override fun toString(): String {
@@ -340,33 +341,33 @@ class CrescentAST {
 
                 @JvmInline
                 value class Else(
-                    val thenBlock: Block,
+	                val thenBlock: Block,
                 ) : Statement
 
             }
 
             // TODO: Add else if's, perhaps rename elseBlock to elseBlocks
             data class If(
-                val predicate: Node,
-                val block: Block,
-                val elseBlock: Block?
+	            val predicate: Node,
+	            val block: Block,
+	            val elseBlock: Block?
             ) : Statement
 
             data class While(
-                val predicate: Node,
-                val block: Block,
+	            val predicate: Node,
+	            val block: Block,
             ) : Statement
 
             data class For(
-                val identifiers: List<Identifier>,
-                val ranges: List<Range>,
-                val block: Block,
+	            val identifiers: List<Identifier>,
+	            val ranges: List<Range>,
+	            val block: Block,
             ) : Statement
 
             // TODO: Make it a list of nodes
             @JvmInline
             value class Block(
-                val nodes: List<Node>,
+	            val nodes: List<Node>,
             ) : Statement {
 
                 override fun toString(): String {
@@ -376,8 +377,8 @@ class CrescentAST {
             }
 
             data class Range(
-                val start: Node,
-                val end: Node,
+	            val start: Node,
+	            val end: Node,
             ) : Statement {
 
                 override fun toString(): String {
@@ -391,7 +392,7 @@ class CrescentAST {
         @JvmInline
         value class Array(
             //override val type: Type.Array,
-            val values: kotlin.Array<Node>,
+	        val values: kotlin.Array<Node>,
         ) : Node/*, Typed*/ {
 
             /*
@@ -420,7 +421,7 @@ class CrescentAST {
                 val data: kotlin.Boolean,
             ) : Primitive {
 
-                override val type get() = Boolean.type
+                override val type get() = Companion.type
 
 
                 override fun toString(): kotlin.String {
@@ -440,7 +441,7 @@ class CrescentAST {
                 val data: kotlin.String,
             ) : Primitive {
 
-                override val type get() = String.type
+                override val type get() = Companion.type
 
 
                 override fun toString(): kotlin.String {
@@ -460,7 +461,7 @@ class CrescentAST {
                 val data: kotlin.Char,
             ) : Primitive {
 
-                override val type get() = Char.type
+                override val type get() = Companion.type
 
 
                 override fun toString(): kotlin.String {
@@ -480,7 +481,7 @@ class CrescentAST {
                 @JvmInline
                 value class U8(val data: UByte) : Number {
 
-                    override val type get() = U8.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -496,7 +497,7 @@ class CrescentAST {
                 @JvmInline
                 value class U16(val data: UShort) : Number {
 
-                    override val type get() = U16.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -512,7 +513,7 @@ class CrescentAST {
                 @JvmInline
                 value class U32(val data: UInt) : Number {
 
-                    override val type get() = U32.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -528,7 +529,7 @@ class CrescentAST {
                 @JvmInline
                 value class U64(val data: ULong) : Number {
 
-                    override val type get() = U64.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -544,7 +545,7 @@ class CrescentAST {
                 @JvmInline
                 value class I8(val data: Byte) : Number {
 
-                    override val type get() = I8.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -560,7 +561,7 @@ class CrescentAST {
                 @JvmInline
                 value class I16(val data: Short) : Number {
 
-                    override val type get() = I16.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -576,7 +577,7 @@ class CrescentAST {
                 @JvmInline
                 value class I32(val data: Int) : Number {
 
-                    override val type get() = I32.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -592,7 +593,7 @@ class CrescentAST {
                 @JvmInline
                 value class I64(val data: Long) : Number {
 
-                    override val type get() = I64.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -608,7 +609,7 @@ class CrescentAST {
                 @JvmInline
                 value class F32(val data: Float) : Number {
 
-                    override val type get() = F32.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
@@ -624,7 +625,7 @@ class CrescentAST {
                 @JvmInline
                 value class F64(val data: Double) : Number {
 
-                    override val type get() = F64.type
+                    override val type get() = Companion.type
 
                     override fun toString(): kotlin.String {
                         return "$data"
