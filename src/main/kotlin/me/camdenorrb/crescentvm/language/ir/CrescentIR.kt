@@ -1,10 +1,19 @@
 package me.camdenorrb.crescentvm.language.ir
 
-@JvmInline
-value class CrescentIR(val commands: List<Command>) {
+// TODO: Keep track of function positions
+// TODO: Add line numbers
+
+data class CrescentIR(val commands: List<Command>) {
+
+	// Function name -> Position
+	val functions = commands.mapIndexedNotNull { index, command ->
+		val function = command as? Command.Fun ?: return@mapIndexedNotNull null
+		function.name to index
+	}.toMap()
 
 	sealed interface Command {
 
+		/*
 		object Continue : Command {
 			override fun toString(): String {
 				return "continue"
@@ -16,6 +25,7 @@ value class CrescentIR(val commands: List<Command>) {
 				return "break"
 			}
 		}
+		*/
 
 		object AndCompare : Command {
 			override fun toString(): String {
@@ -97,7 +107,7 @@ value class CrescentIR(val commands: List<Command>) {
 
 		@JvmInline
 		value class Fun(
-			val name: String
+			val name: String,
 		) : Command {
 			override fun toString(): String {
 				return "fun $name"
@@ -111,6 +121,15 @@ value class CrescentIR(val commands: List<Command>) {
 		) : Command {
 			override fun toString(): String {
 				return "push $value"
+			}
+		}
+
+		@JvmInline
+		value class PushName(
+			val name: String,
+		) : Command {
+			override fun toString(): String {
+				return "pushName $name"
 			}
 		}
 
@@ -143,6 +162,15 @@ value class CrescentIR(val commands: List<Command>) {
 			}
 		}
 
+		// Value got by popping last value
+		@JvmInline
+		value class Assign(
+			val name: String,
+		) : Command {
+			override fun toString(): String {
+				return "assign $name"
+			}
+		}
 	}
 
 }

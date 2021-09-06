@@ -17,6 +17,7 @@ object CrescentToPTIR {
             package_.newFloatingMethod(u.name, Visibility.PUBLIC) {
                 TODO()
             }
+            package_.objects
         }
         return package_
     }

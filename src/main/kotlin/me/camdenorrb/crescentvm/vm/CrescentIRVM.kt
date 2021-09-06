@@ -3,18 +3,32 @@ package me.camdenorrb.crescentvm.vm
 import me.camdenorrb.crescentvm.language.ir.CrescentIR
 import java.util.*
 
+// TODO: Memory leak checking
 class CrescentIRVM(val crescentIR: CrescentIR) {
 
 	fun invoke() {
+		runFunction("main", LinkedList<Any>())
+	}
 
-		val stack = LinkedList<Any>()
+	fun runFunction(name: String, stack: LinkedList<Any>) {
 
-		crescentIR.commands.forEach {
-			when (it) {
+		// Name -> Value
+		val namedValues = mutableMapOf<String, Any>()
 
-				is CrescentIR.Command.Push -> stack.push(it.value)
+		val functionStart = checkNotNull(crescentIR.functions[name]) {
+			"Could not find function $name"
+		}
 
-				is CrescentIR.Command.Fun -> {/* Ignore */}
+		for (i in functionStart + 1 until crescentIR.commands.size) {
+			when (val node = crescentIR.commands[i]) {
+
+				is CrescentIR.Command.Push -> {
+					stack.push(node.value)
+				}
+
+				is CrescentIR.Command.Fun -> {
+					break
+				}
 
 				is CrescentIR.Command.Sub -> {
 
@@ -51,14 +65,30 @@ class CrescentIRVM(val crescentIR: CrescentIR) {
 					}
 				}
 
+				is CrescentIR.Command.Assign -> {
+					namedValues[node.name] = stack.pop()
+				}
+
+				is CrescentIR.Command.PushName -> {
+					stack.push(checkNotNull(namedValues[node.name]) {
+						"Could not find a named value with the name '${node.name}'"
+					})
+				}
+
 				is CrescentIR.Command.Invoke -> {
-					when (it.name) {
+					when (node.name) {
+
 						"print" -> print(stack.pop())
 						"println" -> println(stack.pop())
+						"readLine" -> stack.push(readLine())
+
+						else -> {
+							runFunction(node.name, stack)
+						}
 					}
 				}
 
-				else -> error("Unexpected command: $it")
+				else -> error("Unexpected command: $node")
 			}
 		}
 	}

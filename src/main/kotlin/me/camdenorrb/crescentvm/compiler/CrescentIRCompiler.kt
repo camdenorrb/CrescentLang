@@ -17,16 +17,24 @@ object CrescentIRCompiler {
 
 		val code =
 			"""
-				fun main { 
-					println("Meow" + 1) 
-					println(1 + 2 * 4 / 2) 
-					println("Meow" + 1) 
-					println("Meow" + 1) 
+				fun thing(mew1 mew2: String) {
+					println(mew1)
+					println(mew2)
+					println(readLine() + readLine())
+				}
+				
+				fun main {
+					println("Meow" + 1)
+					println(1 + 2 * 4 / 2)
+					println("Meow" + 1)
+				    println("Meow" + 1)
+					thing("Meow1", "Meow2")
 				}
 			""".trimIndent()
 
 		val crescentIR = invoke(CrescentParser.invoke(Path("meow.crescent"), CrescentLexer.invoke(code)))
 		crescentIR.commands.forEach { println(it) }
+		println()
 		CrescentIRVM(crescentIR).invoke()
 	}
 
@@ -39,6 +47,10 @@ object CrescentIRCompiler {
 
 			commandsOutput.add(CrescentIR.Command.Fun(name))
 
+			function.params.forEach {
+				commandsOutput.add(CrescentIR.Command.Assign(it.name))
+			}
+
 			function.innerCode.nodes.forEach {
 				compileNode(it, commandsOutput)
 			}
@@ -48,6 +60,7 @@ object CrescentIRCompiler {
 	}
 
 
+	// TODO: Take in named values in a reassignable way
 	private fun compileNode(node: CrescentAST.Node, commandsOutput: MutableList<CrescentIR.Command>) {
 		when (node) {
 
@@ -64,8 +77,9 @@ object CrescentIRCompiler {
 			is Primitive.Number.F32 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 			is Primitive.Number.F64 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 
-
+			is Identifier -> commandsOutput.add(CrescentIR.Command.PushName(node.name))
 			is Expression -> compileExpression(node, commandsOutput)
+
 
 			is IdentifierCall -> {
 
@@ -73,20 +87,7 @@ object CrescentIRCompiler {
 					compileNode(it, commandsOutput)
 				}
 
-				when (node.identifier) {
-
-					"print" -> {
-						commandsOutput.add(CrescentIR.Command.Invoke("print"))
-					}
-
-					"println" -> {
-						commandsOutput.add(CrescentIR.Command.Invoke("println"))
-					}
-
-					else -> {
-
-					}
-				}
+				commandsOutput.add(CrescentIR.Command.Invoke(node.identifier))
 			}
 		}
 	}
@@ -129,7 +130,6 @@ object CrescentIRCompiler {
 			CrescentToken.Operator.MUL -> commandsOutput.add(CrescentIR.Command.Mul)
 			CrescentToken.Operator.DIV -> commandsOutput.add(CrescentIR.Command.Div)
 
-
 			CrescentToken.Operator.BIT_SHIFT_RIGHT -> commandsOutput.add(CrescentIR.Command.ShiftRight)
 			CrescentToken.Operator.BIT_SHIFT_LEFT -> commandsOutput.add(CrescentIR.Command.ShiftLeft)
 			CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> commandsOutput.add(CrescentIR.Command.UnsignedShiftRight)
@@ -146,6 +146,7 @@ object CrescentIRCompiler {
 			}
 
 			CrescentToken.Operator.ASSIGN -> {
+
 				//codeBuilder.setField()
 				TODO("Figure out")
 			}
