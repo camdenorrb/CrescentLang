@@ -11,6 +11,7 @@ data class CrescentIR(val commands: List<Command>) {
 		function.name to index
 	}.toMap()
 
+
 	sealed interface Command {
 
 		/*
@@ -115,6 +116,7 @@ data class CrescentIR(val commands: List<Command>) {
 		}
 
 		// Should also be used on return
+		// TODO: Take in a list of values
 		@JvmInline
 		value class Push(
 			val value: Any,

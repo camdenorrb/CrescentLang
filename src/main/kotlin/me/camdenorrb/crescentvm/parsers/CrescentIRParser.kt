@@ -6,11 +6,18 @@ import kotlin.io.path.bufferedReader
 
 object CrescentIRParser {
 
+	fun invoke(input: String): CrescentIR {
+		return invoke(input.lineSequence())
+	}
+
 	fun invoke(path: Path): CrescentIR {
+		return path.bufferedReader().use {
+			invoke(it.lineSequence())
+		}
+	}
 
-		val reader = path.bufferedReader()
-
-		val commands = reader.lineSequence().mapTo(mutableListOf()) {
+	fun invoke(lineSequence: Sequence<String>): CrescentIR {
+		return CrescentIR(lineSequence.mapTo(mutableListOf()) {
 
 			val args = it.split(' ')
 
@@ -37,9 +44,7 @@ object CrescentIRParser {
 				"assign" -> CrescentIR.Command.Assign(args[1])
 				else -> error("Unexpected command: ${args[0]}")
 			}
-		}
-
-		return CrescentIR(commands)
+		})
 	}
 
 	private fun String.asTyped(): Any {
