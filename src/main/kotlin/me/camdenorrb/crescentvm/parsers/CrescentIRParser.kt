@@ -1,10 +1,25 @@
 package me.camdenorrb.crescentvm.parsers
 
 import me.camdenorrb.crescentvm.language.ir.CrescentIR
+import me.camdenorrb.crescentvm.vm.CrescentIRVM
 import java.nio.file.Path
 import kotlin.io.path.bufferedReader
 
 object CrescentIRParser {
+
+	@JvmStatic
+	fun main(args: Array<String>) {
+
+		val code =
+			"""
+				fun main
+				push "Meow mew"
+				invoke println
+			""".trimIndent()
+
+		CrescentIRVM(invoke(code)).invoke()
+	}
+
 
 	fun invoke(input: String): CrescentIR {
 		return invoke(input.lineSequence())
@@ -36,7 +51,7 @@ object CrescentIRParser {
 				"shr" -> CrescentIR.Command.ShiftRight
 				"ushr" -> CrescentIR.Command.UnsignedShiftRight
 				"fun" -> CrescentIR.Command.Fun(args[1])
-				"push" -> CrescentIR.Command.Push(args[1].asTyped())
+				"push" -> CrescentIR.Command.Push(args.drop(1).joinToString(" ").asTyped())
 				"pushName" -> CrescentIR.Command.PushName(args[1])
 				"jmp" -> CrescentIR.Command.Jump(args[1].toInt())
 				"loadLibrary" -> CrescentIR.Command.LoadLibrary(args[1])

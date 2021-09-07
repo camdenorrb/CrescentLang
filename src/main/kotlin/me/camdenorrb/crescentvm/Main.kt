@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm
 
+import jdk.incubator.foreign.CLinker
 import jdk.incubator.foreign.MemorySegment
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
@@ -23,6 +24,7 @@ object Main {
         */
 
         /*path.readText()*/
+
 
         val code =
             """
