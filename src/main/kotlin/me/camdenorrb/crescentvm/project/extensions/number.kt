@@ -4,9 +4,30 @@ package me.camdenorrb.crescentvm.project.extensions
 // Make the number into the smallest number type possible
 fun Number.minimize(): Number {
 
-	// Maybe add double minimizing in the future
-	if (this is Double || this is Float || this is Byte) {
-		return this
+	when (this) {
+
+		is Byte -> return this
+
+		is Float -> {
+			if (this.toInt().toFloat() == this) {
+				/* No operation, proceed to next when */
+			}
+			else {
+				return this
+			}
+		}
+
+		is Double -> {
+			if (this.toLong().toDouble() == this) {
+				/* No operation, proceed to next when */
+			}
+			else if (this.toFloat().toDouble() == this) {
+				return this.toFloat()
+			}
+			else {
+				return this
+			}
+		}
 	}
 
 	return when(this.toLong()) {
