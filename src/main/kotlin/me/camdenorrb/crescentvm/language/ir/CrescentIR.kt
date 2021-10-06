@@ -3,17 +3,82 @@ package me.camdenorrb.crescentvm.language.ir
 // TODO: Keep track of function positions
 // TODO: Add line numbers
 
-data class CrescentIR(val commands: List<Command>) {
+
+@JvmInline
+value class SectionedCrescentIR(val sections: Map<Section, Map<String, List<CrescentIR.Command>>>) {
+
+	companion object {
+
+		fun from(crescentIR: CrescentIR): SectionedCrescentIR {
+
+			var lastSection: Section? = null
+			var lastName: String? = null
+
+			var sectionCommands = mutableListOf<CrescentIR.Command>()
+			val sections = mutableMapOf<Section, MutableMap<String, List<CrescentIR.Command>>>()
+
+			crescentIR.commands.forEach {
+				when (it) {
+
+					is CrescentIR.Command.Fun -> {
+
+						if (lastSection != null) {
+							sections.getOrPut(lastSection!!) { mutableMapOf() }[lastName!!] = sectionCommands
+							sectionCommands = mutableListOf()
+						}
+
+						lastSection = Section.FUNCTION
+						lastName = it.name
+					}
+
+					is CrescentIR.Command.Struct -> {
+
+						if (lastSection != null) {
+							sections.getOrPut(lastSection!!) { mutableMapOf() }[lastName!!] = sectionCommands
+							sectionCommands = mutableListOf()
+						}
+
+						lastSection = Section.STRUCT
+						lastName = it.name
+					}
+
+					else -> {
+						sectionCommands.add(it)
+					}
+				}
+			}
+
+			if (lastSection != null) {
+				sections.getOrPut(lastSection!!) { mutableMapOf() }[lastName!!] = sectionCommands
+				sectionCommands = mutableListOf()
+			}
+
+			return SectionedCrescentIR(sections)
+		}
+
+	}
+
+	enum class Section {
+		STRUCT,
+		FUNCTION,
+	}
+
+}
+
+@JvmInline
+value class CrescentIR(val commands: List<Command>) {
 
 	// Function name -> Position
+	/*
 	val functions = commands.mapIndexedNotNull { index, command ->
 		val function = command as? Command.Fun ?: return@mapIndexedNotNull null
 		function.name to index
 	}.toMap()
-
+	*/
 
 	sealed interface Command {
 
+		// These aren't needed, in fact loops aren't needed in the IR, just if statements and jumps
 		/*
 		object Continue : Command {
 			override fun toString(): String {
@@ -28,11 +93,36 @@ data class CrescentIR(val commands: List<Command>) {
 		}
 		*/
 
+		object IsLesserOrEqual : Command {
+			override fun toString(): String {
+				return "isLesserOrEqual"
+			}
+		}
+
+		object IsGreaterOrEqual : Command {
+			override fun toString(): String {
+				return "isGreaterOrEqual"
+			}
+		}
+
+		object IsEqual : Command {
+			override fun toString(): String {
+				return "isEqual"
+			}
+		}
+
+		object IsNotEqual : Command {
+			override fun toString(): String {
+				return "isNotEqual"
+			}
+		}
+
 		object AndCompare : Command {
 			override fun toString(): String {
 				return "andCompare"
 			}
 		}
+
 		object OrCompare : Command {
 			override fun toString(): String {
 				return "orCompare"
@@ -115,6 +205,15 @@ data class CrescentIR(val commands: List<Command>) {
 			}
 		}
 
+		@JvmInline
+		value class Struct(
+			val name: String,
+		) : Command {
+			override fun toString(): String {
+				return "struct $name"
+			}
+		}
+
 		// Should also be used on return
 		// TODO: Take in a list of values
 		@JvmInline
@@ -140,7 +239,25 @@ data class CrescentIR(val commands: List<Command>) {
 			val position: Int,
 		) : Command {
 			override fun toString(): String {
-				return "jmp $position"
+				return "jump $position"
+			}
+		}
+
+		@JvmInline
+		value class JumpIf(
+			val position: Int,
+		) : Command {
+			override fun toString(): String {
+				return "jumpIf $position"
+			}
+		}
+
+		@JvmInline
+		value class JumpIfFalse(
+			val position: Int,
+		) : Command {
+			override fun toString(): String {
+				return "jumpIfFalse $position"
 			}
 		}
 
@@ -173,6 +290,17 @@ data class CrescentIR(val commands: List<Command>) {
 				return "assign $name"
 			}
 		}
+
+		// Uses pushed values to create an instance
+		@JvmInline
+		value class CreateInstance(
+			val structName: String,
+		) : Command {
+			override fun toString(): String {
+				return "createInstance $structName"
+			}
+		}
+
 	}
 
 }

@@ -7,6 +7,7 @@ import me.camdenorrb.crescentvm.language.ir.CrescentIR
 import me.camdenorrb.crescentvm.language.token.CrescentToken
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
+import me.camdenorrb.crescentvm.project.extensions.minimize
 import me.camdenorrb.crescentvm.vm.CrescentIRVM
 import kotlin.io.path.Path
 
@@ -20,7 +21,7 @@ object CrescentIRCompiler {
 				fun thing(mew1 mew2: String) {
 					println(mew1)
 					println(mew2)
-					println(readLine() + readLine())
+					println(mew1 + mew2)
 				}
 				
 				fun main {
@@ -66,16 +67,16 @@ object CrescentIRCompiler {
 
 			is Primitive.Char -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 			is Primitive.String -> commandsOutput.add(CrescentIR.Command.Push(node.data))
-			is Primitive.Number.I8 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
-			is Primitive.Number.I16 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
-			is Primitive.Number.I32 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
-			is Primitive.Number.I64 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
+			is Primitive.Number.I8 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
+			is Primitive.Number.I16 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
+			is Primitive.Number.I32 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
+			is Primitive.Number.I64 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
 			is Primitive.Number.U8 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 			is Primitive.Number.U16 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 			is Primitive.Number.U32 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 			is Primitive.Number.U64 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
-			is Primitive.Number.F32 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
-			is Primitive.Number.F64 -> commandsOutput.add(CrescentIR.Command.Push(node.data))
+			is Primitive.Number.F32 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
+			is Primitive.Number.F64 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
 
 			is Identifier -> commandsOutput.add(CrescentIR.Command.PushName(node.name))
 			is Expression -> compileExpression(node, commandsOutput)
