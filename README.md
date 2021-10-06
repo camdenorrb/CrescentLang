@@ -9,6 +9,8 @@
 - [x] Parser
 - [x] VM runs
 - [x] IR
+- [ ] Poder IR translator
+- [ ] Compiler
 
 ### VM Features
 - [x] Math
