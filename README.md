@@ -9,7 +9,7 @@
 - [x] Parser
 - [x] VM runs
 - [x] IR
-- [ ] Poder IR translator
+- [ ] [PoderTechIR](https://github.com/Moocow9m/PoderTechIR) translator
 - [ ] Compiler
 - [ ] Translation from Kotlin to Crescent
 
