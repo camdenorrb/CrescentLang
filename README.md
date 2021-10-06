@@ -2,7 +2,7 @@
     <img src="https://github.com/camdenorrb/CrescentVM/raw/master/CrescentIcon.png" alt="Crescent Icon" width="100px" height="100px">
 </p>
 
-# CrescentVM
+# CrescentLang
 
 ### Core Features
 - [x] Lexer
@@ -11,6 +11,7 @@
 - [x] IR
 - [ ] Poder IR translator
 - [ ] Compiler
+- [ ] Translation from Kotlin to Crescent
 
 ### VM Features
 - [x] Math
@@ -21,7 +22,9 @@
 - [ ] Structs
 - [ ] Impl
 - [ ] Traits
+- [ ] Enums
 - [ ] Multiple files
+- [ ] Coroutines
 
 ### IR Features
 - [x] Math
@@ -32,4 +35,6 @@
 - [ ] Structs
 - [ ] Impl
 - [ ] Traits
+- [ ] Enums
 - [ ] Multiple files
+- [ ] Coroutines
