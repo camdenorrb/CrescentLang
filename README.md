@@ -4,3 +4,30 @@
 
 # CrescentVM
 
+### Core Features
+- [x] Lexer
+- [x] Parser
+- [x] VM runs
+- [x] IR
+
+### VM Features
+- [x] Math
+- [x] Functions
+- [x] Variables
+- [x] While loops
+- [ ] For loops
+- [ ] Structs
+- [ ] Impl
+- [ ] Traits
+- [ ] Multiple files
+
+### IR Features
+- [x] Math
+- [x] Functions
+- [x] Variables
+- [ ] While loops
+- [ ] For loops
+- [ ] Structs
+- [ ] Impl
+- [ ] Traits
+- [ ] Multiple files
