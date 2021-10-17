@@ -1,0 +1,23 @@
+kind: pipeline
+type: docker
+name: default
+
+platform:
+  os: linux
+  arch: arm64
+
+steps:
+
+- name: test
+  image: gradle:jdk17
+  commands:
+  - gradle build
+
+- name: coverage
+  image: plugins/codecov
+  settings:
+    token: 
+      from_secret: CODECOV_TOKEN
+    required: true
+    files:
+      - "*.xml"
