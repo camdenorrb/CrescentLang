@@ -93,6 +93,25 @@ value class CrescentIR(val commands: List<Command>) {
 		}
 		*/
 
+		object AddAssign : Command {
+			override fun toString(): String {
+				return "addAssign"
+			}
+		}
+
+		object IsLesser : Command {
+			override fun toString(): String {
+				return "isLesser"
+			}
+		}
+
+		object IsGreater : Command {
+			override fun toString(): String {
+				return "isGreater"
+			}
+		}
+
+
 		object IsLesserOrEqual : Command {
 			override fun toString(): String {
 				return "isLesserOrEqual"
@@ -195,6 +214,13 @@ value class CrescentIR(val commands: List<Command>) {
 			}
 		}
 
+		// Value got by popping last value
+		object Assign : Command {
+			override fun toString(): String {
+				return "assign"
+			}
+		}
+
 
 		@JvmInline
 		value class Fun(
@@ -225,14 +251,16 @@ value class CrescentIR(val commands: List<Command>) {
 			}
 		}
 
+		/*
 		@JvmInline
-		value class PushName(
+		value class PushNamedValue(
 			val name: String,
 		) : Command {
 			override fun toString(): String {
 				return "pushName $name"
 			}
 		}
+		*/
 
 		@JvmInline
 		value class Jump(
@@ -278,16 +306,6 @@ value class CrescentIR(val commands: List<Command>) {
 		) : Command {
 			override fun toString(): String {
 				return "invoke $name"
-			}
-		}
-
-		// Value got by popping last value
-		@JvmInline
-		value class Assign(
-			val name: String,
-		) : Command {
-			override fun toString(): String {
-				return "assign $name"
 			}
 		}
 

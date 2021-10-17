@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm
 
+/*
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
@@ -52,3 +53,4 @@ internal class PTIRTranslatorTest {
 
 
 }
+*/

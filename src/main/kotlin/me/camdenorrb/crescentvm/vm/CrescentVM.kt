@@ -1,11 +1,11 @@
 package me.camdenorrb.crescentvm.vm
 
 import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
-import me.camdenorrb.crescentvm.language.token.CrescentToken
-import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node
 import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive
 import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Type
+import me.camdenorrb.crescentvm.language.token.CrescentToken
+import me.camdenorrb.crescentvm.project.checkEquals
 import java.util.*
 import kotlin.math.round
 import kotlin.math.sin
@@ -356,7 +356,10 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.CONTAINS -> TODO()
 						CrescentToken.Operator.RANGE_TO -> TODO()
 						CrescentToken.Operator.TYPE_PREFIX -> TODO()
-						CrescentToken.Operator.RETURN -> TODO()
+						CrescentToken.Operator.RETURN -> {
+							println("Here")
+							TODO()
+						}
 						CrescentToken.Operator.RESULT -> TODO()
 						CrescentToken.Operator.COMMA -> TODO()
 						CrescentToken.Operator.DOT -> TODO()
@@ -588,6 +591,10 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					checkEquals(parameter.type, typeOf(arg.values.first()))
 				}
 				*/
+
+				is Type.Array -> {
+					// TODO: Implement this
+				}
 
 				is Type.Basic -> {
 					if (parameter.type.name != "Any") {

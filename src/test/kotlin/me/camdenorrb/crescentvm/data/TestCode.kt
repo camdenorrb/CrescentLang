@@ -284,7 +284,7 @@ internal object TestCode {
 		"""
             fun main {
                 println((1.0 + 1) + 1.0 / 10.0 + 1000.0 * 10.0 / 11.0 ^ 10.0)
-				println(4(3) + 1)
+				println(4 * (3) + 1)
             }
 		"""
 

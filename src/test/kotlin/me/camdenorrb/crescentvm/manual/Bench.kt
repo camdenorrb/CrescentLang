@@ -3,9 +3,9 @@ package me.camdenorrb.crescentvm.manual
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.vm.CrescentToPTIR
+//import me.camdenorrb.crescentvm.vm.CrescentToPTIR
 import me.camdenorrb.crescentvm.vm.CrescentVM
-import tech.poder.ir.Machine
+//import tech.poder.ir.Machine
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
@@ -100,7 +100,7 @@ internal object Bench {
 
 		val tokens = CrescentLexer.invoke(code)
 		val parsed = CrescentParser.invoke(Path("example.moo"), tokens)
-		val methods = CrescentToPTIR.craft(parsed)
+		//val methods = CrescentToPTIR.craft(parsed)
 
 		val vm = CrescentVM(listOf(parsed), parsed)
 

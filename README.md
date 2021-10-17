@@ -30,7 +30,7 @@
 - [x] Math
 - [x] Functions
 - [x] Variables
-- [ ] While loops
+- [x] While loops
 - [ ] For loops
 - [ ] Structs
 - [ ] Impl

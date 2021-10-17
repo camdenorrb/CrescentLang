@@ -2,7 +2,6 @@ package me.camdenorrb.crescentvm.parsers
 
 import me.camdenorrb.crescentvm.language.ir.CrescentIR
 import me.camdenorrb.crescentvm.project.extensions.minimize
-import me.camdenorrb.crescentvm.vm.CrescentIRVM
 import java.nio.file.Path
 import kotlin.io.path.bufferedReader
 
@@ -43,13 +42,13 @@ object CrescentIRParser {
 				"ushr" -> CrescentIR.Command.UnsignedShiftRight
 				"fun" -> CrescentIR.Command.Fun(args[1])
 				"push" -> CrescentIR.Command.Push(args.drop(1).joinToString(" ").asTyped())
-				"pushName" -> CrescentIR.Command.PushName(args[1])
+				//"pushName" -> CrescentIR.Command.PushNamedValue(args[1])
 				"jump" -> CrescentIR.Command.Jump(args[1].toInt())
 				"jumpIf" -> CrescentIR.Command.JumpIf(args[1].toInt())
 				"jumpIfFalse" -> CrescentIR.Command.JumpIfFalse(args[1].toInt())
 				"loadLibrary" -> CrescentIR.Command.LoadLibrary(args[1])
 				"invoke" -> CrescentIR.Command.Invoke(args[1])
-				"assign" -> CrescentIR.Command.Assign(args[1])
+				"assign" -> CrescentIR.Command.Assign
 				else -> error("Unexpected command: ${args[0]}")
 			}
 		})

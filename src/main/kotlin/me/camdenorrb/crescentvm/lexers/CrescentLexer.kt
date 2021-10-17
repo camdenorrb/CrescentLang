@@ -1,9 +1,9 @@
 package me.camdenorrb.crescentvm.lexers
 
 import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
+import me.camdenorrb.crescentvm.language.token.CrescentToken
 import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.project.extensions.minimize
-import me.camdenorrb.crescentvm.language.token.CrescentToken
 
 // TODO: Support negative numbers
 object CrescentLexer {
@@ -29,6 +29,15 @@ object CrescentLexer {
             }
 
             val key = when(val peekNext = charIterator.peekNext()) {
+
+                ':' -> {
+                    if (charIterator.peekNext(2) == ':') {
+                        "${charIterator.next()}${charIterator.next()}"
+                    }
+                    else {
+                        "${charIterator.next()}"
+                    }
+                }
 
                 '!', '+', '-', '/', '%', '^', '*', '=', '<', '>' -> {
 
@@ -57,13 +66,14 @@ object CrescentLexer {
                 else -> {
                     when {
 
-                        peekNext == '.' || peekNext.isDigit() -> {
+                        (peekNext == '.' && charIterator.peekNext(2).isDigit()) || peekNext.isDigit() -> {
 
                             isANumber = true
 
                             // Select number, stop if rangeTo (..) is found
                             readNumber(charIterator)
                         }
+
 
                         peekNext.isLetter() -> {
                             charIterator.nextUntil { !it.isLetterOrDigit() }

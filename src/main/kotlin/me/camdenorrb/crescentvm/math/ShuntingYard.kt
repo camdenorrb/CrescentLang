@@ -89,7 +89,7 @@ object ShuntingYard {
         CrescentToken.Operator.OR_COMPARE -> 13
 
         // Should always be higher than any operators, for stuff like assignment
-        else -> 12
+        else -> 14
     }
 
 }

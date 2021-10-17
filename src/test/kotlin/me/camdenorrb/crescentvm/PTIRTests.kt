@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm
 
+/*
 import jdk.incubator.foreign.MemorySegment
 import me.camdenorrb.crescentvm.data.TestCode
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
@@ -163,4 +164,4 @@ internal class PTIRTests {
     }
 
 
-}
+}*/

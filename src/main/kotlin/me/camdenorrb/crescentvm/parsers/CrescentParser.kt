@@ -1,10 +1,10 @@
 package me.camdenorrb.crescentvm.parsers
 
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
-import me.camdenorrb.crescentvm.math.ShuntingYard
-import me.camdenorrb.crescentvm.project.checkEquals
 import me.camdenorrb.crescentvm.language.ast.CrescentAST
 import me.camdenorrb.crescentvm.language.token.CrescentToken
+import me.camdenorrb.crescentvm.math.ShuntingYard
+import me.camdenorrb.crescentvm.project.checkEquals
 import java.nio.file.Path
 
 // TODO: Maybe support comments
@@ -186,9 +186,20 @@ object CrescentParser {
                         // Skip import separator
                         tokenIterator.next()
 
+                        val typeName = (tokenIterator.next() as CrescentToken.Key).string
+
+                        val typeAlias = if (tokenIterator.peekNext() == CrescentToken.Operator.AS) {
+                            checkEquals(CrescentToken.Operator.AS, tokenIterator.next())
+                            (tokenIterator.next() as CrescentToken.Key).string
+                        }
+                        else {
+                            null
+                        }
+
                         imports += CrescentAST.Node.Import(
                             path = "",
-                            typeName = (tokenIterator.next() as CrescentToken.Key).string
+                            typeName,
+                            typeAlias
                         )
 
                         continue
@@ -211,10 +222,23 @@ object CrescentParser {
                         "Incorrect import format expected `{path}::{type}`"
                     }
 
-                    imports += CrescentAST.Node.Import(
-                        path = path,
-                        typeName = (tokenIterator.next() as CrescentToken.Key).string
-                    )
+                    val typeName = when (val next = tokenIterator.next()) {
+
+                        is CrescentToken.Key -> next.string
+                        CrescentToken.Operator.MUL -> "*"
+
+                        else -> error("Unexpected typeName: $next")
+                    }
+
+                    val typeAlias = if (tokenIterator.peekNext() == CrescentToken.Operator.AS) {
+                        checkEquals(CrescentToken.Operator.AS, tokenIterator.next())
+                        (tokenIterator.next() as CrescentToken.Key).string
+                    }
+                    else {
+                        null
+                    }
+
+                    imports += CrescentAST.Node.Import(path, typeName, typeAlias)
                 }
 
                 else -> error("Unexpected token: $token")
@@ -227,18 +251,18 @@ object CrescentParser {
 
         return CrescentAST.Node.File(
             path = filePath,
-            imports = imports,
-            structs = structs,
-            sealeds = sealeds,
-            impls = impls,
-            staticImpls = staticImpls,
-            traits = traits,
-            objects = objects,
-            enums = enums,
-            variables = variables,
-            constants = constants,
-            functions = functions,
-            mainFunction = mainFunction,
+            imports,
+            structs,
+            sealeds,
+            impls,
+            staticImpls,
+            traits,
+            objects,
+            enums,
+            variables,
+            constants,
+            functions,
+            mainFunction,
         )
     }
 
@@ -435,7 +459,8 @@ object CrescentParser {
                 }
             }
             // If assign after identifier || If assign after get
-            else if (tokenIterator.peekNext(2) is CrescentToken.Operator || tokenIterator.peekNext(5) is CrescentToken.Operator) {
+            // TODO: FIGURE THIS OUT
+            else if (tokenIterator.peekNext(2) is CrescentToken.Operator) { //|| tokenIterator.peekNext(5) is CrescentToken.Operator) {
                 expressionNodes += readExpression(tokenIterator)
             }
             else {
@@ -800,8 +825,7 @@ object CrescentParser {
             CrescentToken.SquareBracket.OPEN -> {
 
                 tokenIterator.next()
-                type =
-                    CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic((tokenIterator.next() as CrescentToken.Key).string))
+                type = CrescentAST.Node.Type.Array(CrescentAST.Node.Type.Basic((tokenIterator.next() as CrescentToken.Key).string))
 
                 // TODO: Maybe support array of results
 
@@ -983,7 +1007,6 @@ object CrescentParser {
 
     }
 
-    // TODO: Separate readExpression and readNode, so that not every node is in an expression
     fun readExpression(tokenIterator: PeekingTokenIterator): CrescentAST.Node {
 
         val nodes = mutableListOf<CrescentAST.Node>()
@@ -1004,12 +1027,10 @@ object CrescentParser {
                 }
 
                 else -> {
-
                     if (nodes.isNotEmpty()) {
                         if (peekNext is CrescentToken.Operator) {
-                            when (peekNext) {
-                                CrescentToken.Operator.RETURN -> break
-                                else -> {}
+                            if (peekNext == CrescentToken.Operator.RETURN) {
+                                break
                             }
                         }
                         else if (nodes.lastOrNull() !is CrescentToken.Operator) {
@@ -1022,12 +1043,15 @@ object CrescentParser {
             }
         }
 
+        // If only one node unwrap from expression
         return if (nodes.size == 1) {
             nodes[0]
         }
+        // If there is operations, sort them
         else if (nodes.any { it is CrescentToken.Operator }) {
             CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
         }
+        // Return as is
         else {
             CrescentAST.Node.Expression(nodes)
         }

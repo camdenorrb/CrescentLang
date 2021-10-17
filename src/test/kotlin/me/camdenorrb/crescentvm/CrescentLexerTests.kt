@@ -1,12 +1,12 @@
 package me.camdenorrb.crescentvm
 
 import me.camdenorrb.crescentvm.data.TestCode
-import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.language.token.CrescentToken.*
 import me.camdenorrb.crescentvm.language.token.CrescentToken.Operator.*
 import me.camdenorrb.crescentvm.language.token.CrescentToken.Statement.*
 import me.camdenorrb.crescentvm.language.token.CrescentToken.Type.*
 import me.camdenorrb.crescentvm.language.token.CrescentToken.Variable.*
+import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import org.junit.Test
 import kotlin.test.assertContentEquals
 
@@ -44,7 +44,7 @@ internal class CrescentLexerTests {
         assertContentEquals(
             listOf(
                 FUN, Key("main"), Parenthesis.OPEN, Key("args"), TYPE_PREFIX, SquareBracket.OPEN, Key("String"), SquareBracket.CLOSE, Parenthesis.CLOSE, Bracket.OPEN,
-                IF, Parenthesis.OPEN, Key("args"), SquareBracket.OPEN, Data.Number(0), SquareBracket.CLOSE, EQUALS_COMPARE, Data.String("true"), Parenthesis.CLOSE, Bracket.OPEN,
+                IF, Parenthesis.OPEN, Key("args"), SquareBracket.OPEN, Data.Number(0.toByte()), SquareBracket.CLOSE, EQUALS_COMPARE, Data.String("true"), Parenthesis.CLOSE, Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("Meow"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
                 ELSE, Bracket.OPEN,
@@ -85,7 +85,7 @@ internal class CrescentLexerTests {
         assertContentEquals(
             listOf(
                 FUN, Key("main"), Bracket.OPEN,
-                VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0),
+                VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0.toByte()),
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
             ),
@@ -102,14 +102,14 @@ internal class CrescentLexerTests {
             listOf(
                 FUN, Key("main"), Bracket.OPEN,
 
-                VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0),
+                VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0.toByte()),
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
 
-                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0), RANGE_TO, Data.Number(10), Bracket.OPEN,
+                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0.toByte()), RANGE_TO, Data.Number(10.toByte()), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
 
-                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0), RANGE_TO, Data.Number(10), COMMA, Data.Number(0), RANGE_TO, Data.Number(10), COMMA, Data.Number(0), RANGE_TO, Data.Number(10), Bracket.OPEN,
+                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0.toByte()), RANGE_TO, Data.Number(10.toByte()), COMMA, Data.Number(0.toByte()), RANGE_TO, Data.Number(10.toByte()), COMMA, Data.Number(0.toByte()), RANGE_TO, Data.Number(10.toByte()), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
 
@@ -130,11 +130,11 @@ internal class CrescentLexerTests {
             listOf(
                 FUN, Key("main"), Bracket.OPEN,
 
-                VAR, Key("x"), ASSIGN, Data.Number(1),
+                VAR, Key("x"), ASSIGN, Data.Number(1.toByte()),
 
-                WHILE, Parenthesis.OPEN, Key("x"), LESSER_EQUALS_COMPARE, Data.Number(10), Parenthesis.CLOSE, Bracket.OPEN,
+                WHILE, Parenthesis.OPEN, Key("x"), LESSER_EQUALS_COMPARE, Data.Number(10.toByte()), Parenthesis.CLOSE, Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Key("x"), Parenthesis.CLOSE,
-                Key("x"), ADD_ASSIGN, Data.Number(1),
+                Key("x"), ADD_ASSIGN, Data.Number(1.toByte()),
                 Bracket.CLOSE,
 
                 Bracket.CLOSE,
@@ -174,10 +174,20 @@ internal class CrescentLexerTests {
 
         assertContentEquals(
             listOf(
-                CONST, Key("thing"), ASSIGN, Data.String("Meow"),
+
+                CONST, Key("thing1"), ASSIGN, Data.String("Mew"),
+
                 OBJECT, Key("Constants"), Bracket.OPEN,
-                CONST, Key("thing"), ASSIGN, Data.String("Meow"),
+                CONST, Key("thing2"), ASSIGN, Data.String("Meow"),
+                FUN, Key("printThing"), Parenthesis.OPEN, Parenthesis.CLOSE, Bracket.OPEN,
+                Key("println"), Parenthesis.OPEN, Key("thing1"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("thing2"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
+                Bracket.CLOSE,
+
+                FUN, Key("main"), Bracket.OPEN,
+                Key("Constants"), DOT, Key("printThings"), Parenthesis.OPEN, Parenthesis.CLOSE,
+                Bracket.CLOSE
             ),
             tokens
         )
@@ -216,14 +226,14 @@ internal class CrescentLexerTests {
                 Bracket.CLOSE,
 
                 FUN, Key("main"), Bracket.OPEN,
-                VAL, Key("example"), ASSIGN, Key("Example"), Parenthesis.OPEN, Data.Number(1), COMMA, Data.String("Meow"), COMMA, Data.String("Mew"), Parenthesis.CLOSE,
+                VAL, Key("example"), ASSIGN, Key("Example"), Parenthesis.OPEN, Data.Number(1.toByte()), COMMA, Data.String("Meow"), COMMA, Data.String("Mew"), Parenthesis.CLOSE,
                 Key("example"), DOT, Key("printValues"), Parenthesis.OPEN, Parenthesis.CLOSE,
                 Key("println"), Parenthesis.OPEN, Parenthesis.CLOSE,
                 Key("println"), Parenthesis.OPEN, Key("example"), DOT, Key("aNumber"), Parenthesis.CLOSE,
                 Key("println"), Parenthesis.OPEN, Key("example"), DOT, Key("aValue1"), Parenthesis.CLOSE,
                 Key("println"), Parenthesis.OPEN, Key("example"), DOT, Key("aValue2"), Parenthesis.CLOSE,
-                Key("println"), Parenthesis.OPEN, Key("Example"), DOT, Key("add"), Parenthesis.OPEN, Data.Number(1), COMMA, Data.Number(2), Parenthesis.CLOSE, Parenthesis.CLOSE,
-                Key("println"), Parenthesis.OPEN, Key("Example"), DOT, Key("sub"), Parenthesis.OPEN, Data.Number(1), COMMA, Data.Number(2), Parenthesis.CLOSE, Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("Example"), DOT, Key("add"), Parenthesis.OPEN, Data.Number(1.toByte()), COMMA, Data.Number(2.toByte()), Parenthesis.CLOSE, Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("Example"), DOT, Key("sub"), Parenthesis.OPEN, Data.Number(1.toByte()), COMMA, Data.Number(2.toByte()), Parenthesis.CLOSE, Parenthesis.CLOSE,
                 Bracket.CLOSE,
             ),
             tokens
@@ -239,11 +249,17 @@ internal class CrescentLexerTests {
         assertContentEquals(
             listOf(
                 FUN, Key("main"), Bracket.OPEN,
+
                 Key("println"), Parenthesis.OPEN,
-                Parenthesis.OPEN, Data.Number(1.0), ADD, Data.Number(1), Parenthesis.CLOSE,
-                ADD, Data.Number(1.0), DIV, Data.Number(10.0), ADD, Data.Number(1000.0), MUL, Data.Number(10.0),
-                DIV, Data.Number(11.0), POW, Data.Number(10.0),
+                Parenthesis.OPEN, Data.Number(1.0.toInt().toByte()), ADD, Data.Number(1.toByte()), Parenthesis.CLOSE,
+                ADD, Data.Number(1.0.toInt().toByte()), DIV, Data.Number(10.0.toInt().toByte()), ADD, Data.Number(1000.0.toInt().toShort()), MUL, Data.Number(10.0.toInt().toByte()),
+                DIV, Data.Number(11.0.toInt().toByte()), POW, Data.Number(10.0.toInt().toByte()),
                 Parenthesis.CLOSE,
+
+                Key("println"), Parenthesis.OPEN,
+                Data.Number(4.toByte()), MUL, Parenthesis.OPEN, Data.Number(3.toByte()), Parenthesis.CLOSE, ADD, Data.Number(1.toByte()),
+                Parenthesis.CLOSE,
+
                 Bracket.CLOSE,
             ),
             tokens
@@ -319,11 +335,11 @@ internal class CrescentLexerTests {
                 Data.Comment("Meow"),
                 Data.Comment("Meow"),
                 Data.String("#meow"),
-                Data.Number(1), ADD, Data.Comment("Meow"),
-                Data.Number(1), SUB, Data.Comment("Meow"),
-                Data.Number(1), DIV, Data.Comment("Meow"),
-                Data.Number(1), MUL, Data.Comment("Meow"),
-                Data.Number(1), ASSIGN, Data.Comment("Meow"),
+                Data.Number(1.toByte()), ADD, Data.Comment("Meow"),
+                Data.Number(1.toByte()), SUB, Data.Comment("Meow"),
+                Data.Number(1.toByte()), DIV, Data.Comment("Meow"),
+                Data.Number(1.toByte()), MUL, Data.Comment("Meow"),
+                Data.Number(1.toByte()), ASSIGN, Data.Comment("Meow"),
                 Data.Comment("}")
             ),
             tokens
@@ -339,9 +355,14 @@ internal class CrescentLexerTests {
             listOf(
                 Data.Comment("Current idea, Package -> Type"),
                 IMPORT, Key("crescent"), DOT, Key("examples"), IMPORT_SEPARATOR, Key("Thing"),
+                IMPORT, Key("crescent"), DOT, Key("examples"), IMPORT_SEPARATOR, Key("Thing2"), AS, Key("Thing3"),
+                IMPORT, Key("crescent"), DOT, Key("examples"), IMPORT_SEPARATOR, MUL,
+
                 Data.Comment("import crescent.examples as examples"),//IMPORT, Key("crescent"), DOT, Key("examples"), AS, Key("examples"),
+
                 Data.Comment("Short hand method (If in same package)"),
-                IMPORT, IMPORT_SEPARATOR, Key("Thing")
+                IMPORT, IMPORT_SEPARATOR, Key("Thing"),
+                IMPORT, IMPORT_SEPARATOR, Key("Thing2"), AS, Key("Thing3")
             ),
             tokens
         )

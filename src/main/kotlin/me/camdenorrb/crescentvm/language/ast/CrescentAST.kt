@@ -1,7 +1,7 @@
 package me.camdenorrb.crescentvm.language.ast
 
 import me.camdenorrb.crescentvm.language.token.CrescentToken
-import tech.poder.ir.api.CodeHolder
+//import tech.poder.ir.api.CodeHolder
 import java.nio.file.Path
 import kotlin.math.pow
 
@@ -236,7 +236,7 @@ class CrescentAST {
 	        val constants: Map<String, Variable.Constant>,
 	        val functions: Map<String, Function>,
 	        val mainFunction: Function?,
-        ) : Node, CodeHolder
+        ) : Node//, CodeHolder
 
 
         sealed class Parameter : Node {

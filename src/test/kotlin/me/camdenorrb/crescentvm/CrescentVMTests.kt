@@ -74,7 +74,14 @@ internal class CrescentVMTests {
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.funThing))
 
 		assertEquals(
-			"I am a fun thing :)\n",
+			"""
+				I am a fun thing :)
+				Meow
+				Meow
+				Meow
+				Meow
+				Meow
+			""".trimIndent(),
 			collectSystemOut {
 				CrescentVM(listOf(file), file).invoke()
 			}

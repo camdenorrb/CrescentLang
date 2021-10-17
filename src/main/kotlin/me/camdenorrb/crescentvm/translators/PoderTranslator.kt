@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.translators
 
+/*
 import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
 import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node
 import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive
@@ -221,3 +222,4 @@ object PoderTranslator : Translator<Node.File, Package> {
 }
 
 
+*/

@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.vm
 
+import me.camdenorrb.crescentvm.language.ast.CrescentAST
 import me.camdenorrb.crescentvm.language.ir.CrescentIR
 import me.camdenorrb.crescentvm.language.ir.SectionedCrescentIR
 import me.camdenorrb.crescentvm.parsers.CrescentIRParser
@@ -8,22 +9,6 @@ import java.util.*
 
 
 fun main() {
-
-	/*
-	val code =
-		"""
-			fun main
-			push false
-			jumpIfFalse 5
-			push Boo
-			invoke println
-			jump 7
-			push Yay
-			invoke println
-			push Meow
-			invoke println
-		""".trimIndent()
-		*/
 
 	val code =
 		"""
@@ -62,6 +47,15 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 		// Name -> Value
 		val namedValues = mutableMapOf<String, Any>()
 
+		fun resolveValue(node: Any): Any {
+			return if (node is CrescentAST.Node.Identifier) {
+				namedValues[node.name]!!
+			}
+			else {
+				node
+			}
+		}
+
 		var index = 0
 
 		while (index < functionCode.size) {
@@ -94,16 +88,16 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 
 				is CrescentIR.Command.Mul -> {
 
-					val pop1 = stack.pop()
-					val pop2 = stack.pop()
+					val pop1 = resolveValue(stack.pop())
+					val pop2 = resolveValue(stack.pop())
 
 					stack.push(((pop2 as Number).toDouble() * (pop1 as Number).toDouble()).minimize())
 				}
 
 				is CrescentIR.Command.Add -> {
 
-					val pop1 = stack.pop()
-					val pop2 = stack.pop()
+					val pop1 = resolveValue(stack.pop())
+					val pop2 = resolveValue(stack.pop())
 
 					when (pop2) {
 						is Number -> stack.push((pop2.toDouble() + (pop1 as Number).toDouble()).minimize())
@@ -114,8 +108,8 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 
 				is CrescentIR.Command.ShiftLeft -> {
 
-					val pop1 = stack.pop()
-					val pop2 = stack.pop()
+					val pop1 = resolveValue(stack.pop())
+					val pop2 = resolveValue(stack.pop())
 
 					when (pop2) {
 						is Number -> stack.push((pop2.toInt() shl (pop1 as Number).toInt()).minimize())
@@ -125,8 +119,8 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 
 				is CrescentIR.Command.ShiftRight -> {
 
-					val pop1 = stack.pop()
-					val pop2 = stack.pop()
+					val pop1 = resolveValue(stack.pop())
+					val pop2 = resolveValue(stack.pop())
 
 					when (pop2) {
 						is Number -> stack.push((pop2.toInt() shr (pop1 as Number).toInt()).minimize())
@@ -136,8 +130,8 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 
 				is CrescentIR.Command.UnsignedShiftRight -> {
 
-					val pop1 = stack.pop()
-					val pop2 = stack.pop()
+					val pop1 = resolveValue(stack.pop())
+					val pop2 = resolveValue(stack.pop())
 
 					when (pop2) {
 						is Number -> stack.push((pop2.toInt() ushr (pop1 as Number).toInt()).minimize())
@@ -145,38 +139,80 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 					}
 				}
 
+				is CrescentIR.Command.IsGreater -> {
+
+					val pop1 = resolveValue(stack.pop())
+					val pop2 = resolveValue(stack.pop())
+
+					when (pop2) {
+						is Number -> stack.push((pop2.toDouble() > (pop1 as Number).toDouble()))
+						else -> error("Unexpected node type: $pop2")
+					}
+				}
+
+				is CrescentIR.Command.IsLesser -> {
+
+					val pop1 = resolveValue(stack.pop())
+					val pop2 = resolveValue(stack.pop())
+
+					when (pop2) {
+						is Number -> stack.push((pop2.toDouble() < (pop1 as Number).toDouble()))
+						else -> error("Unexpected node type: ${pop2::class}")
+					}
+				}
+
 				is CrescentIR.Command.Jump -> {
-					index = node.position
+					// Minus one since it's sectioned and jump takes into account `fun main`
+					index = node.position - 1
 					continue
 				}
 
 				is CrescentIR.Command.JumpIf -> {
-
-					if (stack.pop() as Boolean) {
-						index = node.position
+					if (resolveValue(stack.pop()) as Boolean) {
+						// Minus one since it's sectioned and jump takes into account `fun main`
+						index = node.position - 1
+						continue
 					}
-
-					continue
 				}
 
 				is CrescentIR.Command.JumpIfFalse -> {
-
-					if (!(stack.pop() as Boolean)) {
-						index = node.position
+					if (!(resolveValue(stack.pop()) as Boolean)) {
+						// Minus one since it's sectioned and jump takes into account `fun main`
+						index = node.position - 1
+						continue
 					}
+				}
 
-					continue
+				is CrescentIR.Command.AddAssign -> {
+
+					val pop1 = stack.pop()
+					val pop2 = stack.pop()
+
+					val pop2Value = resolveValue(pop2)
+
+					namedValues[(pop2 as CrescentAST.Node.Identifier).name] = when (pop2Value) {
+						is Number -> (pop2Value.toDouble() + (pop1 as Number).toDouble()).minimize()
+						//is String -> stack.push(pop2.toString() + pop1.toString())
+						else -> pop2Value.toString() + pop1.toString()
+					}
 				}
 
 				is CrescentIR.Command.Assign -> {
-					namedValues[node.name] = stack.pop()
+
+					val pop1 = stack.pop()
+					val pop2 = stack.pop()
+
+					namedValues[(pop2 as CrescentAST.Node.Identifier).name] = pop1
+					//namedValues[node.name] = stack.pop()
 				}
 
-				is CrescentIR.Command.PushName -> {
+				/*
+				is CrescentIR.Command.PushNamedValue -> {
 					stack.push(checkNotNull(namedValues[node.name]) {
 						"Could not find a named value with the name '${node.name}'"
 					})
 				}
+				*/
 
 				is CrescentIR.Command.Invoke -> {
 					when (node.name) {
@@ -197,4 +233,5 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 			index++
 		}
 	}
+
 }

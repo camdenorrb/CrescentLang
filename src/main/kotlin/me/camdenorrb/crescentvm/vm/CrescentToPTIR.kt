@@ -1,5 +1,6 @@
 package me.camdenorrb.crescentvm.vm
 
+/*
 import me.camdenorrb.crescentvm.language.ast.CrescentAST
 import me.camdenorrb.crescentvm.language.token.CrescentToken
 import tech.poder.ir.commands.SysCommand
@@ -266,4 +267,4 @@ object CrescentToPTIR {
             else -> error("Unknown Node: ${node::class.java}")
         }
     }
-}
+}*/

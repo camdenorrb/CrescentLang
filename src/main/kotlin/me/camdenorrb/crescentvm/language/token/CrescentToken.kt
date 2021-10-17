@@ -13,9 +13,16 @@ interface CrescentToken {
     // Used only by the token iterator
     object None : CrescentToken
 
-    data class Key(
+    @JvmInline
+    value class Key(
         val string: String
-    ) : CrescentToken
+    ) : CrescentToken {
+
+        override fun toString(): String {
+            return string
+        }
+
+    }
 
     interface Data : CrescentToken {
 

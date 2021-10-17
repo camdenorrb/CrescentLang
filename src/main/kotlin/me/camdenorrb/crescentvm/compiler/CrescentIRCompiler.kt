@@ -49,7 +49,8 @@ object CrescentIRCompiler {
 			commandsOutput.add(CrescentIR.Command.Fun(name))
 
 			function.params.forEach {
-				commandsOutput.add(CrescentIR.Command.Assign(it.name))
+				commandsOutput.add(CrescentIR.Command.Push(it.name))
+				commandsOutput.add(CrescentIR.Command.Assign)
 			}
 
 			function.innerCode.nodes.forEach {
@@ -65,6 +66,7 @@ object CrescentIRCompiler {
 	private fun compileNode(node: CrescentAST.Node, commandsOutput: MutableList<CrescentIR.Command>) {
 		when (node) {
 
+			is Primitive.Boolean -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 			is Primitive.Char -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 			is Primitive.String -> commandsOutput.add(CrescentIR.Command.Push(node.data))
 			is Primitive.Number.I8 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
@@ -78,9 +80,56 @@ object CrescentIRCompiler {
 			is Primitive.Number.F32 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
 			is Primitive.Number.F64 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
 
-			is Identifier -> commandsOutput.add(CrescentIR.Command.PushName(node.name))
+			is Identifier -> commandsOutput.add(CrescentIR.Command.Push(Identifier(node.name)))
 			is Expression -> compileExpression(node, commandsOutput)
 
+			is Variable -> {
+				node as Variable.Basic
+				commandsOutput.add(CrescentIR.Command.Push(Identifier(node.name)))
+				compileNode(node.value, commandsOutput)
+				commandsOutput.add(CrescentIR.Command.Assign)
+			}
+
+			is Statement.For -> {
+
+				node.block.nodes.forEach {
+					compileNode(it, commandsOutput)
+				}
+
+				TODO("Complete")
+			}
+
+			is Statement.While -> {
+
+				val start = commandsOutput.size
+				compileNode(node.predicate, commandsOutput)
+				val afterPredicate = commandsOutput.size
+
+				node.block.nodes.forEach {
+					compileNode(it, commandsOutput)
+				}
+
+				commandsOutput.add(CrescentIR.Command.Jump(start))
+				commandsOutput.add(afterPredicate, CrescentIR.Command.JumpIfFalse(commandsOutput.size + 1))
+			}
+
+			is Statement.If -> {
+
+				compileNode(node.predicate, commandsOutput)
+
+				val startIndex = commandsOutput.size
+
+				node.block.nodes.forEach {
+					compileNode(it, commandsOutput)
+				}
+
+				commandsOutput.add(startIndex, CrescentIR.Command.JumpIfFalse(commandsOutput.size - startIndex))
+
+				// TODO: Add support for else if
+				node.elseBlock?.nodes?.forEach {
+					compileNode(it, commandsOutput)
+				}
+			}
 
 			is IdentifierCall -> {
 
@@ -90,6 +139,9 @@ object CrescentIRCompiler {
 
 				commandsOutput.add(CrescentIR.Command.Invoke(node.identifier))
 			}
+
+
+			else -> error("Unexpected node: \n${node::class} \n$node")
 		}
 	}
 
@@ -117,7 +169,7 @@ object CrescentIRCompiler {
 					compileNode(node, commandsOutput)
 				}
 
-				else -> error("Unexpected node: $node")
+				else -> error("Unexpected node: \n${node::class} \n$node")
 			}
 		}
 	}
@@ -148,12 +200,17 @@ object CrescentIRCompiler {
 
 			CrescentToken.Operator.ASSIGN -> {
 
+				//println(commandsOutput)
+				commandsOutput.add(CrescentIR.Command.Assign)
 				//codeBuilder.setField()
-				TODO("Figure out")
+				//TODO("Figure out")
 			}
 
 			CrescentToken.Operator.ADD_ASSIGN -> {
-				TODO("Figure out")
+
+				commandsOutput.add(CrescentIR.Command.AddAssign)
+				//println(commandsOutput)
+				//TODO("Figure out")
 			}
 
 			CrescentToken.Operator.SUB_ASSIGN -> TODO("Figure out")
@@ -163,12 +220,12 @@ object CrescentIRCompiler {
 			CrescentToken.Operator.POW_ASSIGN -> TODO("Figure out")
 
 			CrescentToken.Operator.OR_COMPARE -> TODO()
-			CrescentToken.Operator.AND_COMPARE -> TODO()
+			CrescentToken.Operator.AND_COMPARE -> commandsOutput.add(CrescentIR.Command.AndCompare)
 			CrescentToken.Operator.EQUALS_COMPARE -> TODO()
 			CrescentToken.Operator.LESSER_EQUALS_COMPARE -> TODO()
 			CrescentToken.Operator.GREATER_EQUALS_COMPARE -> TODO()
-			CrescentToken.Operator.LESSER_COMPARE -> TODO()
-			CrescentToken.Operator.GREATER_COMPARE -> TODO()
+			CrescentToken.Operator.LESSER_COMPARE -> commandsOutput.add(CrescentIR.Command.IsLesser)
+			CrescentToken.Operator.GREATER_COMPARE -> commandsOutput.add(CrescentIR.Command.IsGreater)
 			CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
 			CrescentToken.Operator.NOT_EQUALS_COMPARE -> TODO()
 			CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()

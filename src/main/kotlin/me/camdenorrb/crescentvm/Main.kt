@@ -1,13 +1,10 @@
 package me.camdenorrb.crescentvm
 
-import jdk.incubator.foreign.CLinker
-import jdk.incubator.foreign.MemorySegment
+import me.camdenorrb.crescentvm.compiler.CrescentIRCompiler
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.vm.CrescentVM
-import tech.poder.ir.Machine
+import me.camdenorrb.crescentvm.vm.CrescentIRVM
 import kotlin.io.path.Path
-import kotlin.random.Random
 
 
 object Main {
@@ -16,7 +13,7 @@ object Main {
     @JvmStatic
     fun main(args: Array<String>) {
 
-        MemorySegment.allocateNative(2)
+        //MemorySegment.allocateNative(2, ResourceScope.globalScope())
 
         /*
         val path = this::class.java.getResource("/crescent/examples/hello_world.moon")?.toURI()?.toPath()
@@ -26,9 +23,11 @@ object Main {
         /*path.readText()*/
 
 
+        /*
         val code =
             """
                 fun makeCircle(radius: Any, width: Any, symbol: Any) {
+                
                     var y = -1 * radius
                     var x = -1 * radius
             
@@ -55,10 +54,28 @@ object Main {
                     makeCircle(12, 3.0, "**")
                 }
 		    """
+		    */
+
+        val code =
+            """
+                fun main {
+                    
+                    var i = 0
+                    
+                    while (i < 2) {
+                        println("Meow")
+                        i += 1
+                    }
+                }
+            """.trimIndent()
 
         val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
+        CrescentIRVM(CrescentIRCompiler.invoke(file).also { println(it) }).invoke()
+
+        /*
         file.functions.forEach { println("\n$it\n") }
         CrescentVM(listOf(file), file).invoke()
+        */
     }
 
 
