@@ -82,6 +82,7 @@ internal class CrescentVMTests {
 				Meow
 				Meow
 				Meow
+				
 			""".trimIndent(),
 			collectSystemOut {
 				CrescentVM(listOf(file), file).invoke()

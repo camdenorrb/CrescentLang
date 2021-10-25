@@ -52,10 +52,10 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		)
 
 		// TODO: Last expression acts as return
-		runBlock(function.innerCode, context)
+		return runBlock(function.innerCode, context)
 
 		// TODO: Make this meaningful
-		return Type.unit
+		//return Type.unit
 	}
 
 	// TODO: Have a return value
