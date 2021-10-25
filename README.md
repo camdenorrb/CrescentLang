@@ -4,6 +4,8 @@
 
 # CrescentLang
 
+[![Build Status](https://drone.12oclock.dev/api/badges/camdenorrb/CrescentLang/status.svg)](https://drone.12oclock.dev/camdenorrb/CrescentLang)
+
 ### Core Features
 - [x] Lexer
 - [x] Parser
