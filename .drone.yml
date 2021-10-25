@@ -12,12 +12,3 @@ steps:
   image: gradle:jdk17
   commands:
   - gradle build
-
-- name: coverage
-  image: plugins/codecov
-  settings:
-    token: 
-      from_secret: CODECOV_TOKEN
-    required: true
-    files:
-      - "*.xml"
