@@ -3,7 +3,6 @@
 </p>
 
 # CrescentLang
-
 ### Core Features
 - [x] Lexer
 - [x] Parser
