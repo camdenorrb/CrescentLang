@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     idea
     application
-    kotlin("jvm") version "1.5.30"
+    kotlin("jvm") version "1.6.0"
 }
 
 group = "me.camdenorrb.vm"
@@ -16,7 +16,7 @@ repositories {
 dependencies {
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib-jdk8"))
-    implementation("org.capnproto:runtime:0.1.10")
+    implementation("org.capnproto:runtime:0.1.11")
     implementation("com.guardsquare:proguard-core:8.0.1")
     //implementation("tech.poder.ir:PoderTechIR:+")
     testImplementation(kotlin("test-junit"))
