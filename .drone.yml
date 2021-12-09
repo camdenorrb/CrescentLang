@@ -9,6 +9,6 @@ platform:
 steps:
 
 - name: test
-  image: gradle:jdk17
+  image: gradle:latest
   commands:
   - gradle build
