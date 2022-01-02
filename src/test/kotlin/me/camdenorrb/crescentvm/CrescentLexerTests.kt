@@ -7,7 +7,7 @@ import me.camdenorrb.crescentvm.language.token.CrescentToken.Statement.*
 import me.camdenorrb.crescentvm.language.token.CrescentToken.Type.*
 import me.camdenorrb.crescentvm.language.token.CrescentToken.Variable.*
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
-import org.junit.Test
+import kotlin.test.Test
 import kotlin.test.assertContentEquals
 
 internal class CrescentLexerTests {
@@ -85,8 +85,17 @@ internal class CrescentLexerTests {
         assertContentEquals(
             listOf(
                 FUN, Key("main"), Bracket.OPEN,
+
                 VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0.toByte()),
+
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Data.String("Hello \$x\$y\$z Hello"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Data.String("Hello \$x Hello \$y Hello \$z Hello"), Parenthesis.CLOSE,
+
+                Key("println"), Parenthesis.OPEN, Data.String("\${x}\${y}\${z}"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Data.String("Hello \${x}\${y}\${z} Hello"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Data.String("Hello \${x}Hello\${y}Hello\${z} Hello"), Parenthesis.CLOSE,
+
                 Bracket.CLOSE,
             ),
             tokens

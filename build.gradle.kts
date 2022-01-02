@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     idea
     application
-    kotlin("jvm") version "1.6.0"
+    kotlin("jvm") version "1.6.10"
 }
 
 group = "me.camdenorrb.vm"
@@ -17,9 +17,9 @@ dependencies {
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib-jdk8"))
     implementation("org.capnproto:runtime:0.1.11")
-    implementation("com.guardsquare:proguard-core:8.0.1")
+    implementation("com.guardsquare:proguard-core:8.0.3")
     //implementation("tech.poder.ir:PoderTechIR:+")
-    testImplementation(kotlin("test-junit"))
+    testImplementation(kotlin("test-junit5"))
 }
 
 application {
@@ -30,7 +30,8 @@ application {
 }
 
 tasks {
-    val javaVersion = JavaVersion.VERSION_16.toString()
+
+    val javaVersion = JavaVersion.VERSION_17.toString()
 
     withType<KotlinCompile> {
         sourceCompatibility = javaVersion
@@ -47,6 +48,7 @@ tasks {
     }
 
     test {
+        useJUnitPlatform()
         jvmArgs("--add-modules=jdk.incubator.foreign")
     }
 }

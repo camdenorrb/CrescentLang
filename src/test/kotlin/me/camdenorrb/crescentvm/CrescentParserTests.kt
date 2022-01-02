@@ -14,8 +14,8 @@ import me.camdenorrb.crescentvm.language.token.CrescentToken.Operator.*
 import me.camdenorrb.crescentvm.language.token.CrescentToken.Visibility
 import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.parsers.CrescentParser
-import org.junit.Test
 import java.nio.file.Path
+import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertNotNull
 
@@ -125,8 +125,16 @@ internal class CrescentParserTests {
                 Variable.Basic("x", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
                 Variable.Basic("y", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
                 Variable.Basic("z", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
-                IdentifierCall("println", listOf(String("\$x\$y\$z")))
-            ),
+
+                IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD)))),
+                IdentifierCall("println", listOf(Expression(listOf(String("Hello "), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD, String(" Hello"), ADD)))),
+                IdentifierCall("println", listOf(Expression(listOf(String("Hello "), Identifier("x"), ADD, String(" Hello "), ADD, Identifier("y"), ADD, String(" Hello "), ADD, Identifier("z"), ADD, String(" Hello"), ADD)))),
+
+                IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD)))),
+                IdentifierCall("println", listOf(Expression(listOf(String("Hello "), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD, String(" Hello"), ADD)))),
+                IdentifierCall("println", listOf(Expression(listOf(String("Hello "), Identifier("x"), ADD, String("Hello"), ADD, Identifier("y"), ADD, String("Hello"), ADD, Identifier("z"), ADD, String(" Hello"), ADD)))),
+
+                ),
             mainFunction.innerCode.nodes,
         )
     }
@@ -148,20 +156,21 @@ internal class CrescentParserTests {
                 Variable.Basic("y", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
                 Variable.Basic("z", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
 
-                IdentifierCall("println", listOf(String("\$x\$y\$z"))),
+                // TODO: Simplify expression into the above list since it's the only expression
+                IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD)))),
 
                 Statement.For(
                     listOf(Identifier("x"), Identifier("y"), Identifier("z")),
                     listOf(Statement.Range(I8(0), I8(10))),
                     Statement.Block(listOf(
-                        IdentifierCall("println", listOf(String("\$x\$y\$z"))),
+                        IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD)))),
                     ))
                 ),
                 Statement.For(
                     listOf(Identifier("x"), Identifier("y"), Identifier("z")),
                     listOf(Statement.Range(I8(0), I8(10)), Statement.Range(I8(0), I8(10)), Statement.Range(I8(0), I8(10))),
                     Statement.Block(listOf(
-                        IdentifierCall("println", listOf(String("\$x\$y\$z"))),
+                        IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD)))),
                     ))
                 ),
                 IdentifierCall("println", listOf(String("Hello World")))

@@ -64,7 +64,7 @@ internal object TestCode {
 			}
 		"""
 
-	val strings =
+	const val strings =
 		"""			
 			fun main {
 				val number = 1			
@@ -133,16 +133,24 @@ internal object TestCode {
         """
 
 	// Can't be constant due to lack of escaping $'s :C
-	val stringInterpolation =
+	const val stringInterpolation =
 		"""
 		    fun main {
-		        val x, y, z = 0
+		        
+				val x, y, z = 0
+				
 				println("${'$'}x${'$'}y${'$'}z")
+				println("Hello ${'$'}x${'$'}y${'$'}z Hello")
+				println("Hello ${'$'}x Hello ${'$'}y Hello ${'$'}z Hello")
+				
+				println("${'$'}{x}${'$'}{y}${'$'}{z}")
+				println("Hello ${'$'}{x}${'$'}{y}${'$'}{z} Hello")
+				println("Hello ${'$'}{x}Hello${'$'}{y}Hello${'$'}{z} Hello")
             }
 		"""
 
 	// Can't be constant due to lack of escaping $'s :C
-	val forLoop1 =
+	const val forLoop1 =
 		"""
 		    fun main {
 		     
@@ -162,7 +170,7 @@ internal object TestCode {
             }
 		"""
 
-	val forLoop2 =
+	const val forLoop2 =
 		"""
 		    fun main {
 		     
@@ -178,7 +186,7 @@ internal object TestCode {
             }
 		"""
 
-	val whileLoop =
+	const val whileLoop =
 		"""
 		    fun main {
 		     

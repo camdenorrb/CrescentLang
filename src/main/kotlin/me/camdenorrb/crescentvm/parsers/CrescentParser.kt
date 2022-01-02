@@ -1,8 +1,10 @@
 package me.camdenorrb.crescentvm.parsers
 
+import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
 import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
 import me.camdenorrb.crescentvm.language.ast.CrescentAST
 import me.camdenorrb.crescentvm.language.token.CrescentToken
+import me.camdenorrb.crescentvm.lexers.CrescentLexer
 import me.camdenorrb.crescentvm.math.ShuntingYard
 import me.camdenorrb.crescentvm.project.checkEquals
 import java.nio.file.Path
@@ -932,8 +934,51 @@ object CrescentParser {
                 when (next) {
 
                     is CrescentToken.Data.String -> {
+
+                        // If no string interpolation, keep it simple
+                        if ('$' !in next.kotlinString) {
+                            return CrescentAST.Node.Primitive.String(next.kotlinString)
+                        }
+
                         // TODO: Break string into strings + expressions based on interpolation
-                        CrescentAST.Node.Primitive.String(next.kotlinString)
+
+                        val nodes = mutableListOf<CrescentAST.Node>()
+                        val builder = StringBuilder()
+                        val iterator = PeekingCharIterator(next.kotlinString)
+
+                        while (iterator.hasNext()) {
+
+                            val nextChar = iterator.next()
+
+                            if (nextChar != '$') {
+                                builder.append(nextChar)
+                                continue
+                            }
+
+                            if (builder.isNotEmpty() || (builder.isEmpty() && nodes.isEmpty())) {
+                                nodes += CrescentAST.Node.Primitive.String(builder.toString())
+                                builder.clear()
+                                nodes += CrescentToken.Operator.ADD
+                            }
+
+                            if (iterator.peekNext() == '{') {
+                                nodes += readExpression(PeekingTokenIterator(CrescentLexer.invoke(iterator.nextUntilAndSkip('}'))))
+                            }
+                            else {
+                                nodes += CrescentAST.Node.Identifier(iterator.nextUntil(setOf(' ', '$')))
+                            }
+
+                            if (iterator.hasNext()) {
+                                nodes += CrescentToken.Operator.ADD
+                            }
+
+                        }
+
+                        if (builder.isNotEmpty()) {
+                            nodes += CrescentAST.Node.Primitive.String(builder.toString())
+                        }
+
+                        return CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
                     }
 
                     is CrescentToken.Data.Char -> {

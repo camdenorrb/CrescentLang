@@ -18,14 +18,22 @@ internal class CrescentVMTests {
 	val originalSystemIn = System.`in`
 
 
-	private inline fun collectSystemOut(block: () -> Unit): String {
+	private inline fun collectSystemOut(alsoPrintToConsole: Boolean = false, block: () -> Unit): String {
+
 
 		val byteArrayOutputStream = ByteArrayOutputStream()
 		val printStream = PrintStream(byteArrayOutputStream)
 
-		System.setOut(printStream)
-		block()
-		System.setOut(originalSystemOut)
+		try {
+			System.setOut(printStream)
+			block()
+			System.setOut(originalSystemOut)
+		}
+		finally {
+			if (alsoPrintToConsole) {
+				println(byteArrayOutputStream.toString())
+			}
+		}
 
 		return byteArrayOutputStream.toString()
 	}
@@ -138,6 +146,27 @@ internal class CrescentVMTests {
 				fakeUserInput("false") {
 					CrescentVM(listOf(file), file).invoke()
 				}
+			}
+		)
+	}
+
+	@Test
+	fun stringInterpolation() {
+
+		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.stringInterpolation))
+
+		assertEquals(
+			"""
+				000
+				Hello 000 Hello
+				Hello 0 Hello 0 Hello 0 Hello
+				000
+				Hello 000 Hello
+				Hello 0Hello0Hello0 Hello
+
+			""".trimIndent(),
+			collectSystemOut {
+				CrescentVM(listOf(file), file).invoke()
 			}
 		)
 	}

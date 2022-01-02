@@ -189,7 +189,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						// TODO: Override operators for these in Primitive.Number
 						CrescentToken.Operator.ADD -> {
 
-
 							val pop1 = runNode(stack.pop(), context)
 							val pop2 = runNode(stack.pop(), context)
 
