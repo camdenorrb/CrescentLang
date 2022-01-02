@@ -1,12 +1,12 @@
 package dev.twelveoclock.lang.crescent
 
-import me.camdenorrb.crescentvm.data.TestCode
-import me.camdenorrb.crescentvm.language.token.CrescentToken.*
-import me.camdenorrb.crescentvm.language.token.CrescentToken.Operator.*
-import me.camdenorrb.crescentvm.language.token.CrescentToken.Statement.*
-import me.camdenorrb.crescentvm.language.token.CrescentToken.Type.*
-import me.camdenorrb.crescentvm.language.token.CrescentToken.Variable.*
-import me.camdenorrb.crescentvm.lexers.CrescentLexer
+import dev.twelveoclock.lang.crescent.data.TestCode
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken.*
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken.Operator.*
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken.Statement.*
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken.Type.*
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken.Variable.*
+import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 

@@ -1,10 +1,10 @@
 package dev.twelveoclock.lang.crescent.translators
 
 /*
-import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
-import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node
-import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive
-import me.camdenorrb.crescentvm.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.iterator.PeekingNodeIterator
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node.Primitive
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 import tech.poder.ir.api.Translator
 import tech.poder.ir.commands.SysCommand
 import tech.poder.ir.data.CodeBuilder

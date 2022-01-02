@@ -1,8 +1,8 @@
 package dev.twelveoclock.lang.crescent.vm
 
 /*
-import me.camdenorrb.crescentvm.language.ast.CrescentAST
-import me.camdenorrb.crescentvm.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 import tech.poder.ir.commands.SysCommand
 import tech.poder.ir.data.CodeBuilder
 import tech.poder.ir.data.base.Package

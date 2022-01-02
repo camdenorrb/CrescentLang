@@ -1,7 +1,7 @@
 @0x87012c0ea71d2bcd; # Version 1.0
 
 using Java = import "java.capnp";
-$Java.package("me.camdenorrb.crescentvm.bytecode");
+$Java.package("dev.twelveoclock.lang.crescent.bytecode");
 $Java.outerClassname("BytecodeFileFormat");
 
 enum OpCodes @0x9a5c55536a1b926e{

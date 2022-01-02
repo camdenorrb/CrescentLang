@@ -1,12 +1,12 @@
 package dev.twelveoclock.lang.crescent.parsers
 
-import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
-import me.camdenorrb.crescentvm.iterator.PeekingTokenIterator
-import me.camdenorrb.crescentvm.language.ast.CrescentAST
-import me.camdenorrb.crescentvm.language.token.CrescentToken
-import me.camdenorrb.crescentvm.lexers.CrescentLexer
-import me.camdenorrb.crescentvm.math.ShuntingYard
-import me.camdenorrb.crescentvm.project.checkEquals
+import dev.twelveoclock.lang.crescent.iterator.PeekingCharIterator
+import dev.twelveoclock.lang.crescent.iterator.PeekingTokenIterator
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
+import dev.twelveoclock.lang.crescent.math.ShuntingYard
+import dev.twelveoclock.lang.crescent.project.checkEquals
 import java.nio.file.Path
 
 // TODO: Maybe support comments

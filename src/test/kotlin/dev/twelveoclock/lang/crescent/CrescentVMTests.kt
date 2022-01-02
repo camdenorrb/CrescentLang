@@ -1,9 +1,9 @@
 package dev.twelveoclock.lang.crescent
 
-import me.camdenorrb.crescentvm.data.TestCode
-import me.camdenorrb.crescentvm.lexers.CrescentLexer
-import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.vm.CrescentVM
+import dev.twelveoclock.lang.crescent.data.TestCode
+import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
+import dev.twelveoclock.lang.crescent.parsers.CrescentParser
+import dev.twelveoclock.lang.crescent.vm.CrescentVM
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream

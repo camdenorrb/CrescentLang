@@ -1,14 +1,14 @@
 package dev.twelveoclock.lang.crescent.compiler
 
-import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
-import me.camdenorrb.crescentvm.language.ast.CrescentAST
-import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.*
-import me.camdenorrb.crescentvm.language.ir.CrescentIR
-import me.camdenorrb.crescentvm.language.token.CrescentToken
-import me.camdenorrb.crescentvm.lexers.CrescentLexer
-import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.project.extensions.minimize
-import me.camdenorrb.crescentvm.vm.CrescentIRVM
+import dev.twelveoclock.lang.crescent.iterator.PeekingNodeIterator
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node.*
+import dev.twelveoclock.lang.crescent.language.ir.CrescentIR
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
+import dev.twelveoclock.lang.crescent.parsers.CrescentParser
+import dev.twelveoclock.lang.crescent.project.extensions.minimize
+import dev.twelveoclock.lang.crescent.vm.CrescentIRVM
 import kotlin.io.path.Path
 
 object CrescentIRCompiler {

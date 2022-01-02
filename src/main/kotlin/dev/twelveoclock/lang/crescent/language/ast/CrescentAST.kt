@@ -1,6 +1,6 @@
 package dev.twelveoclock.lang.crescent.language.ast
 
-import me.camdenorrb.crescentvm.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 //import tech.poder.ir.api.CodeHolder
 import java.nio.file.Path
 import kotlin.math.pow

@@ -1,7 +1,7 @@
 package dev.twelveoclock.lang.crescent.parsers
 
-import me.camdenorrb.crescentvm.language.ir.CrescentIR
-import me.camdenorrb.crescentvm.project.extensions.minimize
+import dev.twelveoclock.lang.crescent.language.ir.CrescentIR
+import dev.twelveoclock.lang.crescent.project.extensions.minimize
 import java.nio.file.Path
 import kotlin.io.path.bufferedReader
 

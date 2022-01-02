@@ -1,10 +1,10 @@
 package dev.twelveoclock.lang.crescent.vm
 
-import me.camdenorrb.crescentvm.language.ast.CrescentAST
-import me.camdenorrb.crescentvm.language.ir.CrescentIR
-import me.camdenorrb.crescentvm.language.ir.SectionedCrescentIR
-import me.camdenorrb.crescentvm.parsers.CrescentIRParser
-import me.camdenorrb.crescentvm.project.extensions.minimize
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
+import dev.twelveoclock.lang.crescent.language.ir.CrescentIR
+import dev.twelveoclock.lang.crescent.language.ir.SectionedCrescentIR
+import dev.twelveoclock.lang.crescent.parsers.CrescentIRParser
+import dev.twelveoclock.lang.crescent.project.extensions.minimize
 import java.util.*
 
 

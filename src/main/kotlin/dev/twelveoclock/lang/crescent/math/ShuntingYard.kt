@@ -1,8 +1,8 @@
 package dev.twelveoclock.lang.crescent.math
 
-import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
-import me.camdenorrb.crescentvm.language.ast.CrescentAST
-import me.camdenorrb.crescentvm.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.iterator.PeekingNodeIterator
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 import java.util.*
 
 object ShuntingYard {

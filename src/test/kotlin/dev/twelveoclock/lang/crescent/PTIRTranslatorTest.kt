@@ -1,11 +1,11 @@
 package dev.twelveoclock.lang.crescent
 
 /*
-import me.camdenorrb.crescentvm.data.TestCode
-import me.camdenorrb.crescentvm.lexers.CrescentLexer
-import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.translators.PoderTranslator
-import me.camdenorrb.crescentvm.utils.collectSystemOut
+import dev.twelveoclock.lang.crescent.data.TestCode
+import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
+import dev.twelveoclock.lang.crescent.parsers.CrescentParser
+import dev.twelveoclock.lang.crescent.translators.PoderTranslator
+import dev.twelveoclock.lang.crescent.utils.collectSystemOut
 import tech.poder.ir.Machine
 import kotlin.io.path.Path
 import kotlin.test.Test

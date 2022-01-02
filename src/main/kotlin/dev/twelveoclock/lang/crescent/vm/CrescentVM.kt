@@ -1,11 +1,11 @@
 package dev.twelveoclock.lang.crescent.vm
 
-import me.camdenorrb.crescentvm.iterator.PeekingNodeIterator
-import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node
-import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Primitive
-import me.camdenorrb.crescentvm.language.ast.CrescentAST.Node.Type
-import me.camdenorrb.crescentvm.language.token.CrescentToken
-import me.camdenorrb.crescentvm.project.checkEquals
+import dev.twelveoclock.lang.crescent.iterator.PeekingNodeIterator
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node.Primitive
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node.Type
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.project.checkEquals
 import java.util.*
 import kotlin.math.round
 import kotlin.math.sin

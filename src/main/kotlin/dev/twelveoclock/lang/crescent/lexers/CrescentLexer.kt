@@ -1,9 +1,9 @@
 package dev.twelveoclock.lang.crescent.lexers
 
-import me.camdenorrb.crescentvm.iterator.PeekingCharIterator
-import me.camdenorrb.crescentvm.language.token.CrescentToken
-import me.camdenorrb.crescentvm.project.checkEquals
-import me.camdenorrb.crescentvm.project.extensions.minimize
+import dev.twelveoclock.lang.crescent.iterator.PeekingCharIterator
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.project.checkEquals
+import dev.twelveoclock.lang.crescent.project.extensions.minimize
 
 // TODO: Support negative numbers
 object CrescentLexer {

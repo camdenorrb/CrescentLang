@@ -23,7 +23,7 @@ dependencies {
 }
 
 application {
-    mainClass.set("me.camdenorrb.crescentvm.Main")
+    mainClass.set("dev.twelveoclock.lang.crescent.Main")
     applicationDefaultJvmArgs = listOf(
         "--add-modules=jdk.incubator.foreign"
     )

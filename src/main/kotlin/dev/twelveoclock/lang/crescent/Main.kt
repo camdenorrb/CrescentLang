@@ -1,9 +1,9 @@
 package dev.twelveoclock.lang.crescent
 
-import me.camdenorrb.crescentvm.compiler.CrescentIRCompiler
-import me.camdenorrb.crescentvm.lexers.CrescentLexer
-import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.vm.CrescentIRVM
+import dev.twelveoclock.lang.crescent.compiler.CrescentIRCompiler
+import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
+import dev.twelveoclock.lang.crescent.parsers.CrescentParser
+import dev.twelveoclock.lang.crescent.vm.CrescentIRVM
 import kotlin.io.path.Path
 
 

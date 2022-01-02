@@ -1,6 +1,6 @@
 package dev.twelveoclock.lang.crescent.iterator
 
-import me.camdenorrb.crescentvm.language.ast.CrescentAST
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
 
 // TODO: Make a peeking iterator interface
 class PeekingNodeIterator(val input: List<CrescentAST.Node>) : Iterator<CrescentAST.Node> {

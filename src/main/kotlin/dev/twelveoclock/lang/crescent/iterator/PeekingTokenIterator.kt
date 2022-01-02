@@ -1,6 +1,6 @@
 package dev.twelveoclock.lang.crescent.iterator
 
-import me.camdenorrb.crescentvm.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 
 // TODO: Make a peeking iterator interface
 class PeekingTokenIterator(val input: List<CrescentToken>) : Iterator<CrescentToken> {

@@ -2,13 +2,13 @@ package dev.twelveoclock.lang.crescent
 
 /*
 import jdk.incubator.foreign.MemorySegment
-import me.camdenorrb.crescentvm.data.TestCode
-import me.camdenorrb.crescentvm.lexers.CrescentLexer
-import me.camdenorrb.crescentvm.parsers.CrescentParser
-import me.camdenorrb.crescentvm.utils.collectSystemOut
-import me.camdenorrb.crescentvm.utils.fakeUserInput
-import me.camdenorrb.crescentvm.vm.CrescentToPTIR
-import me.camdenorrb.crescentvm.vm.CrescentVM
+import dev.twelveoclock.lang.crescent.data.TestCode
+import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
+import dev.twelveoclock.lang.crescent.parsers.CrescentParser
+import dev.twelveoclock.lang.crescent.utils.collectSystemOut
+import dev.twelveoclock.lang.crescent.utils.fakeUserInput
+import dev.twelveoclock.lang.crescent.vm.CrescentToPTIR
+import dev.twelveoclock.lang.crescent.vm.CrescentVM
 import tech.poder.ir.Machine
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
