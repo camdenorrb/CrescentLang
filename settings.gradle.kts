@@ -1,4 +1,4 @@
-rootProject.name = "CrescentVM"
+rootProject.name = "CrescentLang"
 
 sourceControl {
     gitRepository(java.net.URI.create("https://github.com/Moocow9m/PoderTechIR.git")) {
