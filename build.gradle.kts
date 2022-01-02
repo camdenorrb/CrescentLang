@@ -6,7 +6,7 @@ plugins {
     kotlin("jvm") version "1.6.10"
 }
 
-group = "me.camdenorrb.vm"
+group = "dev.twelveoclock.lang"
 version = "0.0.1"
 
 repositories {
