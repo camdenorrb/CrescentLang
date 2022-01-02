@@ -12,7 +12,7 @@ object Main {
     // TODO: Replace all checkEquals in project with check and a custom message
     @JvmStatic
     fun main(args: Array<String>) {
-
+        testCode()
     }
 
 

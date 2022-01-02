@@ -940,7 +940,9 @@ object CrescentParser {
                             return CrescentAST.Node.Primitive.String(next.kotlinString)
                         }
 
-                        // TODO: Break string into strings + expressions based on interpolation
+
+                        // String interpolation
+                        // TODO: Make it not go into a new expression inside an expression
 
                         val nodes = mutableListOf<CrescentAST.Node>()
                         val builder = StringBuilder()
