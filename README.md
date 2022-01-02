@@ -21,6 +21,7 @@
 - [x] Functions
 - [x] Variables
 - [x] While loops
+- [x] String interpolation
 - [ ] For loops
 - [ ] Structs
 - [ ] Impl
@@ -34,6 +35,7 @@
 - [x] Functions
 - [x] Variables
 - [x] While loops
+- [x] String interpolation
 - [ ] For loops
 - [ ] Structs
 - [ ] Impl
