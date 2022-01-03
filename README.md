@@ -27,6 +27,7 @@
 - [ ] Impl
 - [ ] Traits
 - [ ] Enums
+- [ ] Meaningful errors
 - [ ] Multiple files
 - [ ] Coroutines
 
@@ -40,5 +41,6 @@
 - [ ] Impl
 - [ ] Traits
 - [ ] Enums
+- [ ] Meaningful errors
 - [ ] Multiple files
 - [ ] Coroutines

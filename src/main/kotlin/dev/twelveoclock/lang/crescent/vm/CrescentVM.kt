@@ -88,7 +88,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			is Node.Identifier -> {
 				return context.parameters[node.name]
-					?: context.variableValues[node.name]?.value
+					?: context.variables[node.name]?.instance?.value
 					?: context.file.constants[node.name]?.value
 					?: Node.Identifier(node.name)
 					//?: error("Unknown variable: ${node.name}")
@@ -105,7 +105,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			// TODO: Account for operator overloading
 			is Node.GetCall -> {
-				val arrayNode = (context.parameters[node.identifier] ?: context.variableValues.getValue(node.identifier).value) as Node.Array
+				val arrayNode = (context.parameters[node.identifier] ?: context.variables.getValue(node.identifier).instance.value) as Node.Array
 				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
 			}
 
@@ -147,9 +147,12 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				}
 
 				node.identifiers.forEachIndexed { index, identifier ->
-					forContext.variableValues[identifier.name] = Primitive.Number.I32(ranges.getOrNull(index)?.first ?: ranges[0].first).let {
-						Instance(Primitive.Number.I32.type, it)
-					}
+					forContext.variables[identifier.name] = BlockContext.Variable.Val(
+						identifier.name,
+						Primitive.Number.I32(ranges.getOrNull(index)?.first ?: ranges[0].first).let {
+							Instance(Primitive.Number.I32.type, it)
+						}
+					)
 				}
 
 				/*
@@ -160,8 +163,16 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 
 			is Node.Variable.Basic -> {
+
 				val value = runNode(node.value, context)
-				context.variableValues[node.name] = Instance(findType(value), value)
+
+				context.variables[node.name] =
+					if (node.isFinal) {
+						BlockContext.Variable.Val(node.name, Instance(findType(value), value))
+					}
+					else {
+						BlockContext.Variable.Var(node.name, Instance(findType(value), value))
+					}
 			}
 
 			else -> error("Unexpected node: $node")
@@ -248,18 +259,26 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 								is Node.GetCall -> {
 									checkEquals(1, pop2.arguments.size)
 									val index = (pop2.arguments.first() as Primitive.Number).toI32().data
-									(context.variableValues.getValue(pop2.identifier).value as Node.Array).values[index] = value
+									(context.variables.getValue(pop2.identifier).instance.value as Node.Array).values[index] = value
 								}
+
 								is Node.Identifier -> {
 
-									check(pop2.name in context.variableValues) {
+									val variable = checkNotNull(context.variables[pop2.name]) {
 										"Variable ${pop2.name} not found for reassignment."
 									}
 
-									// TODO: Type checking
-									// TODO: Checking if the variable is final
+									val valueType = findType(value)
 
-									context.variableValues[pop2.name] = Instance(findType(value), value)
+									check(variable.instance.type == valueType) {
+										"Variable ${variable.name} cannot be assigned to a value of type $valueType"
+									}
+
+									check(variable is BlockContext.Variable.Var) {
+										"Variable ${variable.name} is not mutable"
+									}
+
+									variable.instance = Instance(valueType, value)
 								}
 							}
 
@@ -497,7 +516,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				return Primitive.Boolean(readLine()!!.toBooleanStrict())
 			}
 
-			// TODO: Make this return a special type struct
+			// TODO: Make this return a special type struct instance
 			"typeOf" -> {
 				checkEquals(1, node.arguments.size)
 				return findType(runNode(node.arguments[0], context))
@@ -627,8 +646,29 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		val file: Node.File,
 		val holder: Node,
 		val parameters: MutableMap<String, Node>,
-		//val variables: MutableMap<String, Node.Variable> = mutableMapOf(),
-		val variableValues: MutableMap<String, Instance> = mutableMapOf(),
-	)
+		//val variables: MutableMap<String, Variable(Node.Variable, )> = mutableMapOf(),
+		val variables: MutableMap<String, Variable> = mutableMapOf(),
+	) {
+
+		sealed class Variable {
+
+			abstract val name: String
+
+			abstract val instance: Instance
+
+
+			data class Val(
+				override val name: String,
+				override val instance: Instance
+			) : Variable()
+
+			data class Var(
+				override val name: String,
+				override var instance: Instance
+			) : Variable()
+
+		}
+
+	}
 
 }
