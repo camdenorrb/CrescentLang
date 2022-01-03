@@ -96,6 +96,12 @@ internal class CrescentLexerTests {
                 Key("println"), Parenthesis.OPEN, Data.String("Hello \${x}\${y}\${z} Hello"), Parenthesis.CLOSE,
                 Key("println"), Parenthesis.OPEN, Data.String("Hello \${x}Hello\${y}Hello\${z} Hello"), Parenthesis.CLOSE,
 
+                Data.Comment("Should printout a dollar sign"),
+                Key("println"), Parenthesis.OPEN, Data.String("\${'$'}"), Parenthesis.CLOSE,
+
+                Data.Comment("Should println dollar sign next to the letter x"),
+                Key("println"), Parenthesis.OPEN, Data.String("\\\$x"), Parenthesis.CLOSE,
+
                 Bracket.CLOSE,
             ),
             tokens

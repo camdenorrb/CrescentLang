@@ -74,6 +74,22 @@ internal object TestCode {
 				
 			    println("Meow ${'$'}number")
 				println(thing)
+				
+				
+				val multiLine1 = \"\"\"
+					Meow
+					Meow
+				\"\"\"
+				
+				println(multiLine1)
+				
+				val multiLine2 = 
+					\"\"\"
+						Meow2
+						Meow2
+					\"\"\"
+				
+				println(multiLine2)
 			}
 		"""
 
@@ -146,6 +162,12 @@ internal object TestCode {
 				println("${'$'}{x}${'$'}{y}${'$'}{z}")
 				println("Hello ${'$'}{x}${'$'}{y}${'$'}{z} Hello")
 				println("Hello ${'$'}{x}Hello${'$'}{y}Hello${'$'}{z} Hello")
+			
+				# Should printout a dollar sign
+				println("${'$'}{${"'$'"}}")
+				
+				# Should println dollar sign next to the letter x
+			    println("\${'$'}x")
             }
 		"""
 

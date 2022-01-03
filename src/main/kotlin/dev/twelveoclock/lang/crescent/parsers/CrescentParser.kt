@@ -942,8 +942,6 @@ object CrescentParser {
 
 
                         // String interpolation
-                        // TODO: Make it not go into a new expression inside an expression
-
                         val nodes = mutableListOf<CrescentAST.Node>()
                         val builder = StringBuilder()
                         val iterator = PeekingCharIterator(next.kotlinString)
@@ -951,6 +949,12 @@ object CrescentParser {
                         while (iterator.hasNext()) {
 
                             val nextChar = iterator.next()
+
+                            if (nextChar == '\\' && iterator.peekNext() == '$') {
+                                checkEquals(iterator.next(), '$')
+                                builder.append('$')
+                                continue
+                            }
 
                             if (nextChar != '$') {
                                 builder.append(nextChar)
@@ -980,7 +984,12 @@ object CrescentParser {
                             nodes += CrescentAST.Node.Primitive.String(builder.toString())
                         }
 
-                        return CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
+                        return if (nodes.size == 1) {
+                            nodes[0]
+                        }
+                        else {
+                            CrescentAST.Node.Expression(ShuntingYard.invoke(nodes))
+                        }
                     }
 
                     is CrescentToken.Data.Char -> {

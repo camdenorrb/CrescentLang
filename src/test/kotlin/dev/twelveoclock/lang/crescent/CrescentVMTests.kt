@@ -155,6 +155,7 @@ internal class CrescentVMTests {
 
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.stringInterpolation))
 
+		println(file.mainFunction?.innerCode)
 		assertEquals(
 			"""
 				000
@@ -163,7 +164,9 @@ internal class CrescentVMTests {
 				000
 				Hello 000 Hello
 				Hello 0Hello0Hello0 Hello
-
+				$
+				${'$'}x
+				
 			""".trimIndent(),
 			collectSystemOut {
 				CrescentVM(listOf(file), file).invoke()
