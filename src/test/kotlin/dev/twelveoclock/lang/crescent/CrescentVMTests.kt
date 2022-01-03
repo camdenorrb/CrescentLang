@@ -166,6 +166,7 @@ internal class CrescentVMTests {
 				Hello 0Hello0Hello0 Hello
 				$
 				${'$'}x
+				$ x
 				
 			""".trimIndent(),
 			collectSystemOut {

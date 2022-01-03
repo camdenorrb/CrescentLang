@@ -102,6 +102,8 @@ internal class CrescentLexerTests {
                 Data.Comment("Should println dollar sign next to the letter x"),
                 Key("println"), Parenthesis.OPEN, Data.String("\\\$x"), Parenthesis.CLOSE,
 
+                Key("println"), Parenthesis.OPEN, Data.String("$ x"), Parenthesis.CLOSE,
+
                 Bracket.CLOSE,
             ),
             tokens

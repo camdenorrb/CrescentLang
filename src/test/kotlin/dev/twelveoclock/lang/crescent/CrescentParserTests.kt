@@ -136,6 +136,8 @@ internal class CrescentParserTests {
 
                 IdentifierCall("println", listOf(Expression(listOf(String(""), Char('$'), ADD)))),
                 IdentifierCall("println", listOf(String("\$x"))),
+
+                IdentifierCall("println", listOf(String("$ x"))),
             ),
             mainFunction.innerCode.nodes,
         )

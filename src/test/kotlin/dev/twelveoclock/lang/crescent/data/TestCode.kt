@@ -168,6 +168,8 @@ internal object TestCode {
 				
 				# Should println dollar sign next to the letter x
 			    println("\${'$'}x")
+				
+			    println("$ x")
             }
 		"""
 

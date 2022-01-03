@@ -956,10 +956,11 @@ object CrescentParser {
                                 continue
                             }
 
-                            if (nextChar != '$') {
+                            if (nextChar != '$' || (!iterator.peekNext().isLetter() && iterator.peekNext() != '{')) {
                                 builder.append(nextChar)
                                 continue
                             }
+
 
                             if (builder.isNotEmpty() || (builder.isEmpty() && nodes.isEmpty())) {
                                 nodes += CrescentAST.Node.Primitive.String(builder.toString())
