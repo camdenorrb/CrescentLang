@@ -427,6 +427,37 @@ internal object TestCode {
             import ::Thing2 as Thing3			
 		"""
 
+	const val nateTriangle =
+		"""
+			fun triangle(n: Any, k: Any){
+				if (n >= 0){
+				
+					triangle(n-1, k+1);
+			
+					var x: I32 = 0;
+					var y: I32 = 0;
+					while (x < k){
+						print(" ")
+						x = x + 1
+					}
+					while (y < n){
+						print("* ")
+						y = y + 1
+					}
+					println()
+				}	
+			}
+			
+			fun main() {
+				triangle(5, 0)
+			}
+		"""
+
+	const val katCircle =
+		"""
+			
+		"""
+
 
 	// This breaks Crescent due to the parenthesis in the while
 	/*

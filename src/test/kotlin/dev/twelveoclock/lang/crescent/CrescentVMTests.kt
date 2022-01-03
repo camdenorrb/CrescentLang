@@ -155,7 +155,6 @@ internal class CrescentVMTests {
 
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.stringInterpolation))
 
-		println(file.mainFunction?.innerCode)
 		assertEquals(
 			"""
 				000
@@ -175,5 +174,26 @@ internal class CrescentVMTests {
 		)
 	}
 
+
+	@Test
+	fun nateTriangle() {
+
+		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.nateTriangle))
+
+		assertEquals(
+			""" 
+			      
+				    * 
+				   * * 
+				  * * * 
+				 * * * * 
+				* * * * * 
+			
+			""".trimIndent(),
+			collectSystemOut(true) {
+				CrescentVM(listOf(file), file).invoke()
+			}
+		)
+	}
 
 }

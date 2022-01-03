@@ -16,6 +16,8 @@ repositories {
 dependencies {
     implementation(platform(kotlin("bom")))
     implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
+
     implementation("org.capnproto:runtime:0.1.11")
     implementation("com.guardsquare:proguard-core:8.0.3")
     //implementation("tech.poder.ir:PoderTechIR:+")

@@ -45,11 +45,12 @@ object CrescentLexer {
                     val peek = charIterator.peekNext()
 
                     // If is negative number
+                    /*
                     if (!charIterator.peekBack(2).isDigit() && next == '-' && (peek.isDigit() || (peek == '.' && charIterator.peekNext(2).isDigit()))) {
                         isANumber = true
                         "-${readNumber(charIterator)}"
                     }
-                    else if (peek == '=' || next == '-' && peek == '>') {
+                    else*/if (peek == '=' || next == '-' && peek == '>') {
                         "$next${charIterator.next()}"
                     }
                     else {
@@ -104,6 +105,9 @@ object CrescentLexer {
             }
 
             tokens += when (key) {
+
+                // Semicolons
+                ";" -> continue
 
                 // Parenthesis
                 "(" -> CrescentToken.Parenthesis.OPEN

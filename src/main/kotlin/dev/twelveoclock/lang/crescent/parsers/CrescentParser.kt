@@ -1084,6 +1084,7 @@ object CrescentParser {
                 }
 
                 else -> {
+
                     if (nodes.isNotEmpty()) {
                         if (peekNext is CrescentToken.Operator) {
                             if (peekNext == CrescentToken.Operator.RETURN) {

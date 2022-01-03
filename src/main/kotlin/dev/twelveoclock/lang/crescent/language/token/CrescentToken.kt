@@ -29,7 +29,12 @@ interface CrescentToken {
         @JvmInline
         value class Number(
             val number: kotlin.Number
-        ) : Data
+        ) : Data {
+
+            override fun toString(): kotlin.String {
+                return "Number(${number} ${number::class.simpleName})"
+            }
+        }
 
         // TODO: Take in expressions
         @JvmInline

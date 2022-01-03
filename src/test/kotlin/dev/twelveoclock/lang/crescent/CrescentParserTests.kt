@@ -579,4 +579,50 @@ internal class CrescentParserTests {
         )
     }
 
+    @Test
+    fun nateTriangle() {
+
+        val tokens = CrescentLexer.invoke(TestCode.nateTriangle)
+        val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
+
+        assertContentEquals(
+            listOf(
+                Statement.If(
+                    predicate = Expression(listOf(Identifier("n"), I8(0), GREATER_EQUALS_COMPARE)),
+                    block = Statement.Block(listOf(
+
+                        IdentifierCall("triangle", listOf(
+                            Expression(listOf(Identifier("n"), I8(1), SUB)),
+                            Expression(listOf(Identifier("k"), I8(1), ADD)),
+                        )),
+
+                        Variable.Basic("x", false, Visibility.PUBLIC, Type.Basic("I32"), I8(0)),
+                        Variable.Basic("y", false, Visibility.PUBLIC, Type.Basic("I32"), I8(0)),
+
+                        Statement.While(
+                            predicate = Expression(listOf(Identifier("x"), Identifier("k"), LESSER_COMPARE)),
+                            block = Statement.Block(listOf(
+                                IdentifierCall("print", listOf(String(" "))),
+                                Expression(listOf(Identifier("x"), Identifier("x"), I8(1), ADD, ASSIGN))
+                            ))
+                        ),
+
+                        Statement.While(
+                            predicate = Expression(listOf(Identifier("y"), Identifier("n"), LESSER_COMPARE)),
+                            block = Statement.Block(listOf(
+                                IdentifierCall("print", listOf(String("* "))),
+                                Expression(listOf(Identifier("y"), Identifier("y"), I8(1), ADD, ASSIGN))
+                            ))
+                        ),
+
+                        IdentifierCall("println", emptyList())
+                    )),
+                    elseBlock = null
+                )
+            ),
+            crescentFile.functions["triangle"]!!.innerCode.nodes
+        )
+
+    }
+
 }

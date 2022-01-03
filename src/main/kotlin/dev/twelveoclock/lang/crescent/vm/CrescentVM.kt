@@ -168,10 +168,10 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				context.variables[node.name] =
 					if (node.isFinal) {
-						BlockContext.Variable.Val(node.name, Instance(findType(value), value))
+						BlockContext.Variable.Val(node.name, Instance(node.type, value))
 					}
 					else {
-						BlockContext.Variable.Var(node.name, Instance(findType(value), value))
+						BlockContext.Variable.Var(node.name, Instance(node.type, value))
 					}
 			}
 
@@ -251,10 +251,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.ASSIGN -> {
 
 							val value = runNode(stack.pop(), context)
-							val pop2 = stack.pop()
 
-
-							when (pop2) {
+							when (val pop2 = stack.pop()) {
 
 								is Node.GetCall -> {
 									checkEquals(1, pop2.arguments.size)
@@ -271,7 +269,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 									val valueType = findType(value)
 
 									check(variable.instance.type == valueType) {
-										"Variable ${variable.name} cannot be assigned to a value of type $valueType"
+										"Variable ${variable.name}: ${variable.instance.type} cannot be assigned to a value of type $valueType"
 									}
 
 									check(variable is BlockContext.Variable.Var) {

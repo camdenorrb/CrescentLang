@@ -187,7 +187,7 @@ class CrescentAST {
             ) : Variable {
 
                 override fun toString(): String {
-                    return "$visibility ${if (isFinal) "val" else "var"} $name: ${type::class.simpleName} = $value"
+                    return "$visibility ${if (isFinal) "val" else "var"} $name: $type = $value"
                 }
 
             }
@@ -274,7 +274,7 @@ class CrescentAST {
             value class Basic(val name: String) : Type {
 
                 override fun toString(): String {
-                    return name
+                    return "Basic($name)"
                 }
 
             }
@@ -283,7 +283,7 @@ class CrescentAST {
             value class Array(val type: Type) : Type {
 
                 override fun toString(): String {
-                    return "[${type}]"
+                    return "Array[${type}]"
                 }
 
             }

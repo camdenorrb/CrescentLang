@@ -385,4 +385,47 @@ internal class CrescentLexerTests {
         )
     }
 
+
+    @Test
+    fun nateTriangle() {
+
+        val tokens = CrescentLexer.invoke(TestCode.nateTriangle)
+
+        println(tokens)
+
+        assertContentEquals(
+            listOf(
+                FUN, Key("triangle"), Parenthesis.OPEN, Key("n"), TYPE_PREFIX, Key("Any"), COMMA, Key("k"), TYPE_PREFIX, Key("Any"), Parenthesis.CLOSE, Bracket.OPEN,
+
+                    IF, Parenthesis.OPEN, Key("n"), GREATER_EQUALS_COMPARE, Data.Number(0.toByte()), Parenthesis.CLOSE, Bracket.OPEN,
+
+                        Key("triangle"), Parenthesis.OPEN, Key("n"), SUB, Data.Number((1).toByte()), COMMA, Key("k"), ADD, Data.Number(1.toByte()), Parenthesis.CLOSE,
+
+                        VAR, Key("x"), TYPE_PREFIX, Key("I32"), ASSIGN, Data.Number(0.toByte()),
+                        VAR, Key("y"), TYPE_PREFIX, Key("I32"), ASSIGN, Data.Number(0.toByte()),
+
+                        WHILE, Parenthesis.OPEN, Key("x"), LESSER_COMPARE, Key("k"), Parenthesis.CLOSE, Bracket.OPEN,
+                            Key("print"), Parenthesis.OPEN, Data.String(" "), Parenthesis.CLOSE,
+                            Key("x"), ASSIGN, Key("x"), ADD, Data.Number(1.toByte()),
+                        Bracket.CLOSE,
+
+                        WHILE, Parenthesis.OPEN, Key("y"), LESSER_COMPARE, Key("n"), Parenthesis.CLOSE, Bracket.OPEN,
+                            Key("print"), Parenthesis.OPEN, Data.String("* "), Parenthesis.CLOSE,
+                            Key("y"), ASSIGN, Key("y"), ADD, Data.Number(1.toByte()),
+                        Bracket.CLOSE,
+
+                        Key("println"), Parenthesis.OPEN, Parenthesis.CLOSE,
+
+                    Bracket.CLOSE,
+
+                Bracket.CLOSE,
+
+                FUN, Key("main"), Parenthesis.OPEN, Parenthesis.CLOSE, Bracket.OPEN,
+                    Key("triangle"), Parenthesis.OPEN, Data.Number(5.toByte()), COMMA, Data.Number(0.toByte()), Parenthesis.CLOSE,
+                Bracket.CLOSE
+            ),
+            tokens
+        )
+    }
+
 }
