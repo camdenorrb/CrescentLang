@@ -6,7 +6,6 @@ import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node.Primitive
 import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node.Type
 import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 import dev.twelveoclock.lang.crescent.project.checkEquals
-import dev.twelveoclock.lang.crescent.project.extensions.anyIndexed
 import java.util.*
 import kotlin.math.round
 import kotlin.math.sin
@@ -173,8 +172,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					return@mapIndexed counter
 				}
 
-				// Moo's version
-				/*
+				// Moo's version TODO: Merge
+
 				val range = ranges[ranges.size - 1]
 				val count = counters[ranges.size - 1]
 
@@ -200,11 +199,12 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						}
 					}
 
-					if (tmpIndex == -1) {
+					if (tmpIndex < 0) {
 						break
 					}
-				}*/
+				}
 
+				/*
 				// N For Loop
 				while (counters.anyIndexed { index, count -> (count.instance.value as Primitive.Number.I32).data != ranges[index].last }) {
 
@@ -234,7 +234,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					}
 				}
 
-				runBlock(node.block, forContext)
+				runBlock(node.block, forContext)*/
 			}
 
 			is Node.Variable.Basic -> {
