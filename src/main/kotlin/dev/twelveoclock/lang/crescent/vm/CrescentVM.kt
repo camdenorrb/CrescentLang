@@ -173,6 +173,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					return@mapIndexed counter
 				}
 
+				// Moo's version
 				/*
 				val range = ranges[ranges.size - 1]
 				val count = counters[ranges.size - 1]
