@@ -166,7 +166,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
                 val range = ranges[rangeIndex]
                 val count = counters[rangeIndex]
 
-                while ((counters.first().instance.value as Primitive.Number.I32).data <= ranges.first().last) {
+                while (true) {
                     for (i in range.first..range.last) {
                         count.instance.value = Primitive.Number.I32(i)
                         runBlock(node.block, forContext)
