@@ -172,7 +172,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					return@mapIndexed counter
 				}
 
-				// Moo's version TODO: Merge
+				// Moo's version of For N Loop TODO: Merge
 
 				val range = ranges[ranges.size - 1]
 				val count = counters[ranges.size - 1]
@@ -204,8 +204,19 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					}
 				}
 
+
 				/*
-				// N For Loop
+				// N For Loop - Kat version TODO: Merge with Moo's version
+				/*
+				 Broken case:
+				    fun main {
+                        for x, y, z in 0..3, 0..2, 0..1 {
+                            println("$x $y $z")
+                        }
+					}
+
+					prints 0 0 0 twice
+				 */
 				while (counters.anyIndexed { index, count -> (count.instance.value as Primitive.Number.I32).data != ranges[index].last }) {
 
 					for (rangeIndex in ranges.indices.reversed()) {
@@ -248,7 +259,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					node.type
 				}
 
-				context.variables[node.name] = BlockContext.Variable(node.name, Instance(type, value), node.isFinal)
+				context.variables[node.name] = BlockContext.Variable(node.name, Instance(type, value), !node.isFinal)
 			}
 
 			else -> error("Unexpected node: $node")
@@ -666,6 +677,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		is Node.Typed -> value.type
 		is Type.Basic -> value
 		is Node.Array -> Type.Array(Type.any) // TODO: Do better
+		is Node.IdentifierCall -> Type.Implicit // TODO: Do better
 
 		else -> error("Unexpected value: ${value::class}")
 	}
@@ -697,7 +709,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 		is Type.Basic -> {
 			if (type.name != "Any") {
-				check(type.name == value::class.simpleName) {
+				check(type == findType(value)) {
 					errorBlock()
 					"Expected ${type.name}, got ${value::class.qualifiedName}"
 				}

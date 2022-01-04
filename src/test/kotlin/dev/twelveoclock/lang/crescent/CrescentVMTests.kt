@@ -13,9 +13,9 @@ import kotlin.test.assertEquals
 
 internal class CrescentVMTests {
 
-	val originalSystemOut = System.out
+	private val originalSystemOut = System.out
 
-	val originalSystemIn = System.`in`
+	private val originalSystemIn = System.`in`
 
 
 	private inline fun collectSystemOut(alsoPrintToConsole: Boolean = false, block: () -> Unit): String {
@@ -178,8 +178,32 @@ internal class CrescentVMTests {
 	fun forLoop1() {
 
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.forLoop1))
-		CrescentVM(listOf(file), file).invoke()
 
+		val firstLoop = (0..9).joinToString("\n")
+
+		val secondAndThirdLoop =
+			(0..9).flatMap { x ->
+				(0..9).flatMap { y ->
+					(0..9).map { z ->
+						"$x$y$z"
+					}
+				}
+			}.joinToString("\n")
+
+
+		assertEquals(
+			"""
+				|000
+			    |${firstLoop}
+			    |${secondAndThirdLoop}
+			    |${secondAndThirdLoop}
+			    |Hello World
+				|
+			""".trimMargin(),
+			collectSystemOut {
+				CrescentVM(listOf(file), file).invoke()
+			}
+		)
 	}
 
 

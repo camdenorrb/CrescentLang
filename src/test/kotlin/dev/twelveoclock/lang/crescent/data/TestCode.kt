@@ -182,16 +182,16 @@ internal object TestCode {
                 
 				println("${'$'}x${'$'}y${'$'}z")
 
- 				#for x in 0..9 {
-			    #    println("${'$'}x")
-			    #}
+ 				for x in 0..9 {
+			        println("${'$'}x")
+			    }
 			
-			    #for x, y, z in 0..9 {
-			    #    println("${'$'}x${'$'}y${'$'}z")
-			    #}
+			    for x, y, z in 0..9 {
+			        println("${'$'}x${'$'}y${'$'}z")
+			    }
 			
-			    for x, y, z, t in 0..9 {
-			        println("${'$'}x-${'$'}y-${'$'}z-${'$'}t")
+			    for x, y, z in 0..9, 0..9, 0..9 {
+			        println("${'$'}x${'$'}y${'$'}z")
 			    }
 
                 println("Hello World")

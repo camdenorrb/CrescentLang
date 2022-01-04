@@ -164,6 +164,14 @@ internal class CrescentParserTests {
                 IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD)))),
 
                 Statement.For(
+                    listOf(Identifier("x")),
+                    listOf(Statement.Range(I8(0), I8(9))),
+                    Statement.Block(listOf(
+                        IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD)))),
+                    ))
+                ),
+
+                Statement.For(
                     listOf(Identifier("x"), Identifier("y"), Identifier("z")),
                     listOf(Statement.Range(I8(0), I8(9))),
                     Statement.Block(listOf(
