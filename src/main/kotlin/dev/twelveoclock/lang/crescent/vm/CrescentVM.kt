@@ -715,7 +715,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		}
 
 		is Type.Basic -> {
-			if (type.name != "Any") {
+			if (type != Type.any) {
 				check(type == findType(value)) {
 					errorBlock()
 					"Expected ${type.name}, got ${value::class.qualifiedName}"
