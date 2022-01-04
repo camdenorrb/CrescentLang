@@ -13,7 +13,17 @@ object Main {
     // TODO: Replace all checkEquals in project with check and a custom message
     @JvmStatic
     fun main(args: Array<String>) {
-        testCodeVM2()
+        for (x in 0..9) {
+            for (y in 0..9) {
+                for (z in 0..9) {
+                    for (t in 0..9) {
+                        println("$x-$y-$z-$t")
+                    }
+                }
+            }
+        }
+
+    //testCodeVM2()
     }
 
 
