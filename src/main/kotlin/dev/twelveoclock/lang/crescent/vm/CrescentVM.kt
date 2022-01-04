@@ -22,8 +22,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 		if (mainFunction.params.isEmpty()) {
 			runFunction(mainFile, mainFile, mainFunction, emptyList())
-		}
-		else {
+		} else {
 			runFunction(
 				mainFile,
 				mainFile,
@@ -69,8 +68,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			// If is last node in the block
 			if (index + 1 == block.nodes.size || node is Node.Return) {
 				return runNode(node, context)
-			}
-			else {
+			} else {
 				runNode(node, context)
 			}
 		}
@@ -109,7 +107,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			// TODO: Account for operator overloading
 			is Node.GetCall -> {
-				val arrayNode = (context.parameters[node.identifier] ?: context.variables.getValue(node.identifier).instance.value) as Node.Array
+				val arrayNode = (context.parameters[node.identifier]
+					?: context.variables.getValue(node.identifier).instance.value) as Node.Array
 				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
 			}
 
@@ -128,8 +127,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			is Node.Statement.If -> {
 				return if ((runNode(node.predicate, context) as Primitive.Boolean).data) {
 					runBlock(node.block, context)
-				}
-				else {
+				} else {
 					node.elseBlock?.let {
 						runBlock(it, context)
 					}
@@ -150,8 +148,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					node.identifiers.map {
 						(node.ranges[0].start as Primitive.Number).toI32().data..(node.ranges[0].end as Primitive.Number).toI32().data
 					}
-				}
-				else {
+				} else {
 					node.ranges.map {
 						(it.start as Primitive.Number).toI32().data..(it.end as Primitive.Number).toI32().data
 					}
@@ -192,9 +189,9 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						if ((counters[tmpIndex].instance.value as Primitive.Number.I32).data >= ranges[tmpIndex].last) {
 							counters[tmpIndex].instance.value = Primitive.Number.I32(ranges[tmpIndex].first)
 							tmpIndex--
-						}
-						else {
-							counters[tmpIndex].instance.value = Primitive.Number.I32((counters[tmpIndex].instance.value as Primitive.Number.I32).data + 1)
+						} else {
+							counters[tmpIndex].instance.value =
+								Primitive.Number.I32((counters[tmpIndex].instance.value as Primitive.Number.I32).data + 1)
 							break
 						}
 					}
@@ -254,8 +251,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				val type = if (node.type is Type.Implicit) {
 					findType(value)
-				}
-				else {
+				} else {
 					node.type
 				}
 
@@ -293,8 +289,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 							stack.push(
 								if (pop2 is Primitive.String || pop1 is Primitive.String) {
 									Primitive.String(pop2.asString() + pop1.asString())
-								}
-								else {
+								} else {
 									(pop2 as Primitive.Number) + (pop1 as Primitive.Number)
 								}
 							)
@@ -344,7 +339,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 								is Node.GetCall -> {
 									checkEquals(1, pop2.arguments.size)
 									val index = (pop2.arguments.first() as Primitive.Number).toI32().data
-									(context.variables.getValue(pop2.identifier).instance.value as Node.Array).values[index] = value
+									(context.variables.getValue(pop2.identifier).instance.value as Node.Array).values[index] =
+										value
 								}
 
 								is Node.Identifier -> {
@@ -403,8 +399,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 							// TODO: Override !=, ==, >=, <=, <, > on number, then merging this if statement into one statement and remove pop1 and pop2
 							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
 								stack.push(Primitive.Boolean(pop2.toF64().data == pop1.toF64().data))
-							}
-							else {
+							} else {
 								stack.push(Primitive.Boolean(pop2 == pop1))
 							}
 						}
@@ -449,8 +444,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 							// TODO: Override !=, ==, >=, <=, <, >, xor, or, and, etc on number, then merging this if statement into one statement and remove pop1 and pop2
 							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
 								stack.push(Primitive.Boolean(pop2.toF64().data != pop1.toF64().data))
-							}
-							else {
+							} else {
 								stack.push(Primitive.Boolean(pop2 != pop1))
 							}
 						}
@@ -556,7 +550,14 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			"sqrt" -> {
 				checkEquals(1, node.arguments.size)
-				return Primitive.Number.F64(sqrt((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
+				return Primitive.Number.F64(
+					sqrt(
+						(runNode(
+							node.arguments[0],
+							context
+						) as Primitive.Number).toF64().data
+					)
+				)
 			}
 
 			"sin" -> {
@@ -566,7 +567,14 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			"round" -> {
 				checkEquals(1, node.arguments.size)
-				return Primitive.Number.F64(round((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
+				return Primitive.Number.F64(
+					round(
+						(runNode(
+							node.arguments[0],
+							context
+						) as Primitive.Number).toF64().data
+					)
+				)
 			}
 
 			"print" -> {
@@ -582,8 +590,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				if (node.arguments.isEmpty()) {
 					println()
-				}
-				else {
+				} else {
 					println(runNode(node.arguments[0], context).asString())
 				}
 			}
@@ -681,16 +688,17 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		else -> error("Unexpected value: ${value::class}")
 	}
 
-	inline fun checkIsSameType(parameter: Node.Parameter, value: Node, errorBlock: (parameterType: Type) -> String) = when (parameter) {
+	inline fun checkIsSameType(parameter: Node.Parameter, value: Node, errorBlock: (parameterType: Type) -> String) =
+		when (parameter) {
 
-		is Node.Parameter.Basic -> {
-			checkIsSameType(parameter.type, value) {
-				errorBlock(parameter.type)
+			is Node.Parameter.Basic -> {
+				checkIsSameType(parameter.type, value) {
+					errorBlock(parameter.type)
+				}
 			}
-		}
 
-		else -> TODO()
-	}
+			else -> TODO()
+		}
 
 	// TODO: Use typeOf instead
 	inline fun checkIsSameType(type: Type, value: Node, errorBlock: () -> String) = when (type) {
@@ -712,8 +720,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					errorBlock()
 					"Expected ${type.name}, got ${value::class.qualifiedName}"
 				}
-			}
-			else {
+			} else {
 				// Do nothing
 			}
 		}

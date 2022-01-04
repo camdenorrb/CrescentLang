@@ -160,7 +160,7 @@ value class CrescentIR(val commands: List<Command>) {
 			}
 		}
 
-		object Div : Command{
+		object Div : Command {
 			override fun toString(): String {
 				return "div"
 			}

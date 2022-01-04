@@ -124,9 +124,14 @@ internal object Bench {
 
 	class Benchmark(val name: String) {
 
-		inline fun bench(subName: String, warmUpCycles: Int = DEFAULT_CYCLES, benchCycles: Int = DEFAULT_CYCLES, block: () -> Unit) {
+		inline fun bench(
+			subName: String,
+			warmUpCycles: Int = DEFAULT_CYCLES,
+			benchCycles: Int = DEFAULT_CYCLES,
+			block: () -> Unit
+		) {
 			println(measureNS(subName, State.WARMUP, warmUpCycles, block))
-			println(measureNS(subName, State.BENCH,  benchCycles,  block))
+			println(measureNS(subName, State.BENCH, benchCycles, block))
 		}
 
 		inline fun measureNS(subName: String, state: State, cycles: Int, block: () -> Unit): Result {
@@ -151,7 +156,7 @@ internal object Bench {
 
 			override fun toString(): String {
 				return (
-				"""
+					"""
                 |$name - $subName - $state Average: ${averageNS}ns/op
                 """.trimMargin())
 			}

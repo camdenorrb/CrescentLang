@@ -28,8 +28,7 @@ internal class CrescentVMTests {
 			System.setOut(printStream)
 			block()
 			System.setOut(originalSystemOut)
-		}
-		finally {
+		} finally {
 			if (alsoPrintToConsole) {
 				println(byteArrayOutputStream.toString())
 			}

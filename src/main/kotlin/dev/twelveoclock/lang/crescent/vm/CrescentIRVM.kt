@@ -50,8 +50,7 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 		fun resolveValue(node: Any): Any {
 			return if (node is CrescentAST.Node.Identifier) {
 				namedValues[node.name]!!
-			}
-			else {
+			} else {
 				node
 			}
 		}

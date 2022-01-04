@@ -5,62 +5,62 @@ import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 // TODO: Make a peeking iterator interface
 class PeekingTokenIterator(val input: List<CrescentToken>) : Iterator<CrescentToken> {
 
-    @PublishedApi
-    internal var index = 0
+	@PublishedApi
+	internal var index = 0
 
 
-    override fun hasNext(): Boolean {
-        return index < input.size
-    }
+	override fun hasNext(): Boolean {
+		return index < input.size
+	}
 
-    override fun next(): CrescentToken {
-        return input[index++]
-    }
-
-
-    fun back(): CrescentToken {
-        return input[--index]
-    }
+	override fun next(): CrescentToken {
+		return input[index++]
+	}
 
 
-    fun peekNext(amount: Int = 1): CrescentToken {
-        return input.getOrElse(index + (amount - 1)) { CrescentToken.None }
-    }
-
-    fun peekBack(amount: Int = 1): CrescentToken {
-        return input.getOrElse(index - amount) { CrescentToken.None }
-    }
+	fun back(): CrescentToken {
+		return input[--index]
+	}
 
 
-    inline fun nextUntil(predicate: (CrescentToken) -> Boolean): List<CrescentToken> {
+	fun peekNext(amount: Int = 1): CrescentToken {
+		return input.getOrElse(index + (amount - 1)) { CrescentToken.None }
+	}
 
-        val tokens = mutableListOf<CrescentToken>()
+	fun peekBack(amount: Int = 1): CrescentToken {
+		return input.getOrElse(index - amount) { CrescentToken.None }
+	}
 
-        while (index < input.size && !predicate(input[index])) {
-            tokens += input[index]
-            index++
-        }
 
-        return tokens
-    }
+	inline fun nextUntil(predicate: (CrescentToken) -> Boolean): List<CrescentToken> {
 
-    inline fun peekBackUntil(predicate: (CrescentToken) -> Boolean): List<CrescentToken> {
+		val tokens = mutableListOf<CrescentToken>()
 
-        var currentIndex = index - 1
-        val result = mutableListOf<CrescentToken>()
+		while (index < input.size && !predicate(input[index])) {
+			tokens += input[index]
+			index++
+		}
 
-        while (currentIndex > 0) {
+		return tokens
+	}
 
-            val token = input[currentIndex--]
+	inline fun peekBackUntil(predicate: (CrescentToken) -> Boolean): List<CrescentToken> {
 
-            if (predicate(token)) {
-                break
-            }
+		var currentIndex = index - 1
+		val result = mutableListOf<CrescentToken>()
 
-            result += token
-        }
+		while (currentIndex > 0) {
 
-        return result
-    }
+			val token = input[currentIndex--]
+
+			if (predicate(token)) {
+				break
+			}
+
+			result += token
+		}
+
+		return result
+	}
 
 }

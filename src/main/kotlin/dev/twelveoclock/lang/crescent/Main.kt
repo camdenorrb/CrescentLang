@@ -10,28 +10,27 @@ import kotlin.io.path.Path
 
 object Main {
 
-    // TODO: Replace all checkEquals in project with check and a custom message
-    @JvmStatic
-    fun main(args: Array<String>) {
-        for (x in 0..9) {
-            for (y in 0..9) {
-                for (z in 0..9) {
-                    for (t in 0..9) {
-                        println("$x-$y-$z-$t")
-                    }
-                }
-            }
-        }
+	// TODO: Replace all checkEquals in project with check and a custom message
+	@JvmStatic
+	fun main(args: Array<String>) {
+		for (x in 0..9) {
+			for (y in 0..9) {
+				for (z in 0..9) {
+					for (t in 0..9) {
+						println("$x-$y-$z-$t")
+					}
+				}
+			}
+		}
 
-    //testCodeVM2()
-    }
+		//testCodeVM2()
+	}
 
 
+	private fun testCodeVM() {
 
-    private fun testCodeVM() {
-
-        val code =
-            """
+		val code =
+			"""
                 fun main {
                     
                     var i = 0
@@ -43,18 +42,18 @@ object Main {
                 }
             """.trimIndent()
 
-        println("Here")
-        val tokens = CrescentLexer.invoke(code)
-        println(tokens)
-        val file = CrescentParser.invoke(Path(""), tokens)
-        println(file.mainFunction?.innerCode)
-        CrescentVM(listOf(file), file).invoke()
-    }
+		println("Here")
+		val tokens = CrescentLexer.invoke(code)
+		println(tokens)
+		val file = CrescentParser.invoke(Path(""), tokens)
+		println(file.mainFunction?.innerCode)
+		CrescentVM(listOf(file), file).invoke()
+	}
 
-    private fun testCodeVM2() {
+	private fun testCodeVM2() {
 
-        val code =
-            """
+		val code =
+			"""
                 fun triangle(n: Any, k: Any){
                     if (n < 0){
                         return
@@ -81,18 +80,18 @@ object Main {
                 }
             """.trimIndent()
 
-        println("Here")
-        val tokens = CrescentLexer.invoke(code)
-        println(tokens)
-        val file = CrescentParser.invoke(Path(""), tokens)
-        println(file.mainFunction?.innerCode)
-        CrescentVM(listOf(file), file).invoke()
-    }
+		println("Here")
+		val tokens = CrescentLexer.invoke(code)
+		println(tokens)
+		val file = CrescentParser.invoke(Path(""), tokens)
+		println(file.mainFunction?.innerCode)
+		CrescentVM(listOf(file), file).invoke()
+	}
 
-    private fun testCodeIR() {
+	private fun testCodeIR() {
 
-        val code =
-            """
+		val code =
+			"""
                 fun main {
                     
                     var i = 0
@@ -104,9 +103,9 @@ object Main {
                 }
             """.trimIndent()
 
-        val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
-        CrescentIRVM(CrescentIRCompiler.invoke(file).also { println(it) }).invoke()
-    }
+		val file = CrescentParser.invoke(Path(""), CrescentLexer.invoke(code))
+		CrescentIRVM(CrescentIRCompiler.invoke(file).also { println(it) }).invoke()
+	}
 }
 
 

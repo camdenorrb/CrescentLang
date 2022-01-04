@@ -11,8 +11,7 @@ fun Number.minimize(): Number {
 		is Float -> {
 			if (this.toInt().toFloat() == this) {
 				/* No operation, proceed to next when */
-			}
-			else {
+			} else {
 				return this
 			}
 		}
@@ -20,17 +19,15 @@ fun Number.minimize(): Number {
 		is Double -> {
 			if (this.toLong().toDouble() == this) {
 				/* No operation, proceed to next when */
-			}
-			else if (this.toFloat().toDouble() == this) {
+			} else if (this.toFloat().toDouble() == this) {
 				return this.toFloat()
-			}
-			else {
+			} else {
 				return this
 			}
 		}
 	}
 
-	return when(this.toLong()) {
+	return when (this.toLong()) {
 
 		in Byte.MIN_VALUE..Byte.MAX_VALUE -> {
 			this.toByte()

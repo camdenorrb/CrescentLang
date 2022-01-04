@@ -1,155 +1,155 @@
 package dev.twelveoclock.lang.crescent.iterator
 
-class PeekingCharIterator(val input: String): Iterator<Char> {
+class PeekingCharIterator(val input: String) : Iterator<Char> {
 
-    @PublishedApi
-    internal var index = 0
-
-
-    override fun hasNext(): Boolean {
-        return index < input.length
-    }
-
-    override fun next(): Char {
-        return input[index++]
-    }
+	@PublishedApi
+	internal var index = 0
 
 
-    fun next(size: Int): String {
-        index += size
-        return input.substring(index - size, index)
-    }
+	override fun hasNext(): Boolean {
+		return index < input.length
+	}
 
-    fun nextUntil(chars: Set<Char>): String {
-        return nextUntil {
-            it in chars
-        }
-    }
-
-    fun nextUntil(char: Char): String {
-        return nextUntil {
-            char == it
-        }
-    }
+	override fun next(): Char {
+		return input[index++]
+	}
 
 
-    inline fun nextUntil(predicate: (Char) -> Boolean): String {
-        return buildString {
-            while (index < input.length && !predicate(input[index])) {
-                append(input[index])
-                index++
-            }
-        }
-    }
+	fun next(size: Int): String {
+		index += size
+		return input.substring(index - size, index)
+	}
+
+	fun nextUntil(chars: Set<Char>): String {
+		return nextUntil {
+			it in chars
+		}
+	}
+
+	fun nextUntil(char: Char): String {
+		return nextUntil {
+			char == it
+		}
+	}
 
 
-    fun nextUntilAndSkip(char: Char): String {
-        return nextUntilAndSkip {
-            it == char
-        }
-    }
-
-    fun nextUntilAndSkip(chars: Set<Char>): String {
-        return nextUntilAndSkip {
-            it in chars
-        }
-    }
-
-    inline fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {
-
-        val result = nextUntil(predicate)
-        next()
-
-        return result
-    }
-
-    /*
-
-    fun nextUntilAndSkip(vararg chars: Char): String {
-
-        val read = nextUntil(*chars)
-        index = (index + 1).coerceAtMost(input.length)
-
-        return read
-    }
-
-    fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {
-
-        val read = nextUntil(predicate)
-        index = (index + 1).coerceAtMost(input.length)
-
-        return read
-    }
-
-    fun nextUntilAndKeep(vararg chars: Char): String {
-
-        val minIndex = chars
-            .map { input.indexOf(it, index) }
-            .filter { it != -1 }
-            .min()
-            ?: input.length
-
-        index = minIndex - 1
-
-        return input.substring(index, minIndex)
-    }
-
-    fun nextUntilAndKeep(predicate: (Char) -> Boolean): String {
-
-        val outputBuilder = StringBuilder()
-
-        while (index < input.length) {
-
-            val nextChar = input[index++]
-            outputBuilder.append(nextChar)
-
-            if (predicate(nextChar)) {
-                break
-            }
-        }
-
-        return outputBuilder.toString()
-    }*/
+	inline fun nextUntil(predicate: (Char) -> Boolean): String {
+		return buildString {
+			while (index < input.length && !predicate(input[index])) {
+				append(input[index])
+				index++
+			}
+		}
+	}
 
 
-    /*
-    fun hasPrev(): Boolean {
-        return nextIndex > 0
-    }
+	fun nextUntilAndSkip(char: Char): String {
+		return nextUntilAndSkip {
+			it == char
+		}
+	}
 
-    fun prev(): Char {
-        nextIndex--
-        return input[nextIndex]
-    }
-    */
+	fun nextUntilAndSkip(chars: Set<Char>): String {
+		return nextUntilAndSkip {
+			it in chars
+		}
+	}
+
+	inline fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {
+
+		val result = nextUntil(predicate)
+		next()
+
+		return result
+	}
+
+	/*
+
+	fun nextUntilAndSkip(vararg chars: Char): String {
+
+		val read = nextUntil(*chars)
+		index = (index + 1).coerceAtMost(input.length)
+
+		return read
+	}
+
+	fun nextUntilAndSkip(predicate: (Char) -> Boolean): String {
+
+		val read = nextUntil(predicate)
+		index = (index + 1).coerceAtMost(input.length)
+
+		return read
+	}
+
+	fun nextUntilAndKeep(vararg chars: Char): String {
+
+		val minIndex = chars
+			.map { input.indexOf(it, index) }
+			.filter { it != -1 }
+			.min()
+			?: input.length
+
+		index = minIndex - 1
+
+		return input.substring(index, minIndex)
+	}
+
+	fun nextUntilAndKeep(predicate: (Char) -> Boolean): String {
+
+		val outputBuilder = StringBuilder()
+
+		while (index < input.length) {
+
+			val nextChar = input[index++]
+			outputBuilder.append(nextChar)
+
+			if (predicate(nextChar)) {
+				break
+			}
+		}
+
+		return outputBuilder.toString()
+	}*/
 
 
-    fun peekNext(amount: Int = 1): Char {
-        return input[index + (amount - 1)]
-    }
+	/*
+	fun hasPrev(): Boolean {
+		return nextIndex > 0
+	}
 
-    fun peekBack(amount: Int = 1): Char {
-        return input[index - amount]
-    }
+	fun prev(): Char {
+		nextIndex--
+		return input[nextIndex]
+	}
+	*/
 
 
-    inline fun peekNextUntil(predicate: (Char) -> Boolean): String {
+	fun peekNext(amount: Int = 1): Char {
+		return input[index + (amount - 1)]
+	}
 
-        var nextPeekIndex = index
-        val outputBuilder = StringBuilder()
+	fun peekBack(amount: Int = 1): Char {
+		return input[index - amount]
+	}
 
-        while (nextPeekIndex < input.length) {
 
-            val nextChar = input[nextPeekIndex++]
+	inline fun peekNextUntil(predicate: (Char) -> Boolean): String {
 
-            if (!predicate(nextChar)) {
-                break
-            }
+		var nextPeekIndex = index
+		val outputBuilder = StringBuilder()
 
-            outputBuilder.append(nextChar)
-        }
+		while (nextPeekIndex < input.length) {
 
-        return outputBuilder.toString()
-    }
+			val nextChar = input[nextPeekIndex++]
+
+			if (!predicate(nextChar)) {
+				break
+			}
+
+			outputBuilder.append(nextChar)
+		}
+
+		return outputBuilder.toString()
+	}
 
 }
