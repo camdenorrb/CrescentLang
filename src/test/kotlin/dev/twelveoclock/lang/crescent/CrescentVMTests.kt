@@ -174,6 +174,14 @@ internal class CrescentVMTests {
 		)
 	}
 
+	@Test
+	fun forLoop1() {
+
+		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.forLoop1))
+		CrescentVM(listOf(file), file).invoke()
+
+	}
+
 
 	@Test
 	fun nateTriangle() {

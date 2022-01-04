@@ -182,11 +182,11 @@ internal object TestCode {
                 
 				println("${'$'}x${'$'}y${'$'}z")
 
-			    for x, y, z in 0..10 {
+			    for x, y, z in 0..9 {
 			        println("${'$'}x${'$'}y${'$'}z")
 			    }
 			
-			    for x, y, z in 0..10, 0..10, 0..10 {
+			    for x, y, z in 0..9, 0..9, 0..9 {
 			        println("${'$'}x${'$'}y${'$'}z")
 			    }
 

@@ -41,7 +41,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		val paramsToValue = mutableMapOf<String, Node>()
 
 		function.params.forEachIndexed { index, parameter ->
-			checkIsSameType(parameter, args[index])
+
+			checkIsSameType(parameter, args[index]) { parameterType ->
+				"Parameter type doesn't match argument: $parameterType != ${findType(args[index])}"
+			}
+
 			paramsToValue[parameter.name] = args[index]
 		}
 
@@ -142,37 +146,70 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				val forContext = context.copy()
 
-				val ranges = node.ranges.map {
-					(it.start as Primitive.Number.I32).data..(it.end as Primitive.Number.I32).data
+				val ranges = if (node.ranges.size == 1 && node.identifiers.size > 1) {
+					node.identifiers.map {
+						(node.ranges[0].start as Primitive.Number).toI32().data..(node.ranges[0].end as Primitive.Number).toI32().data
+					}
+				}
+				else {
+					node.ranges.map {
+						(it.start as Primitive.Number).toI32().data..(it.end as Primitive.Number).toI32().data
+					}
 				}
 
-				node.identifiers.forEachIndexed { index, identifier ->
-					forContext.variables[identifier.name] = BlockContext.Variable.Val(
+				val counters = node.identifiers.mapIndexed { index, identifier ->
+
+					val counter = BlockContext.Variable(
 						identifier.name,
 						Primitive.Number.I32(ranges.getOrNull(index)?.first ?: ranges[0].first).let {
 							Instance(Primitive.Number.I32.type, it)
-						}
+						},
+						isMutable = false
 					)
+
+					forContext.variables[counter.name] = counter
+
+					return@mapIndexed counter
 				}
 
-				/*
-				while ((runNode(node.predicate, context) as Primitive.Boolean).data) {
-					runBlock(node.block, context)
+				// N For Loop
+				while ((counters.first().instance.value as Primitive.Number.I32).data != ranges.first().last) {
+
+					for (rangeIndex in ranges.indices.reversed()) {
+
+						val range = ranges[rangeIndex]
+						val count = counters[rangeIndex]
+
+						if ((count.instance.value as Primitive.Number.I32).data != range.last) {
+
+							count.instance.value = Primitive.Number.I32(
+								(count.instance.value as Primitive.Number.I32).data + range.step
+							)
+
+							break
+						}
+						else {
+							count.instance.value = Primitive.Number.I32(range.first)
+						}
+					}
+
+					runBlock(node.block, forContext)
 				}
-				*/
+
 			}
 
 			is Node.Variable.Basic -> {
 
 				val value = runNode(node.value, context)
 
-				context.variables[node.name] =
-					if (node.isFinal) {
-						BlockContext.Variable.Val(node.name, Instance(node.type, value))
-					}
-					else {
-						BlockContext.Variable.Var(node.name, Instance(node.type, value))
-					}
+				val type = if (node.type is Type.Implicit) {
+					findType(node.value)
+				}
+				else {
+					node.type
+				}
+
+				context.variables[node.name] = BlockContext.Variable(node.name, Instance(type, value), node.isFinal)
 			}
 
 			else -> error("Unexpected node: $node")
@@ -268,11 +305,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 									val valueType = findType(value)
 
-									check(variable.instance.type == valueType) {
+									checkIsSameType(variable.instance.type, valueType) {
 										"Variable ${variable.name}: ${variable.instance.type} cannot be assigned to a value of type $valueType"
 									}
 
-									check(variable is BlockContext.Variable.Var) {
+									check(variable.isMutable) {
 										"Variable ${variable.name} is not mutable"
 									}
 
@@ -373,8 +410,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.RANGE_TO -> TODO()
 						CrescentToken.Operator.TYPE_PREFIX -> TODO()
 						CrescentToken.Operator.RETURN -> {
-							println("Here")
-							TODO()
+							return stack.poll() ?: Type.unit
 						}
 						CrescentToken.Operator.RESULT -> TODO()
 						CrescentToken.Operator.COMMA -> TODO()
@@ -595,45 +631,52 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		else -> error("Unexpected value: ${value::class}")
 	}
 
-	// TODO: Use typeOf instead
-	fun checkIsSameType(parameter: Node.Parameter, arg: Node) = when (parameter) {
+	inline fun checkIsSameType(parameter: Node.Parameter, value: Node, errorBlock: (parameterType: Type) -> String) = when (parameter) {
 
 		is Node.Parameter.Basic -> {
-			when (parameter.type) {
-
-				/*
-				is Type.Array -> {
-					check(arg is Node.Array)
-					checkEquals(parameter.type, typeOf(arg.values.first()))
-				}
-				*/
-
-				is Type.Array -> {
-					// TODO: Implement this
-				}
-
-				is Type.Basic -> {
-					if (parameter.type.name != "Any") {
-						check(parameter.type.name == arg::class.simpleName) {
-							"Expected ${parameter.type.name}, got ${arg::class.qualifiedName}"
-						}
-					}
-					else {
-						// Do nothing
-					}
-				}
-
-				else -> { error("Unexpected parameter: $parameter")}
+			checkIsSameType(parameter.type, value) {
+				errorBlock(parameter.type)
 			}
 		}
 
-
-		else -> { error("Unexpected parameter: $parameter")}
+		else -> TODO()
 	}
+
+	// TODO: Use typeOf instead
+	inline fun checkIsSameType(type: Type, value: Node, errorBlock: () -> String) = when (type) {
+
+		/*
+        is Type.Array -> {
+            check(arg is Node.Array)
+            checkEquals(parameter.type, typeOf(arg.values.first()))
+        }
+        */
+
+		is Type.Array -> {
+			// TODO: Implement this
+		}
+
+		is Type.Basic -> {
+			if (type.name != "Any") {
+				check(type.name == value::class.simpleName) {
+					errorBlock()
+					"Expected ${type.name}, got ${value::class.qualifiedName}"
+				}
+			}
+			else {
+				// Do nothing
+			}
+		}
+
+		else -> {
+			error("Expected $type, got ${value::class.qualifiedName}")
+		}
+	}
+
 
 	data class Instance(
 		val type: Type,
-		val value: Node
+		var value: Node
 	)
 
 	/**
@@ -648,24 +691,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		val variables: MutableMap<String, Variable> = mutableMapOf(),
 	) {
 
-		sealed class Variable {
-
-			abstract val name: String
-
-			abstract val instance: Instance
-
-
-			data class Val(
-				override val name: String,
-				override val instance: Instance
-			) : Variable()
-
-			data class Var(
-				override val name: String,
-				override var instance: Instance
-			) : Variable()
-
-		}
+		data class Variable(
+			val name: String,
+			var instance: Instance,
+			val isMutable: Boolean,
+		)
 
 	}
 

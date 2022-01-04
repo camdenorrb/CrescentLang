@@ -295,6 +295,8 @@ class CrescentAST {
 
                 val unit = Basic("Unit")
 
+                val i32 = Basic("I32")
+
             }
 
             /*

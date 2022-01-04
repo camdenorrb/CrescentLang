@@ -144,7 +144,7 @@ internal class CrescentParserTests {
     }
 
     @Test
-    fun forLoop() {
+    fun forLoop1() {
 
         val tokens = CrescentLexer.invoke(TestCode.forLoop1)
 
