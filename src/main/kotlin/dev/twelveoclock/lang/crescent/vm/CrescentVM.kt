@@ -16,689 +16,710 @@ import kotlin.math.sqrt
 // TODO: Don't modify the AST
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
-	fun invoke(args: List<String> = emptyList()) {
-
-		val mainFunction = checkNotNull(mainFile.mainFunction)
-
-		if (mainFunction.params.isEmpty()) {
-			runFunction(mainFile, mainFile, mainFunction, emptyList())
-		}
-		else {
-			runFunction(
-				mainFile,
-				mainFile,
-				mainFunction,
-				listOf(Node.Array(Array(args.size) { Primitive.String(args[it]) }))
-			)
-		}
-	}
-
-	fun runFunction(file: Node.File, holder: Node, function: Node.Function, args: List<Node>): Node {
-
-		// TODO: Account for default params
-		checkEquals(function.params.size, args.size)
-
-		val paramsToValue = mutableMapOf<String, Node>()
-
-		function.params.forEachIndexed { index, parameter ->
-
-			checkIsSameType(parameter, args[index]) { parameterType ->
-				"Parameter type doesn't match argument: $parameterType != ${findType(args[index])}"
-			}
-
-			paramsToValue[parameter.name] = args[index]
-		}
-
-		val context = BlockContext(
-			file,
-			holder,
-			paramsToValue
-		)
-
-		// TODO: Last expression acts as return
-		return runBlock(function.innerCode, context)
-
-		// TODO: Make this meaningful
-		//return Type.unit
-	}
-
-	// TODO: Have a return value
-	fun runBlock(block: Node.Statement.Block, context: BlockContext): Node {
-
-		block.nodes.forEachIndexed { index, node ->
-			// If is last node in the block
-			if (index + 1 == block.nodes.size || node is Node.Return) {
-				return runNode(node, context)
-			}
-			else {
-				runNode(node, context)
-			}
-		}
-
-		return Type.unit
-	}
-
-	fun runNode(node: Node, context: BlockContext): Node {
-		when (node) {
-
-			is Primitive.String,
-			is Primitive.Number,
-			is Primitive.Char,
-			is Primitive.Boolean,
-			is Node.Array,
-			-> {
-				return node
-			}
-
-			is Node.Identifier -> {
-				return context.parameters[node.name]
-					?: context.variables[node.name]?.instance?.value
-					?: context.file.constants[node.name]?.value
-					?: Node.Identifier(node.name)
-					//?: error("Unknown variable: ${node.name}")
-			}
-
-			is Node.IdentifierCall -> {
-				// TODO: Determine if it's a constructor call
-				return runFunctionCall(node, context)
-			}
-
-			is Node.Return -> {
-				return runNode(node.expression, context)
-			}
-
-			// TODO: Account for operator overloading
-			is Node.GetCall -> {
-				val arrayNode = (context.parameters[node.identifier] ?: context.variables.getValue(node.identifier).instance.value) as Node.Array
-				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
-			}
-
-			is Node.DotChain -> {
-				/*
-				node.nodes.forEach {
-					runNode()
-				}
-				*/
-			}
+    fun invoke(args: List<String> = emptyList()) {
+
+        val mainFunction = checkNotNull(mainFile.mainFunction)
+
+        if (mainFunction.params.isEmpty()) {
+            runFunction(mainFile, mainFile, mainFunction, emptyList())
+        } else {
+            runFunction(
+                mainFile, mainFile, mainFunction, listOf(Node.Array(Array(args.size) { Primitive.String(args[it]) }))
+            )
+        }
+    }
+
+    fun runFunction(file: Node.File, holder: Node, function: Node.Function, args: List<Node>): Node {
+
+        // TODO: Account for default params
+        checkEquals(function.params.size, args.size)
+
+        val paramsToValue = mutableMapOf<String, Node>()
+
+        function.params.forEachIndexed { index, parameter ->
+
+            checkIsSameType(parameter, args[index]) { parameterType ->
+                "Parameter type doesn't match argument: $parameterType != ${findType(args[index])}"
+            }
+
+            paramsToValue[parameter.name] = args[index]
+        }
+
+        val context = BlockContext(
+            file, holder, paramsToValue
+        )
+
+        // TODO: Last expression acts as return
+        return runBlock(function.innerCode, context)
+
+        // TODO: Make this meaningful
+        //return Type.unit
+    }
+
+    // TODO: Have a return value
+    fun runBlock(block: Node.Statement.Block, context: BlockContext): Node {
+
+        block.nodes.forEachIndexed { index, node ->
+            // If is last node in the block
+            if (index + 1 == block.nodes.size || node is Node.Return) {
+                return runNode(node, context)
+            } else {
+                runNode(node, context)
+            }
+        }
+
+        return Type.unit
+    }
+
+    fun runNode(node: Node, context: BlockContext): Node {
+        when (node) {
+
+            is Primitive.String,
+            is Primitive.Number,
+            is Primitive.Char,
+            is Primitive.Boolean,
+            is Node.Array,
+            -> {
+                return node
+            }
+
+            is Node.Identifier -> {
+                return context.parameters[node.name] ?: context.variables[node.name]?.instance?.value
+                ?: context.file.constants[node.name]?.value ?: Node.Identifier(node.name)
+                //?: error("Unknown variable: ${node.name}")
+            }
+
+            is Node.IdentifierCall -> {
+                // TODO: Determine if it's a constructor call
+                return runFunctionCall(node, context)
+            }
+
+            is Node.Return -> {
+                return runNode(node.expression, context)
+            }
+
+            // TODO: Account for operator overloading
+            is Node.GetCall -> {
+                val arrayNode = (context.parameters[node.identifier]
+                    ?: context.variables.getValue(node.identifier).instance.value) as Node.Array
+                return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
+            }
+
+            is Node.DotChain -> {
+                /*
+                node.nodes.forEach {
+                    runNode()
+                }
+                */
+            }
+
+            is Node.Expression -> {
+                return runExpression(node, context)
+            }
+
+            is Node.Statement.If -> {
+                return if ((runNode(node.predicate, context) as Primitive.Boolean).data) {
+                    runBlock(node.block, context)
+                } else {
+                    node.elseBlock?.let {
+                        runBlock(it, context)
+                    }
+                } ?: Type.unit
+            }
+
+            is Node.Statement.While -> {
+                while ((runNode(node.predicate, context) as Primitive.Boolean).data) {
+                    runBlock(node.block, context)
+                }
+            }
+
+            is Node.Statement.For -> {
+
+                val forContext = context.copy()
+
+                val ranges = if (node.ranges.size == 1 && node.identifiers.size > 1) {
+                    node.identifiers.map {
+                        (node.ranges[0].start as Primitive.Number).toI32().data..(node.ranges[0].end as Primitive.Number).toI32().data
+                    }
+                } else {
+                    node.ranges.map {
+                        (it.start as Primitive.Number).toI32().data..(it.end as Primitive.Number).toI32().data
+                    }
+                }
+
+                val counters = node.identifiers.mapIndexed { index, identifier ->
+
+                    val counter = BlockContext.Variable(
+                        identifier.name, Primitive.Number.I32(ranges.getOrNull(index)?.first ?: ranges[0].first).let {
+                            Instance(Primitive.Number.I32.type, it)
+                        }, isMutable = false
+                    )
+
+                    forContext.variables[counter.name] = counter
 
-			is Node.Expression -> {
-				return runExpression(node, context)
-			}
+                    return@mapIndexed counter
+                }
+
+
+                // N For Loop
+                //for (rangeIndex in ranges.indices.reversed()) {
+                val rangeIndex = ranges.size - 1
+                val range = ranges[rangeIndex]
+                val count = counters[rangeIndex]
+
+                while ((counters.first().instance.value as Primitive.Number.I32).data <= ranges.first().last) {
+                    for (i in range.first..range.last) {
+                        count.instance.value = Primitive.Number.I32(i)
+                        runBlock(node.block, forContext)
+                    }
+                    var tmpIndex = rangeIndex - 1
+                    while (tmpIndex > -1) {
+                        if ((counters[tmpIndex].instance.value as Primitive.Number.I32).data >= ranges[tmpIndex].last) {
+                            counters[tmpIndex].instance.value = Primitive.Number.I32(ranges[tmpIndex].first)
+                            tmpIndex--
+                        } else {
+                            counters[tmpIndex].instance.value = Primitive.Number.I32((counters[tmpIndex].instance.value as Primitive.Number.I32).data + 1)
+                            break
+                        }
+                    }
+                    if (tmpIndex == -1) {
+                        break
+                    }
+                }
+                //}
+                /*while ((counters.first().instance.value as Primitive.Number.I32).data <= ranges.first().last) {
+
+                    for (rangeIndex in ranges.indices.reversed()) {
+
+                        val range = ranges[rangeIndex]
+                        val count = counters[rangeIndex]
+
+                        if ((count.instance.value as Primitive.Number.I32).data <= range.last) {
+
+                            //println(count.instance.value)
+                            runBlock(node.block, forContext)
+
+                            count.instance.value = Primitive.Number.I32(
+                                (count.instance.value as Primitive.Number.I32).data + range.step
+                            )
 
-			is Node.Statement.If -> {
-				return if ((runNode(node.predicate, context) as Primitive.Boolean).data) {
-					runBlock(node.block, context)
-				}
-				else {
-					node.elseBlock?.let {
-						runBlock(it, context)
-					}
-				} ?: Type.unit
-			}
+                            break
+                        }
+                        else {
+                            count.instance.value = Primitive.Number.I32(range.first)
+                        }
+                    }
 
-			is Node.Statement.While -> {
-				while ((runNode(node.predicate, context) as Primitive.Boolean).data) {
-					runBlock(node.block, context)
-				}
-			}
+                }*/
 
-			is Node.Statement.For -> {
+            }
 
-				val forContext = context.copy()
+            is Node.Variable.Basic -> {
 
-				val ranges = if (node.ranges.size == 1 && node.identifiers.size > 1) {
-					node.identifiers.map {
-						(node.ranges[0].start as Primitive.Number).toI32().data..(node.ranges[0].end as Primitive.Number).toI32().data
-					}
-				}
-				else {
-					node.ranges.map {
-						(it.start as Primitive.Number).toI32().data..(it.end as Primitive.Number).toI32().data
-					}
-				}
+                val value = runNode(node.value, context)
 
-				val counters = node.identifiers.mapIndexed { index, identifier ->
+                val type = if (node.type is Type.Implicit) {
+                    findType(node.value)
+                } else {
+                    node.type
+                }
 
-					val counter = BlockContext.Variable(
-						identifier.name,
-						Primitive.Number.I32(ranges.getOrNull(index)?.first ?: ranges[0].first).let {
-							Instance(Primitive.Number.I32.type, it)
-						},
-						isMutable = false
-					)
+                context.variables[node.name] = BlockContext.Variable(node.name, Instance(type, value), node.isFinal)
+            }
 
-					forContext.variables[counter.name] = counter
+            else -> error("Unexpected node: $node")
+        }
 
-					return@mapIndexed counter
-				}
+        return Type.unit
+    }
 
-				// N For Loop
-				while ((counters.first().instance.value as Primitive.Number.I32).data <= ranges.first().last) {
+    // TODO: Take in a stack or something
+    fun runExpression(expression: Node.Expression, context: BlockContext): Node {
 
-					for (rangeIndex in ranges.indices.reversed()) {
+        val stack = LinkedList<Node>()
 
-						val range = ranges[rangeIndex]
-						val count = counters[rangeIndex]
+        val nodeIterator = PeekingNodeIterator(expression.nodes)
 
-						if ((count.instance.value as Primitive.Number.I32).data <= range.last) {
+        while (nodeIterator.hasNext()) {
+            when (val node = nodeIterator.next()) {
 
-							//println(count.instance.value)
-							runBlock(node.block, forContext)
+                // TODO: Run operator function
+                is CrescentToken.Operator -> {
+                    when (node) {
 
-							count.instance.value = Primitive.Number.I32(
-								(count.instance.value as Primitive.Number.I32).data + range.step
-							)
+                        CrescentToken.Operator.NOT -> TODO()
 
-							break
-						}
-						else {
-							count.instance.value = Primitive.Number.I32(range.first)
-						}
-					}
+                        // TODO: Override operators for these in Primitive.Number
+                        CrescentToken.Operator.ADD -> {
 
-				}
+                            val pop1 = runNode(stack.pop(), context)
+                            val pop2 = runNode(stack.pop(), context)
 
-			}
+                            stack.push(
+                                if (pop2 is Primitive.String || pop1 is Primitive.String) {
+                                    Primitive.String(pop2.asString() + pop1.asString())
+                                } else {
+                                    (pop2 as Primitive.Number) + (pop1 as Primitive.Number)
+                                }
+                            )
+                        }
+                        CrescentToken.Operator.SUB -> {
 
-			is Node.Variable.Basic -> {
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-				val value = runNode(node.value, context)
+                            stack.push(pop2 - pop1)
+                        }
+                        CrescentToken.Operator.MUL -> {
 
-				val type = if (node.type is Type.Implicit) {
-					findType(node.value)
-				}
-				else {
-					node.type
-				}
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-				context.variables[node.name] = BlockContext.Variable(node.name, Instance(type, value), node.isFinal)
-			}
+                            stack.push(pop2 * pop1)
+                        }
+                        CrescentToken.Operator.DIV -> {
 
-			else -> error("Unexpected node: $node")
-		}
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-		return Type.unit
-	}
+                            stack.push(pop2 / pop1)
+                        }
+                        CrescentToken.Operator.POW -> {
 
-	// TODO: Take in a stack or something
-	fun runExpression(expression: Node.Expression, context: BlockContext): Node {
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-		val stack = LinkedList<Node>()
+                            stack.push(pop2.pow(pop1))
+                        }
+                        CrescentToken.Operator.REM -> {
 
-		val nodeIterator = PeekingNodeIterator(expression.nodes)
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-		while (nodeIterator.hasNext()) {
-			when (val node = nodeIterator.next()) {
+                            stack.push(pop2 % pop1)
+                        }
 
-				// TODO: Run operator function
-				is CrescentToken.Operator -> {
-					when (node) {
+                        CrescentToken.Operator.ASSIGN -> {
 
-						CrescentToken.Operator.NOT -> TODO()
+                            val value = runNode(stack.pop(), context)
 
-						// TODO: Override operators for these in Primitive.Number
-						CrescentToken.Operator.ADD -> {
+                            when (val pop2 = stack.pop()) {
 
-							val pop1 = runNode(stack.pop(), context)
-							val pop2 = runNode(stack.pop(), context)
+                                is Node.GetCall -> {
+                                    checkEquals(1, pop2.arguments.size)
+                                    val index = (pop2.arguments.first() as Primitive.Number).toI32().data
+                                    (context.variables.getValue(pop2.identifier).instance.value as Node.Array).values[index] =
+                                        value
+                                }
 
-							stack.push(
-								if (pop2 is Primitive.String || pop1 is Primitive.String) {
-									Primitive.String(pop2.asString() + pop1.asString())
-								}
-								else {
-									(pop2 as Primitive.Number) + (pop1 as Primitive.Number)
-								}
-							)
-						}
-						CrescentToken.Operator.SUB -> {
+                                is Node.Identifier -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
+                                    val variable = checkNotNull(context.variables[pop2.name]) {
+                                        "Variable ${pop2.name} not found for reassignment."
+                                    }
 
-							stack.push(pop2 - pop1)
-						}
-						CrescentToken.Operator.MUL -> {
+                                    val valueType = findType(value)
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
+                                    checkIsSameType(variable.instance.type, valueType) {
+                                        "Variable ${variable.name}: ${variable.instance.type} cannot be assigned to a value of type $valueType"
+                                    }
 
-							stack.push(pop2 * pop1)
-						}
-						CrescentToken.Operator.DIV -> {
+                                    check(variable.isMutable) {
+                                        "Variable ${variable.name} is not mutable"
+                                    }
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
+                                    variable.instance = Instance(valueType, value)
+                                }
+                            }
 
-							stack.push(pop2 / pop1)
-						}
-						CrescentToken.Operator.POW -> {
+                            return Type.unit
+                        }
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
+                        CrescentToken.Operator.ADD_ASSIGN -> {
 
-							stack.push(pop2.pow(pop1))
-						}
-						CrescentToken.Operator.REM -> {
+                        }
+                        CrescentToken.Operator.SUB_ASSIGN -> TODO()
+                        CrescentToken.Operator.MUL_ASSIGN -> TODO()
+                        CrescentToken.Operator.DIV_ASSIGN -> TODO()
+                        CrescentToken.Operator.REM_ASSIGN -> TODO()
+                        CrescentToken.Operator.POW_ASSIGN -> TODO()
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
+                        CrescentToken.Operator.OR_COMPARE -> {
 
-							stack.push(pop2 % pop1)
-						}
+                            val pop1 = runNode(stack.pop(), context) as Primitive.Boolean
+                            val pop2 = runNode(stack.pop(), context) as Primitive.Boolean
 
-						CrescentToken.Operator.ASSIGN -> {
+                            stack.push(Primitive.Boolean(pop2.data || pop1.data))
+                        }
 
-							val value = runNode(stack.pop(), context)
+                        CrescentToken.Operator.AND_COMPARE -> {
 
-							when (val pop2 = stack.pop()) {
+                            val pop1 = runNode(stack.pop(), context) as Primitive.Boolean
+                            val pop2 = runNode(stack.pop(), context) as Primitive.Boolean
 
-								is Node.GetCall -> {
-									checkEquals(1, pop2.arguments.size)
-									val index = (pop2.arguments.first() as Primitive.Number).toI32().data
-									(context.variables.getValue(pop2.identifier).instance.value as Node.Array).values[index] = value
-								}
+                            stack.push(Primitive.Boolean(pop2.data && pop1.data))
+                        }
 
-								is Node.Identifier -> {
+                        CrescentToken.Operator.EQUALS_COMPARE -> {
 
-									val variable = checkNotNull(context.variables[pop2.name]) {
-										"Variable ${pop2.name} not found for reassignment."
-									}
+                            val pop1 = runNode(stack.pop(), context)
+                            val pop2 = runNode(stack.pop(), context)
 
-									val valueType = findType(value)
+                            // TODO: Override !=, ==, >=, <=, <, > on number, then merging this if statement into one statement and remove pop1 and pop2
+                            if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
+                                stack.push(Primitive.Boolean(pop2.toF64().data == pop1.toF64().data))
+                            } else {
+                                stack.push(Primitive.Boolean(pop2 == pop1))
+                            }
+                        }
+                        CrescentToken.Operator.LESSER_EQUALS_COMPARE -> {
 
-									checkIsSameType(variable.instance.type, valueType) {
-										"Variable ${variable.name}: ${variable.instance.type} cannot be assigned to a value of type $valueType"
-									}
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
 
-									check(variable.isMutable) {
-										"Variable ${variable.name} is not mutable"
-									}
+                            stack.push(Primitive.Boolean(pop2 <= pop1))
+                        }
+                        CrescentToken.Operator.GREATER_EQUALS_COMPARE -> {
 
-									variable.instance = Instance(valueType, value)
-								}
-							}
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
 
-							return Type.unit
-						}
+                            stack.push(Primitive.Boolean(pop2 >= pop1))
+                        }
 
-						CrescentToken.Operator.ADD_ASSIGN -> {
+                        CrescentToken.Operator.LESSER_COMPARE -> {
 
-						}
-						CrescentToken.Operator.SUB_ASSIGN -> TODO()
-						CrescentToken.Operator.MUL_ASSIGN -> TODO()
-						CrescentToken.Operator.DIV_ASSIGN -> TODO()
-						CrescentToken.Operator.REM_ASSIGN -> TODO()
-						CrescentToken.Operator.POW_ASSIGN -> TODO()
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
 
-						CrescentToken.Operator.OR_COMPARE -> {
+                            stack.push(Primitive.Boolean(pop2 < pop1))
+                        }
+                        CrescentToken.Operator.GREATER_COMPARE -> {
 
-							val pop1 = runNode(stack.pop(), context) as Primitive.Boolean
-							val pop2 = runNode(stack.pop(), context) as Primitive.Boolean
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
 
-							stack.push(Primitive.Boolean(pop2.data || pop1.data))
-						}
+                            stack.push(Primitive.Boolean(pop2 > pop1))
+                        }
 
-						CrescentToken.Operator.AND_COMPARE -> {
 
-							val pop1 = runNode(stack.pop(), context) as Primitive.Boolean
-							val pop2 = runNode(stack.pop(), context) as Primitive.Boolean
+                        CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
 
-							stack.push(Primitive.Boolean(pop2.data && pop1.data))
-						}
+                        CrescentToken.Operator.NOT_EQUALS_COMPARE -> {
 
-						CrescentToken.Operator.EQUALS_COMPARE -> {
+                            val pop1 = runNode(stack.pop(), context)
+                            val pop2 = runNode(stack.pop(), context)
 
-							val pop1 = runNode(stack.pop(), context)
-							val pop2 = runNode(stack.pop(), context)
+                            // TODO: Override !=, ==, >=, <=, <, >, xor, or, and, etc on number, then merging this if statement into one statement and remove pop1 and pop2
+                            if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
+                                stack.push(Primitive.Boolean(pop2.toF64().data != pop1.toF64().data))
+                            } else {
+                                stack.push(Primitive.Boolean(pop2 != pop1))
+                            }
+                        }
 
-							// TODO: Override !=, ==, >=, <=, <, > on number, then merging this if statement into one statement and remove pop1 and pop2
-							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
-								stack.push(Primitive.Boolean(pop2.toF64().data == pop1.toF64().data))
-							}
-							else {
-								stack.push(Primitive.Boolean(pop2 == pop1))
-							}
-						}
-						CrescentToken.Operator.LESSER_EQUALS_COMPARE -> {
+                        CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
+                        CrescentToken.Operator.CONTAINS -> TODO()
+                        CrescentToken.Operator.RANGE_TO -> TODO()
+                        CrescentToken.Operator.TYPE_PREFIX -> TODO()
+                        CrescentToken.Operator.RETURN -> {
+                            return stack.poll() ?: Type.unit
+                        }
+                        CrescentToken.Operator.RESULT -> TODO()
+                        CrescentToken.Operator.COMMA -> TODO()
+                        CrescentToken.Operator.DOT -> TODO()
+                        CrescentToken.Operator.AS -> TODO()
+                        CrescentToken.Operator.IMPORT_SEPARATOR -> TODO()
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+                        CrescentToken.Operator.INSTANCE_OF -> {
 
-							stack.push(Primitive.Boolean(pop2 <= pop1))
-						}
-						CrescentToken.Operator.GREATER_EQUALS_COMPARE -> {
+                            val pop1 = (runNode(stack.pop(), context) as Node.Identifier)
+                            val pop2 = runNode(stack.pop(), context)
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+                            stack.push(Primitive.Boolean(pop1.name == Type.any.name || "${findType(pop2)}" == pop1.name))
+                        }
 
-							stack.push(Primitive.Boolean(pop2 >= pop1))
-						}
+                        CrescentToken.Operator.BIT_SHIFT_RIGHT -> {
 
-						CrescentToken.Operator.LESSER_COMPARE -> {
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+                            stack.push(Primitive.Number.I32(pop2 shr pop1))
+                        }
 
-							stack.push(Primitive.Boolean(pop2 < pop1))
-						}
-						CrescentToken.Operator.GREATER_COMPARE -> {
+                        CrescentToken.Operator.BIT_SHIFT_LEFT -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toF64().data
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							stack.push(Primitive.Boolean(pop2 > pop1))
-						}
+                            stack.push(Primitive.Number.I32(pop2 shl pop1))
+                        }
 
+                        CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> {
 
-						CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-						CrescentToken.Operator.NOT_EQUALS_COMPARE -> {
+                            stack.push(Primitive.Number.I32(pop2 ushr pop1))
+                        }
 
-							val pop1 = runNode(stack.pop(), context)
-							val pop2 = runNode(stack.pop(), context)
+                        CrescentToken.Operator.BIT_OR -> {
 
-							// TODO: Override !=, ==, >=, <=, <, >, xor, or, and, etc on number, then merging this if statement into one statement and remove pop1 and pop2
-							if (pop1 is Primitive.Number && pop2 is Primitive.Number) {
-								stack.push(Primitive.Boolean(pop2.toF64().data != pop1.toF64().data))
-							}
-							else {
-								stack.push(Primitive.Boolean(pop2 != pop1))
-							}
-						}
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
-						CrescentToken.Operator.CONTAINS -> TODO()
-						CrescentToken.Operator.RANGE_TO -> TODO()
-						CrescentToken.Operator.TYPE_PREFIX -> TODO()
-						CrescentToken.Operator.RETURN -> {
-							return stack.poll() ?: Type.unit
-						}
-						CrescentToken.Operator.RESULT -> TODO()
-						CrescentToken.Operator.COMMA -> TODO()
-						CrescentToken.Operator.DOT -> TODO()
-						CrescentToken.Operator.AS -> TODO()
-						CrescentToken.Operator.IMPORT_SEPARATOR -> TODO()
+                            stack.push(Primitive.Number.I32(pop2 or pop1))
+                        }
 
-						CrescentToken.Operator.INSTANCE_OF -> {
+                        CrescentToken.Operator.BIT_AND -> {
 
-							val pop1 = (runNode(stack.pop(), context) as Node.Identifier)
-							val pop2 = runNode(stack.pop(), context)
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							stack.push(Primitive.Boolean(pop1.name == Type.any.name || "${findType(pop2)}" == pop1.name))
-						}
+                            stack.push(Primitive.Number.I32(pop2 and pop1))
+                        }
+                        CrescentToken.Operator.BIT_XOR -> {
 
-						CrescentToken.Operator.BIT_SHIFT_RIGHT -> {
+                            val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                            val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                            stack.push(Primitive.Number.I32(pop2 xor pop1))
+                        }
 
-							stack.push(Primitive.Number.I32(pop2 shr pop1))
-						}
+                        CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()
+                    }
+                }
 
-						CrescentToken.Operator.BIT_SHIFT_LEFT -> {
+                is Primitive.String,
+                is Primitive.Number,
+                is Primitive.Char,
+                is Primitive.Boolean,
+                is Node.Array,
+                is Node.Identifier,
+                is Node.GetCall,
+                is Node.Statement.If,
+                is Node.IdentifierCall,
+                -> {
+                    stack.push(node)
+                }
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                else -> error("Unexpected node: $node")
+            }
+        }
 
-							stack.push(Primitive.Number.I32(pop2 shl pop1))
-						}
+        checkEquals(1, stack.size)
 
-						CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> {
+        return runNode(stack.pop(), context)
+        //return CrescentAST.Node.Type.Unit
+    }
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+    fun runFunctionCall(node: Node.IdentifierCall, context: BlockContext): Node {
 
-							stack.push(Primitive.Number.I32(pop2 ushr pop1))
-						}
+        when (node.identifier) {
 
-						CrescentToken.Operator.BIT_OR -> {
+            "sqrt" -> {
+                checkEquals(1, node.arguments.size)
+                return Primitive.Number.F64(
+                    sqrt(
+                        (runNode(
+                            node.arguments[0], context
+                        ) as Primitive.Number).toF64().data
+                    )
+                )
+            }
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+            "sin" -> {
+                checkEquals(1, node.arguments.size)
+                return Primitive.Number.F64(sin((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
+            }
 
-							stack.push(Primitive.Number.I32(pop2 or pop1))
-						}
+            "round" -> {
+                checkEquals(1, node.arguments.size)
+                return Primitive.Number.F64(
+                    round(
+                        (runNode(
+                            node.arguments[0], context
+                        ) as Primitive.Number).toF64().data
+                    )
+                )
+            }
 
-						CrescentToken.Operator.BIT_AND -> {
+            "print" -> {
+                checkEquals(1, node.arguments.size)
+                print(runNode(node.arguments[0], context).asString())
+            }
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+            "println" -> {
 
-							stack.push(Primitive.Number.I32(pop2 and pop1))
-						}
-						CrescentToken.Operator.BIT_XOR -> {
+                check(node.arguments.size <= 1) {
+                    "Too many args for println call!"
+                }
 
-							val pop1 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number).toI32().data
+                if (node.arguments.isEmpty()) {
+                    println()
+                } else {
+                    println(runNode(node.arguments[0], context).asString())
+                }
+            }
 
-							stack.push(Primitive.Number.I32(pop2 xor pop1))
-						}
+            "readLine" -> {
+                checkEquals(1, node.arguments.size)
+                println(runNode(node.arguments[0], context).asString())
+                return Primitive.String(readLine()!!)
+            }
 
-						CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()
-					}
-				}
+            "readBoolean" -> {
+                checkEquals(1, node.arguments.size)
+                println(runNode(node.arguments[0], context).asString())
+                return Primitive.Boolean(readLine()!!.toBooleanStrict())
+            }
 
-				is Primitive.String,
-				is Primitive.Number,
-				is Primitive.Char,
-				is Primitive.Boolean,
-				is Node.Array,
-				is Node.Identifier,
-				is Node.GetCall,
-				is Node.Statement.If,
-				is Node.IdentifierCall,
-				-> {
-					stack.push(node)
-				}
+            // TODO: Make this return a special type struct instance
+            "typeOf" -> {
+                checkEquals(1, node.arguments.size)
+                return findType(runNode(node.arguments[0], context))
+            }
 
-				else -> error("Unexpected node: $node")
-			}
-		}
+            else -> {
 
-		checkEquals(1, stack.size)
+                val functionFile = checkNotNull(files.find { node.identifier in it.functions }) {
+                    "Unknown function: ${node.identifier}(${node.arguments.map { runNode(it, context) }})"
+                }
 
-		return runNode(stack.pop(), context)
-		//return CrescentAST.Node.Type.Unit
-	}
+                val function = functionFile.functions.getValue(node.identifier)
+                val argumentValues = node.arguments.map { runNode(it, context) }
 
-	fun runFunctionCall(node: Node.IdentifierCall, context: BlockContext): Node {
+                function.params.forEachIndexed { index, parameter ->
+                    check(parameter is Node.Parameter.Basic) {
+                        "Crescent doesn't support parameters with default values yet."
+                    }
+                    check(parameter.type == Type.any || parameter.type == findType(argumentValues[index])) {
+                        "Parameter ${parameter.name} had an argument of type ${findType(argumentValues[index])}, expected ${parameter.type}"
+                    }
+                }
 
-		when (node.identifier) {
+                return runFunction(functionFile, functionFile, function, argumentValues)
+            }
 
-			"sqrt" -> {
-				checkEquals(1, node.arguments.size)
-				return Primitive.Number.F64(sqrt((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
-			}
+        }
 
-			"sin" -> {
-				checkEquals(1, node.arguments.size)
-				return Primitive.Number.F64(sin((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
-			}
+        return Type.unit
+    }
 
-			"round" -> {
-				checkEquals(1, node.arguments.size)
-				return Primitive.Number.F64(round((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
-			}
+    fun Node.asString(): String {
 
-			"print" -> {
-				checkEquals(1, node.arguments.size)
-				print(runNode(node.arguments[0], context).asString())
-			}
+        return when (this) {
 
-			"println" -> {
+            is Primitive.String -> {
+                this.data
+            }
 
-				check(node.arguments.size <= 1) {
-					"Too many args for println call!"
-				}
+            is Type -> {
+                "$this"
+            }
 
-				if (node.arguments.isEmpty()) {
-					println()
-				}
-				else {
-					println(runNode(node.arguments[0], context).asString())
-				}
-			}
+            is Primitive.Char -> {
+                "${this.data}"
+            }
 
-			"readLine" -> {
-				checkEquals(1, node.arguments.size)
-				println(runNode(node.arguments[0], context).asString())
-				return Primitive.String(readLine()!!)
-			}
+            is Primitive.Number -> {
+                "$this"
+            }
 
-			"readBoolean" -> {
-				checkEquals(1, node.arguments.size)
-				println(runNode(node.arguments[0], context).asString())
-				return Primitive.Boolean(readLine()!!.toBooleanStrict())
-			}
+            is Primitive.Boolean -> {
+                "${this.data}"
+            }
 
-			// TODO: Make this return a special type struct instance
-			"typeOf" -> {
-				checkEquals(1, node.arguments.size)
-				return findType(runNode(node.arguments[0], context))
-			}
+            is Node.Array -> {
+                "${this.values.map { it.asString() }}"
+            }
 
-			else -> {
+            is Node.Identifier -> {
+                this.name
+            }
 
-				val functionFile = checkNotNull(files.find { node.identifier in it.functions }) {
-					"Unknown function: ${node.identifier}(${node.arguments.map { runNode(it, context) }})"
-				}
+            else -> {
+                // TODO: Attempt to find a toString()
+                error("Unknown node ${this::class}")
+            }
+        }
+    }
 
-				val function = functionFile.functions.getValue(node.identifier)
-				val argumentValues = node.arguments.map { runNode(it, context) }
 
-				function.params.forEachIndexed { index, parameter ->
-					check(parameter is Node.Parameter.Basic) {
-						"Crescent doesn't support parameters with default values yet."
-					}
-					check(parameter.type == Type.any || parameter.type == findType(argumentValues[index])) {
-						"Parameter ${parameter.name} had an argument of type ${findType(argumentValues[index])}, expected ${parameter.type}"
-					}
-				}
+    fun findType(value: Node) = when (value) {
 
-				return runFunction(functionFile, functionFile, function, argumentValues)
-			}
+        is Node.Typed -> value.type
+        is Type.Basic -> value
+        is Node.Array -> Type.Array(Type.any) // TODO: Do better
 
-		}
+        else -> error("Unexpected value: ${value::class}")
+    }
 
-		return Type.unit
-	}
+    inline fun checkIsSameType(parameter: Node.Parameter, value: Node, errorBlock: (parameterType: Type) -> String) =
+        when (parameter) {
 
-	fun Node.asString(): String {
+            is Node.Parameter.Basic -> {
+                checkIsSameType(parameter.type, value) {
+                    errorBlock(parameter.type)
+                }
+            }
 
-		return when (this) {
+            else -> TODO()
+        }
 
-			is Primitive.String -> {
-				this.data
-			}
+    // TODO: Use typeOf instead
+    inline fun checkIsSameType(type: Type, value: Node, errorBlock: () -> String) = when (type) {
 
-			is Type -> {
-				"$this"
-			}
-
-			is Primitive.Char -> {
-				"${this.data}"
-			}
-
-			is Primitive.Number -> {
-				"$this"
-			}
-
-			is Primitive.Boolean -> {
-				"${this.data}"
-			}
-
-			is Node.Array -> {
-				"${this.values.map { it.asString() }}"
-			}
-
-			is Node.Identifier -> {
-				this.name
-			}
-
-			else -> {
-				// TODO: Attempt to find a toString()
-				error("Unknown node ${this::class}")
-			}
-		}
-	}
-
-
-	fun findType(value: Node) = when (value) {
-
-		is Node.Typed -> value.type
-		is Type.Basic -> value
-		is Node.Array -> Type.Array(Type.any) // TODO: Do better
-
-		else -> error("Unexpected value: ${value::class}")
-	}
-
-	inline fun checkIsSameType(parameter: Node.Parameter, value: Node, errorBlock: (parameterType: Type) -> String) = when (parameter) {
-
-		is Node.Parameter.Basic -> {
-			checkIsSameType(parameter.type, value) {
-				errorBlock(parameter.type)
-			}
-		}
-
-		else -> TODO()
-	}
-
-	// TODO: Use typeOf instead
-	inline fun checkIsSameType(type: Type, value: Node, errorBlock: () -> String) = when (type) {
-
-		/*
+        /*
         is Type.Array -> {
             check(arg is Node.Array)
             checkEquals(parameter.type, typeOf(arg.values.first()))
         }
         */
 
-		is Type.Array -> {
-			// TODO: Implement this
-		}
+        is Type.Array -> {
+            // TODO: Implement this
+        }
 
-		is Type.Basic -> {
-			if (type.name != "Any") {
-				check(type.name == value::class.simpleName) {
-					errorBlock()
-					"Expected ${type.name}, got ${value::class.qualifiedName}"
-				}
-			}
-			else {
-				// Do nothing
-			}
-		}
+        is Type.Basic -> {
+            if (type.name != "Any") {
+                check(type.name == value::class.simpleName) {
+                    errorBlock()
+                    "Expected ${type.name}, got ${value::class.qualifiedName}"
+                }
+            } else {
+                // Do nothing
+            }
+        }
 
-		else -> {
-			error("Expected $type, got ${value::class.qualifiedName}")
-		}
-	}
+        else -> {
+            error("Expected $type, got ${value::class.qualifiedName}")
+        }
+    }
 
 
-	data class Instance(
-		val type: Type,
-		var value: Node
-	)
+    data class Instance(
+        val type: Type, var value: Node
+    )
 
-	/**
-	 * @property variables Name -> Variable
-	 * @constructor
-	 */
-	data class BlockContext(
-		val file: Node.File,
-		val holder: Node,
-		val parameters: MutableMap<String, Node>,
-		//val variables: MutableMap<String, Variable(Node.Variable, )> = mutableMapOf(),
-		val variables: MutableMap<String, Variable> = mutableMapOf(),
-	) {
+    /**
+     * @property variables Name -> Variable
+     * @constructor
+     */
+    data class BlockContext(
+        val file: Node.File,
+        val holder: Node,
+        val parameters: MutableMap<String, Node>,
+        //val variables: MutableMap<String, Variable(Node.Variable, )> = mutableMapOf(),
+        val variables: MutableMap<String, Variable> = mutableMapOf(),
+    ) {
 
-		data class Variable(
-			val name: String,
-			var instance: Instance,
-			val isMutable: Boolean,
-		)
+        data class Variable(
+            val name: String,
+            var instance: Instance,
+            val isMutable: Boolean,
+        )
 
-	}
+    }
 
 }
