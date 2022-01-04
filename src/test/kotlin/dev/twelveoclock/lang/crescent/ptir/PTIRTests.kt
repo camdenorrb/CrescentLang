@@ -1,4 +1,4 @@
-package dev.twelveoclock.lang.crescent
+package dev.twelveoclock.lang.crescent.ptir
 
 /*
 import jdk.incubator.foreign.MemorySegment

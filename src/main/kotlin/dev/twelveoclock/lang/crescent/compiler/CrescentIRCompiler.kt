@@ -80,7 +80,7 @@ object CrescentIRCompiler {
 			is Primitive.Number.F32 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
 			is Primitive.Number.F64 -> commandsOutput.add(CrescentIR.Command.Push(node.data.minimize()))
 
-			is Identifier -> commandsOutput.add(CrescentIR.Command.Push(Identifier(node.name)))
+			is Identifier -> commandsOutput.add(CrescentIR.Command.PushNamedValue(node.name))
 			is Expression -> compileExpression(node, commandsOutput)
 
 			is Variable -> {
@@ -140,6 +140,9 @@ object CrescentIRCompiler {
 				commandsOutput.add(CrescentIR.Command.Invoke(node.identifier))
 			}
 
+			is Return -> {
+				compileNode(node.expression, commandsOutput)
+			}
 
 			else -> error("Unexpected node: \n${node::class} \n$node")
 		}

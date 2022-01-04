@@ -35,17 +35,16 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 	val sectionedCrescentIR = SectionedCrescentIR.from(crescentIR)
 
 
-	fun invoke() {
-		runFunction("main", LinkedList<Any>())
+	fun invoke(args: List<String> = emptyList()) {
+		runFunction("main", LinkedList<Any>(), mapOf("args" to args))
 	}
 
-	fun runFunction(name: String, stack: LinkedList<Any>) {
+	fun runFunction(name: String, stack: LinkedList<Any>, namedValuesInput: Map<String, Any> = emptyMap()) {
 
 		val functionCode = sectionedCrescentIR.sections.getValue(SectionedCrescentIR.Section.FUNCTION).getValue(name)
 
-
 		// Name -> Value
-		val namedValues = mutableMapOf<String, Any>()
+		val namedValues = namedValuesInput.toMutableMap()
 
 		fun resolveValue(node: Any): Any {
 			return if (node is CrescentAST.Node.Identifier) {
@@ -201,17 +200,16 @@ class CrescentIRVM(crescentIR: CrescentIR) {
 					val pop1 = stack.pop()
 					val pop2 = stack.pop()
 
-					namedValues[(pop2 as CrescentAST.Node.Identifier).name] = pop1
+					namedValues[pop1 as String] = pop2
 					//namedValues[node.name] = stack.pop()
 				}
 
-				/*
+
 				is CrescentIR.Command.PushNamedValue -> {
 					stack.push(checkNotNull(namedValues[node.name]) {
 						"Could not find a named value with the name '${node.name}'"
 					})
 				}
-				*/
 
 				is CrescentIR.Command.Invoke -> {
 					when (node.name) {

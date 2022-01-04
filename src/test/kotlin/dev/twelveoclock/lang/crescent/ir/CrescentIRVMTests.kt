@@ -1,8 +1,10 @@
-package dev.twelveoclock.lang.crescent
+package dev.twelveoclock.lang.crescent.ir
 
+import dev.twelveoclock.lang.crescent.compiler.CrescentIRCompiler
 import dev.twelveoclock.lang.crescent.data.TestCode
 import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
 import dev.twelveoclock.lang.crescent.parsers.CrescentParser
+import dev.twelveoclock.lang.crescent.vm.CrescentIRVM
 import dev.twelveoclock.lang.crescent.vm.CrescentVM
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
@@ -11,7 +13,7 @@ import kotlin.io.path.Path
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-internal class CrescentVMTests {
+internal class CrescentIRVMTests {
 
 	private val originalSystemOut = System.out
 
@@ -28,7 +30,8 @@ internal class CrescentVMTests {
 			System.setOut(printStream)
 			block()
 			System.setOut(originalSystemOut)
-		} finally {
+		}
+		finally {
 			if (alsoPrintToConsole) {
 				System.setOut(originalSystemOut)
 				println(byteArrayOutputStream.toString())
@@ -58,7 +61,7 @@ internal class CrescentVMTests {
 				
 			""".trimIndent(),
 			collectSystemOut {
-				CrescentVM(listOf(file), file).invoke()
+				CrescentIRVM(CrescentIRCompiler.invoke(file)).invoke()
 			}
 		)
 	}
@@ -71,7 +74,7 @@ internal class CrescentVMTests {
 		assertEquals(
 			"Hello World\n",
 			collectSystemOut {
-				CrescentVM(listOf(file), file).invoke(listOf("Hello World"))
+				CrescentIRVM(CrescentIRCompiler.invoke(file)).invoke()
 			}
 		)
 	}
@@ -81,6 +84,8 @@ internal class CrescentVMTests {
 	fun funThing() {
 
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.funThing))
+
+		//CrescentIRVM(CrescentIRCompiler.invoke(file).also { println(it) }).invoke()
 
 		assertEquals(
 			"""
@@ -93,7 +98,7 @@ internal class CrescentVMTests {
 				
 			""".trimIndent(),
 			collectSystemOut {
-				CrescentVM(listOf(file), file).invoke()
+				CrescentIRVM(CrescentIRCompiler.invoke(file)).invoke()
 			}
 		)
 	}
@@ -106,14 +111,14 @@ internal class CrescentVMTests {
 		assertEquals(
 			"Meow\n",
 			collectSystemOut {
-				CrescentVM(listOf(file), file).invoke(listOf("true"))
+				CrescentIRVM(CrescentIRCompiler.invoke(file)).invoke(listOf("true"))
 			}
 		)
 
 		assertEquals(
 			"Hiss\n",
 			collectSystemOut {
-				CrescentVM(listOf(file), file).invoke(listOf("false"))
+				CrescentIRVM(CrescentIRCompiler.invoke(file)).invoke(listOf("false"))
 			}
 		)
 	}

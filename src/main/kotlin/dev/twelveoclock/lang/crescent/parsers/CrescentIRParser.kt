@@ -42,7 +42,7 @@ object CrescentIRParser {
 				"ushr" -> CrescentIR.Command.UnsignedShiftRight
 				"fun" -> CrescentIR.Command.Fun(args[1])
 				"push" -> CrescentIR.Command.Push(args.drop(1).joinToString(" ").asTyped())
-				//"pushName" -> CrescentIR.Command.PushNamedValue(args[1])
+				"pushName" -> CrescentIR.Command.PushNamedValue(args[1])
 				"jump" -> CrescentIR.Command.Jump(args[1].toInt())
 				"jumpIf" -> CrescentIR.Command.JumpIf(args[1].toInt())
 				"jumpIfFalse" -> CrescentIR.Command.JumpIfFalse(args[1].toInt())

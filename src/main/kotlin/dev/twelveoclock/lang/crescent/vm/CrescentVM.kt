@@ -22,7 +22,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 		if (mainFunction.params.isEmpty()) {
 			runFunction(mainFile, mainFile, mainFunction, emptyList())
-		} else {
+		}
+		else {
 			runFunction(
 				mainFile,
 				mainFile,
@@ -251,7 +252,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				val type = if (node.type is Type.Implicit) {
 					findType(value)
-				} else {
+				}
+				else {
 					node.type
 				}
 

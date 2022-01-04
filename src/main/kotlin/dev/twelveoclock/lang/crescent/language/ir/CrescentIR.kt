@@ -251,7 +251,6 @@ value class CrescentIR(val commands: List<Command>) {
 			}
 		}
 
-		/*
 		@JvmInline
 		value class PushNamedValue(
 			val name: String,
@@ -260,7 +259,6 @@ value class CrescentIR(val commands: List<Command>) {
 				return "pushName $name"
 			}
 		}
-		*/
 
 		@JvmInline
 		value class Jump(
