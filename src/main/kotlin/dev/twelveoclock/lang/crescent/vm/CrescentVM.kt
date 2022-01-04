@@ -162,7 +162,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 
                 // N For Loop
-                //for (rangeIndex in ranges.indices.reversed()) {
                 val rangeIndex = ranges.size - 1
                 val range = ranges[rangeIndex]
                 val count = counters[rangeIndex]
@@ -186,7 +185,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
                         break
                     }
                 }
-                //}
                 /*while ((counters.first().instance.value as Primitive.Number.I32).data <= ranges.first().last) {
 
                     for (rangeIndex in ranges.indices.reversed()) {
