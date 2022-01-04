@@ -122,11 +122,11 @@ internal class CrescentLexerTests {
                 VAL, Key("x"), COMMA, Key("y"), COMMA, Key("z"), ASSIGN, Data.Number(0.toByte()),
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
 
-                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0.toByte()), RANGE_TO, Data.Number(10.toByte()), Bracket.OPEN,
+                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0.toByte()), RANGE_TO, Data.Number(9.toByte()), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
 
-                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0.toByte()), RANGE_TO, Data.Number(10.toByte()), COMMA, Data.Number(0.toByte()), RANGE_TO, Data.Number(10.toByte()), COMMA, Data.Number(0.toByte()), RANGE_TO, Data.Number(10.toByte()), Bracket.OPEN,
+                FOR, Key("x"), COMMA, Key("y"), COMMA, Key("z"), CONTAINS, Data.Number(0.toByte()), RANGE_TO, Data.Number(9.toByte()), COMMA, Data.Number(0.toByte()), RANGE_TO, Data.Number(9.toByte()), COMMA, Data.Number(0.toByte()), RANGE_TO, Data.Number(9.toByte()), Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("\$x\$y\$z"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
 

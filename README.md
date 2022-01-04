@@ -22,7 +22,7 @@
 - [x] Variables
 - [x] While loops
 - [x] String interpolation
-- [ ] For loops
+- [x] For loops
 - [ ] Structs
 - [ ] Impl
 - [ ] Traits
