@@ -96,7 +96,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					?: context.variables[node.name]?.instance?.value
 					?: context.file.constants[node.name]?.value
 					?: Node.Identifier(node.name)
-					//?: error("Unknown variable: ${node.name}")
+				//?: error("Unknown variable: ${node.name}")
 			}
 
 			is Node.IdentifierCall -> {
@@ -173,6 +173,37 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					return@mapIndexed counter
 				}
 
+				/*
+				val range = ranges[ranges.size - 1]
+				val count = counters[ranges.size - 1]
+
+				while (true) {
+
+					// Go through last range
+					range.forEach {
+						count.instance.value = Primitive.Number.I32(it)
+						runBlock(node.block, forContext)
+					}
+
+					// Set range
+					var tmpIndex = ranges.size - 2
+
+					while (tmpIndex > -1) {
+						if ((counters[tmpIndex].instance.value as Primitive.Number.I32).data >= ranges[tmpIndex].last) {
+							counters[tmpIndex].instance.value = Primitive.Number.I32(ranges[tmpIndex].first)
+							tmpIndex--
+						}
+						else {
+							counters[tmpIndex].instance.value = Primitive.Number.I32((counters[tmpIndex].instance.value as Primitive.Number.I32).data + 1)
+							break
+						}
+					}
+
+					if (tmpIndex == -1) {
+						break
+					}
+				}*/
+
 				// N For Loop
 				while (counters.anyIndexed { index, count -> (count.instance.value as Primitive.Number.I32).data != ranges[index].last }) {
 
@@ -200,7 +231,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 							count.instance.value = Primitive.Number.I32(range.first)
 						}
 					}
-
 				}
 
 				runBlock(node.block, forContext)
