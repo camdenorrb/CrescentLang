@@ -11,4 +11,4 @@ steps:
 - name: test
   image: gradle:latest
   commands:
-  - gradle build
+  - gradle build --no-daemon
