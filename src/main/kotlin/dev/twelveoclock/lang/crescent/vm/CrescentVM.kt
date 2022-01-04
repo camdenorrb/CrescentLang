@@ -173,14 +173,17 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				}
 
 				// N For Loop
-				while ((counters.first().instance.value as Primitive.Number.I32).data != ranges.first().last) {
+				while ((counters.first().instance.value as Primitive.Number.I32).data <= ranges.first().last) {
 
 					for (rangeIndex in ranges.indices.reversed()) {
 
 						val range = ranges[rangeIndex]
 						val count = counters[rangeIndex]
 
-						if ((count.instance.value as Primitive.Number.I32).data != range.last) {
+						if ((count.instance.value as Primitive.Number.I32).data <= range.last) {
+
+							//println(count.instance.value)
+							runBlock(node.block, forContext)
 
 							count.instance.value = Primitive.Number.I32(
 								(count.instance.value as Primitive.Number.I32).data + range.step
@@ -193,7 +196,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						}
 					}
 
-					runBlock(node.block, forContext)
 				}
 
 			}

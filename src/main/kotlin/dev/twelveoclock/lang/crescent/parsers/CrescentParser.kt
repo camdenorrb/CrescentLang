@@ -961,7 +961,6 @@ object CrescentParser {
                                 continue
                             }
 
-
                             if (builder.isNotEmpty() || (builder.isEmpty() && nodes.isEmpty())) {
                                 nodes += CrescentAST.Node.Primitive.String(builder.toString())
                                 builder.clear()
@@ -972,13 +971,12 @@ object CrescentParser {
                                 nodes += readExpression(PeekingTokenIterator(CrescentLexer.invoke(iterator.nextUntilAndSkip('}'))))
                             }
                             else {
-                                nodes += CrescentAST.Node.Identifier(iterator.nextUntil(setOf(' ', '$')))
+                                nodes += CrescentAST.Node.Identifier(iterator.nextUntil { it == ' ' || it == '$' || !it.isLetterOrDigit() })
                             }
 
                             if (iterator.hasNext()) {
                                 nodes += CrescentToken.Operator.ADD
                             }
-
                         }
 
                         if (builder.isNotEmpty()) {
