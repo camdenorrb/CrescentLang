@@ -253,7 +253,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				val value = runNode(node.value, context)
 
 				val type = if (node.type is Type.Implicit) {
-					findType(node.value)
+					findType(value)
 				}
 				else {
 					node.type
@@ -677,7 +677,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		is Node.Typed -> value.type
 		is Type.Basic -> value
 		is Node.Array -> Type.Array(Type.any) // TODO: Do better
-		is Node.IdentifierCall -> Type.Implicit // TODO: Do better
 
 		else -> error("Unexpected value: ${value::class}")
 	}
