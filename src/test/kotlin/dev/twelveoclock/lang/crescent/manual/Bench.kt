@@ -15,7 +15,7 @@ import kotlin.system.measureNanoTime
 
 internal object Bench {
 
-	const val DEFAULT_CYCLES = 10_000_000
+	const val DEFAULT_CYCLES = 5_000_000
 
 	val filePath = Path.of("example.crescent")
 
@@ -29,6 +29,7 @@ internal object Bench {
 
 	val originalSystemIn = System.`in`
 
+	val nullSystemPrinter = PrintStream(PrintStream.nullOutputStream())
 
 	private inline fun collectSystemOut(block: () -> Unit): String {
 
@@ -40,6 +41,12 @@ internal object Bench {
 		System.setOut(originalSystemOut)
 
 		return byteArrayOutputStream.toString()
+	}
+
+	private inline fun ignoreSystemOut(block: () -> Unit) {
+		System.setOut(nullSystemPrinter)
+		block()
+		System.setOut(originalSystemOut)
 	}
 
 	private inline fun fakeUserInput(input: String, block: () -> Unit) {
@@ -107,7 +114,7 @@ internal object Bench {
 		val vm = CrescentVM(listOf(parsed), parsed)
 
 		vmBenchmark.bench("Kat:$name") {
-			collectSystemOut {
+			ignoreSystemOut {
 				vm.invoke()
 			}
 		}
