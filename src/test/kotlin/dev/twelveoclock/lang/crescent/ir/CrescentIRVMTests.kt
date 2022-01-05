@@ -93,6 +93,7 @@ internal class CrescentIRVMTests {
 				Meow
 				Meow
 				Meow
+				-5
 				Meow
 				Meow
 				
@@ -194,7 +195,6 @@ internal class CrescentIRVMTests {
 					}
 				}
 			}.joinToString("\n")
-
 
 		assertEquals(
 			"""

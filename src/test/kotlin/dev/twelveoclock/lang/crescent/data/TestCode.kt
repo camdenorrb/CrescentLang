@@ -46,11 +46,15 @@ internal object TestCode {
 			    println(input1 + input2)
 			}
 			
-			fun funThing5 -> String {
+			fun funThing5(input: I32) {
+				println(input)
+			}
+			
+			fun funThing6 -> String {
 				-> "Meow"
 			}
 			
-			fun funThing6() -> String {
+			fun funThing7() -> String {
 				-> "Meow"
 			}
 			
@@ -59,8 +63,9 @@ internal object TestCode {
 				funThing2("Meow")
 				funThing3("Me", "ow")
 				funThing4("Me", "ow")
-				println(funThing5())
+				funThing5(-5)
 				println(funThing6())
+				println(funThing7())
 			}
 		"""
 

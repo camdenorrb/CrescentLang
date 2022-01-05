@@ -20,7 +20,6 @@ internal class CrescentVMTests {
 
 	private inline fun collectSystemOut(alsoPrintToConsole: Boolean = false, block: () -> Unit): String {
 
-
 		val byteArrayOutputStream = ByteArrayOutputStream()
 		val printStream = PrintStream(byteArrayOutputStream)
 
@@ -88,11 +87,12 @@ internal class CrescentVMTests {
 				Meow
 				Meow
 				Meow
+				-5
 				Meow
 				Meow
 				
 			""".trimIndent(),
-			collectSystemOut {
+			collectSystemOut(true) {
 				CrescentVM(listOf(file), file).invoke()
 			}
 		)

@@ -1057,7 +1057,7 @@ class CrescentAST {
 					else -> error("Unknown type: $this")
 				}
 
-				operator fun times(number: Number): Number = when (this) {
+				fun multiply(number: Number): Number = when (this) {
 
 					is U8 -> when (number) {
 						is U8 -> U32(this.data * number.data)

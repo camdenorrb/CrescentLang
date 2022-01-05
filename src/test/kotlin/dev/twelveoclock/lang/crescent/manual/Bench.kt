@@ -93,6 +93,8 @@ internal object Bench {
 			}
 		}
 
+		benchVM(name, code)
+
 		println()
 	}
 

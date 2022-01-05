@@ -299,16 +299,21 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						CrescentToken.Operator.SUB -> {
 
 							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
-							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
+							val pop2 = stack.poll()?.let { (runNode(it, context) as Primitive.Number) }
 
-							stack.push(pop2 - pop1)
+							if (pop2 == null) {
+								stack.push(pop1.multiply(Primitive.Number.I8(-1)))
+							}
+							else {
+								stack.push(pop2 - pop1)
+							}
 						}
 						CrescentToken.Operator.MUL -> {
 
 							val pop1 = (runNode(stack.pop(), context) as Primitive.Number)
 							val pop2 = (runNode(stack.pop(), context) as Primitive.Number)
 
-							stack.push(pop2 * pop1)
+							stack.push(pop2.multiply(pop1))
 						}
 						CrescentToken.Operator.DIV -> {
 
