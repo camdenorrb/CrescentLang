@@ -64,12 +64,12 @@ internal object Bench {
 		//benchCode("If Input Statement", TestCode.ifInputStatement)
 		//benchCode("Calculator", TestCode.calculator)
 		benchCode("Constants and Objects", TestCode.constantsAndObject)
-		benchCode("Impl", TestCode.impl)
+		//benchCode("Impl", TestCode.impl)
 		benchCode("Math", TestCode.math)
-		benchCode("Sealed", TestCode.sealed)
-		benchCode("Enum", TestCode.enum)
-		benchCode("Comments", TestCode.comments)
-		benchCode("Imports", TestCode.imports)
+		//benchCode("Sealed", TestCode.sealed)
+		//benchCode("Enum", TestCode.enum)
+		//benchCode("Comments", TestCode.comments)
+		//benchCode("Imports", TestCode.imports)
 
 
 		/*
