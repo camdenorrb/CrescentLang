@@ -20,7 +20,7 @@ dependencies {
 
     implementation("org.capnproto:runtime:0.1.11")
     implementation("com.guardsquare:proguard-core:8.0.3")
-    //implementation("tech.poder.ir:PoderTechIR:+")
+    implementation("tech.poder.ir:PoderTechIR:+")
     testImplementation(kotlin("test-junit5"))
 }
 
