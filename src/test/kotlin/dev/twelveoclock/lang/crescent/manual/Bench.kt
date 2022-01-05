@@ -60,9 +60,9 @@ internal object Bench {
 	fun main(args: Array<String>) {
 
 		benchCode("Hello Worlds", TestCode.helloWorlds)
-		benchCode("If Statement", TestCode.ifStatement)
-		benchCode("If Input Statement", TestCode.ifInputStatement)
-		benchCode("Calculator", TestCode.calculator)
+		benchCode("If Statement", TestCode.ifStatement, listOf("true"))
+		//benchCode("If Input Statement", TestCode.ifInputStatement)
+		//benchCode("Calculator", TestCode.calculator)
 		benchCode("Constants and Objects", TestCode.constantsAndObject)
 		benchCode("Impl", TestCode.impl)
 		benchCode("Math", TestCode.math)
@@ -84,7 +84,7 @@ internal object Bench {
 
 	}
 
-	fun benchCode(name: String, code: String) {
+	fun benchCode(name: String, code: String, args: List<String> = emptyList()) {
 
 		lexerBenchmark.apply {
 			bench(name) {
@@ -100,12 +100,12 @@ internal object Bench {
 			}
 		}
 
-		benchVM(name, code)
+		benchVM(name, code, args)
 
 		println()
 	}
 
-	fun benchVM(name: String, code: String) {
+	fun benchVM(name: String, code: String, args: List<String> = emptyList()) {
 
 		val tokens = CrescentLexer.invoke(code)
 		val parsed = CrescentParser.invoke(Path("example.moo"), tokens)
@@ -115,7 +115,7 @@ internal object Bench {
 
 		vmBenchmark.bench("Kat:$name") {
 			ignoreSystemOut {
-				vm.invoke()
+				vm.invoke(args)
 			}
 		}
 
