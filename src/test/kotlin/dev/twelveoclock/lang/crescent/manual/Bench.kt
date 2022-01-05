@@ -15,7 +15,7 @@ import kotlin.system.measureNanoTime
 
 internal object Bench {
 
-	const val DEFAULT_CYCLES = 5_000_000
+	const val DEFAULT_CYCLES = 10_000_000
 
 	val filePath = Path.of("example.crescent")
 
