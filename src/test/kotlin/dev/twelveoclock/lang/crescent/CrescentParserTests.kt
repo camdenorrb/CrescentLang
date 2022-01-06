@@ -91,10 +91,12 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("input", true, Visibility.PUBLIC, Type.Implicit, IdentifierCall(
-                    "readBoolean",
-                    listOf(String("Enter a boolean value [true/false]"))
-                )),
+                Variable.Basic(
+                    "input", Type.Implicit, IdentifierCall(
+                        "readBoolean",
+                        listOf(String("Enter a boolean value [true/false]"))
+                    ), true, Visibility.PUBLIC
+                ),
                 Statement.If(
                     Identifier("input"),
                     Statement.Block(listOf(
@@ -122,9 +124,9 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("x", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
-                Variable.Basic("y", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
-                Variable.Basic("z", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
+                Variable.Basic("x", Type.Implicit, I8(0), true, Visibility.PUBLIC),
+                Variable.Basic("y", Type.Implicit, I8(0), true, Visibility.PUBLIC),
+                Variable.Basic("z", Type.Implicit, I8(0), true, Visibility.PUBLIC),
 
                 IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD)))),
                 IdentifierCall("println", listOf(Expression(listOf(String("Hello "), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD, String(" Hello"), ADD)))),
@@ -156,9 +158,9 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
 
-                Variable.Basic("x", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
-                Variable.Basic("y", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
-                Variable.Basic("z", true, Visibility.PUBLIC, Type.Implicit, I8(0)),
+                Variable.Basic("x", Type.Implicit, I8(0), true, Visibility.PUBLIC),
+                Variable.Basic("y", Type.Implicit, I8(0), true, Visibility.PUBLIC),
+                Variable.Basic("z", Type.Implicit, I8(0), true, Visibility.PUBLIC),
 
                 // TODO: Simplify expression into the above list since it's the only expression
                 IdentifierCall("println", listOf(Expression(listOf(String(""), Identifier("x"), ADD, Identifier("y"), ADD, Identifier("z"), ADD)))),
@@ -203,7 +205,7 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("x", false, Visibility.PUBLIC, Type.Implicit, I8(1)),
+                Variable.Basic("x", Type.Implicit, I8(1), false, Visibility.PUBLIC),
                 Statement.While(
                     Expression(listOf(
                         Identifier("x"), I8(10), LESSER_EQUALS_COMPARE
@@ -236,16 +238,29 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("input1", true, Visibility.PUBLIC, Type.Implicit,
-                    IdentifierCall("readDouble", listOf(String("Enter your first number")))
+                Variable.Basic(
+                    "input1",
+                    Type.Implicit,
+                    IdentifierCall("readDouble", listOf(String("Enter your first number"))),
+                    true,
+                    Visibility.PUBLIC
                 ),
-                Variable.Basic("input2", true, Visibility.PUBLIC, Type.Implicit,
-                    IdentifierCall("readDouble", listOf(String("Enter your second number")))
+                Variable.Basic(
+                    "input2",
+                    Type.Implicit,
+                    IdentifierCall("readDouble", listOf(String("Enter your second number"))),
+                    true,
+                    Visibility.PUBLIC
                 ),
-                Variable.Basic("operation", true, Visibility.PUBLIC, Type.Implicit,
-                    IdentifierCall("readLine", listOf(String("Enter an operation [+, -, *, /]")))
+                Variable.Basic(
+                    "operation",
+                    Type.Implicit,
+                    IdentifierCall("readLine", listOf(String("Enter an operation [+, -, *, /]"))),
+                    true,
+                    Visibility.PUBLIC
                 ),
-                Variable.Basic("result", true, Visibility.PUBLIC, Type.Implicit,
+                Variable.Basic(
+                    "result", Type.Implicit,
                     When(
                         Identifier("operation"),
                         listOf(
@@ -275,6 +290,8 @@ internal class CrescentParserTests {
                             )
                         )
                     ),
+                    true,
+                    Visibility.PUBLIC,
                 ),
                 IdentifierCall("println", listOf(Identifier("result")))
             ),
@@ -289,7 +306,7 @@ internal class CrescentParserTests {
         val crescentFile = CrescentParser.invoke(Path.of("example.crescent"), tokens)
 
         assertContentEquals(
-            listOf(Variable.Constant("thing1", Visibility.PUBLIC, Type.Implicit, String("Mew"))),
+            listOf(Variable.Constant("thing1", Type.Implicit, String("Mew"), Visibility.PUBLIC)),
             crescentFile.constants.values,
             "Variables not as expected"
         )
@@ -306,9 +323,9 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Constant("thing2", Visibility.PUBLIC, Type.Implicit, String("Meow")),
+                Variable.Constant("thing2", Type.Implicit, String("Meow"), Visibility.PUBLIC),
             ),
-            constantsObject.constants,
+            constantsObject.constants.values,
         )
 
         assertContentEquals(
@@ -316,7 +333,7 @@ internal class CrescentParserTests {
                 IdentifierCall("println", listOf(Identifier("thing1"))),
                 IdentifierCall("println", listOf(Identifier("thing2")))
             ),
-            constantsObject.functions.find { it.name == "printThing" }!!.innerCode.nodes
+            constantsObject.functions["printThing"]!!.innerCode.nodes
         )
         assertContentEquals(
             listOf(
@@ -336,9 +353,9 @@ internal class CrescentParserTests {
         assertContentEquals(
             listOf(
                 Struct("Example", listOf(
-                    Variable.Basic("aNumber", true, Visibility.PUBLIC, Type.Basic("Int"), Expression(emptyList())),
-                    Variable.Basic("aValue1", true, Visibility.PUBLIC, Type.Implicit, String("")),
-                    Variable.Basic("aValue2", true, Visibility.PUBLIC, Type.Implicit, String("")),
+                    Variable.Basic("aNumber", Type.Basic("Int"), Expression(emptyList()), true, Visibility.PUBLIC),
+                    Variable.Basic("aValue1", Type.Implicit, String(""), true, Visibility.PUBLIC),
+                    Variable.Basic("aValue2", Type.Implicit, String(""), true, Visibility.PUBLIC),
                 ))
             ),
             parsed.structs.values,
@@ -346,7 +363,13 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("example", true, Visibility.PUBLIC, Type.Implicit, IdentifierCall("Example", listOf(I8(1), String("Meow"), String("Mew")))),
+                Variable.Basic(
+                    "example",
+                    Type.Implicit,
+                    IdentifierCall("Example", listOf(I8(1), String("Meow"), String("Mew"))),
+                    true,
+                    Visibility.PUBLIC
+                ),
                 DotChain(listOf(Identifier("example"), IdentifierCall("printValues"))),
                 IdentifierCall("println"),
                 IdentifierCall("println", listOf(DotChain(listOf(Identifier("example"), Identifier("aNumber"))))),
@@ -461,15 +484,27 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Struct("Thing1", listOf(Variable.Basic("name", true, Visibility.PUBLIC, Type.Basic("String"), Expression(emptyList())))),
-                Struct("Thing2", listOf(Variable.Basic("id", true, Visibility.PUBLIC, Type.Basic("i32"), Expression(emptyList())))),
+                Struct("Thing1", listOf(Variable.Basic(
+                    "name",
+                    Type.Basic("String"),
+                    Expression(emptyList()),
+                    true,
+                    Visibility.PUBLIC
+                ))),
+                Struct("Thing2", listOf(Variable.Basic(
+                    "id",
+                    Type.Basic("i32"),
+                    Expression(emptyList()),
+                    true,
+                    Visibility.PUBLIC
+                ))),
             ),
             sealedExample.structs,
         )
 
         assertContentEquals(
             listOf(
-                Object("Thing3", emptyList(), emptyList(), emptyList())
+                Object("Thing3", emptyMap(), emptyMap(), emptyMap())
             ),
             sealedExample.objects,
         )
@@ -503,7 +538,13 @@ internal class CrescentParserTests {
 
         assertContentEquals(
             listOf(
-                Variable.Basic("color", true, Visibility.PUBLIC, Type.Implicit, DotChain(listOf(Identifier("Color"), IdentifierCall("random", emptyList())))),
+                Variable.Basic(
+                    "color",
+                    Type.Implicit,
+                    DotChain(listOf(Identifier("Color"), IdentifierCall("random", emptyList()))),
+                    true,
+                    Visibility.PUBLIC
+                ),
                 When(
                     Identifier("color"),
                     listOf(
@@ -604,8 +645,8 @@ internal class CrescentParserTests {
                             Expression(listOf(Identifier("k"), I8(1), ADD)),
                         )),
 
-                        Variable.Basic("x", false, Visibility.PUBLIC, Type.Basic("I32"), I8(0)),
-                        Variable.Basic("y", false, Visibility.PUBLIC, Type.Basic("I32"), I8(0)),
+                        Variable.Basic("x", Type.Basic("I32"), I8(0), false, Visibility.PUBLIC),
+                        Variable.Basic("y", Type.Basic("I32"), I8(0), false, Visibility.PUBLIC),
 
                         Statement.While(
                             predicate = Expression(listOf(Identifier("x"), Identifier("k"), LESSER_COMPARE)),

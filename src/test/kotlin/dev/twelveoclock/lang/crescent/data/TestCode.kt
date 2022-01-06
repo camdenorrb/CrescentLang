@@ -259,7 +259,7 @@ internal object TestCode {
             
                 const thing2 = "Meow"
             
-				fun printThing() {
+				fun printThings() {
 					println(thing1)
 					println(thing2)
 				}
@@ -267,15 +267,34 @@ internal object TestCode {
 			
 			fun main {
 				Constants.printThings()
+				println(thing1)
+				println(Constants.thing2)
 			}
         """
 
+	const val struct =
+		"""
+			
+	        struct Example(
+                val aNumber: I32          # New lines makes commas redundant
+                val aValue1 aValue2 = ""  # Multi declaration of same type, can all be set to one or multiple default values
+            )
+			
+			fun main {
+				val example = Example(1, "Mew", "Meow")
+				println(example)
+				println(example.aNumber)
+				println(example.aValue1)
+				println(example.aValue2)
+			}
+			
+		"""
 	// TODO: Add traits and inheriting  impl Example : Cat
 	const val impl =
 		"""
 			
             struct Example(
-                val aNumber: Int          # New lines makes commas redundant
+                val aNumber: I32          # New lines makes commas redundant
                 val aValue1 aValue2 = ""  # Multi declaration of same type, can all be set to one or multiple default values
             )
 
@@ -294,11 +313,11 @@ internal object TestCode {
             # Can't use self in static syntax
             impl static Example {
 			
-                fun add(value1 value2: Int) -> Int {
+                fun add(value1 value2: I32) -> I32 {
 	                -> value1 + value2
 	            }
 	
-	            fun sub(value1 value2: Int) -> Int {
+	            fun sub(value1 value2: I32) -> I32 {
 	                -> value1 - value2
 	            }
 				

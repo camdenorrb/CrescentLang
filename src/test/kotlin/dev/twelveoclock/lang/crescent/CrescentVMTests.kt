@@ -206,6 +206,39 @@ internal class CrescentVMTests {
 		)
 	}
 
+	@Test
+	fun constantsAndObjects() {
+
+		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.constantsAndObject))
+
+		assertEquals(
+			""" 
+				Mew
+				Meow
+				
+			""".trimIndent(),
+			collectSystemOut(true) {
+				CrescentVM(listOf(file), file).invoke()
+			}
+		)
+	}
+
+	@Test
+	fun struct() {
+
+		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.struct))
+
+		assertEquals(
+			""" 
+				Mew
+				Meow
+				
+			""".trimIndent(),
+			collectSystemOut(true) {
+				CrescentVM(listOf(file), file).invoke()
+			}
+		)
+	}
 
 	@Test
 	fun nateTriangle() {

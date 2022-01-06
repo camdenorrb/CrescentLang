@@ -16,50 +16,47 @@ import kotlin.math.sqrt
 // TODO: Don't modify the AST
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
+	// Object name -> Object
+	val objects = mutableMapOf<String, ObjectInstance>()
+
+
 	fun invoke(args: List<String> = emptyList()) {
 
-		val mainFunction = checkNotNull(mainFile.mainFunction)
+		val mainFunction = mainFile.mainFunction!!
 
-		if (mainFunction.params.isEmpty()) {
-			runFunction(mainFile, mainFile, mainFunction, emptyList())
+		val functionArgs = if (mainFunction.params.isEmpty()) {
+			emptyList()
 		}
 		else {
-			runFunction(
-				mainFile,
-				mainFile,
-				mainFunction,
-				listOf(Node.Array(Array(args.size) { Primitive.String(args[it]) }))
-			)
+			listOf(Node.Array(Array(args.size) { Primitive.String(args[it]) }))
 		}
+
+		runFunction(
+			mainFunction,
+			functionArgs,
+			BlockContext(mainFile, mainFile, mutableMapOf(), mutableMapOf())
+		)
 	}
 
-	fun runFunction(file: Node.File, holder: Node, function: Node.Function, args: List<Node>): Node {
+	fun runFunction(function: Node.Function, args: List<Node>, context: BlockContext): Node {
 
 		// TODO: Account for default params
 		checkEquals(function.params.size, args.size)
 
-		val paramsToValue = mutableMapOf<String, Node>()
+		val functionContext = context.copy()
 
 		function.params.forEachIndexed { index, parameter ->
 
-			checkIsSameType(parameter, args[index]) { parameterType ->
+			val arg = args[index]
+
+			checkIsSameType(parameter, arg) { parameterType ->
 				"Parameter type doesn't match argument: $parameterType != ${findType(args[index])}"
 			}
 
-			paramsToValue[parameter.name] = args[index]
+			functionContext.parameters[parameter.name] = Variable(parameter.name, Instance(findType(arg), arg), false)
 		}
 
-		val context = BlockContext(
-			file,
-			holder,
-			paramsToValue
-		)
-
-		// TODO: Last expression acts as return
-		return runBlock(function.innerCode, context)
-
-		// TODO: Make this meaningful
-		//return Type.unit
+		return runBlock(function.innerCode, functionContext)
 	}
 
 	// TODO: Have a return value
@@ -90,11 +87,19 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 
 			is Node.Identifier -> {
-				return context.parameters[node.name]
+
+				val holderVariable = when (val holder = context.holder) {
+					is Node.Object -> holder.constants[node.name]?.value ?: holder.variables[node.name]?.value
+					is Node.File -> holder.constants[node.name]?.value ?: holder.variables[node.name]?.value
+					else -> files.firstNotNullOfOrNull { it.constants[node.name]?.value }
+				}
+
+				return holderVariable
+					?: context.parameters[node.name]?.instance?.value
 					?: context.variables[node.name]?.instance?.value
 					?: context.file.constants[node.name]?.value
-					?: Node.Identifier(node.name)
-				//?: error("Unknown variable: ${node.name}")
+					?: context.file.objects[node.name]?.let { runObject(it, context) }
+					?: node
 			}
 
 			is Node.IdentifierCall -> {
@@ -108,17 +113,28 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			// TODO: Account for operator overloading
 			is Node.GetCall -> {
+
 				val arrayNode = (context.parameters[node.identifier]
 					?: context.variables.getValue(node.identifier).instance.value) as Node.Array
+
 				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
 			}
 
 			is Node.DotChain -> {
-				/*
+
+				var lastNode: Node? = null
+
 				node.nodes.forEach {
-					runNode()
+
+					if (lastNode == null) {
+						lastNode = runNode(it, context)
+						return@forEach
+					}
+
+					lastNode = runNode(it, context.copy(holder = lastNode!!))
 				}
-				*/
+
+				return lastNode!!
 			}
 
 			is Node.Expression -> {
@@ -157,12 +173,12 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				val counters = node.identifiers.mapIndexed { index, identifier ->
 
-					val counter = BlockContext.Variable(
+					val counter = Variable(
 						identifier.name,
 						Primitive.Number.I32(ranges.getOrNull(index)?.first ?: ranges[0].first).let {
 							Instance(Primitive.Number.I32.type, it)
 						},
-						isMutable = false
+						isFinal = true
 					)
 
 					forContext.variables[counter.name] = counter
@@ -246,24 +262,74 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				runBlock(node.block, forContext)*/
 			}
 
-			is Node.Variable.Basic -> {
-
-				val value = runNode(node.value, context)
-
-				val type = if (node.type is Type.Implicit) {
-					findType(value)
-				}
-				else {
-					node.type
-				}
-
-				context.variables[node.name] = BlockContext.Variable(node.name, Instance(type, value), !node.isFinal)
+			is Node.Variable.Basic,
+			is Node.Variable.Local -> {
+				runVariable(node as Node.Variable, context)
 			}
 
 			else -> error("Unexpected node: $node")
 		}
 
 		return Type.unit
+	}
+
+	fun runVariable(node: Node.Variable, context: BlockContext): Variable {
+
+		var type = node.type
+
+		val value = when (node) {
+
+			is Node.Variable.Basic -> {
+
+				if (node.type is Type.Implicit) {
+					type = findType(node.value)
+				}
+
+				runNode(node.value, context)
+			}
+
+			is Node.Variable.Local -> {
+
+				if (node.type is Type.Implicit) {
+					type = findType(node.value)
+				}
+
+				runNode(node.value, context)
+			}
+
+			is Node.Variable.Constant -> {
+
+				if (node.type is Type.Implicit) {
+					type = findType(node.value)
+				}
+
+				if (context.holder is Node.File || context.holder is Node.Object) {
+					runNode(node.value, context)
+				}
+				else {
+					error("Constant $node declared not in an Object or File!")
+				}
+			}
+
+			else -> error("Not a recognized variable node: $node")
+		}
+
+		return Variable(node.name, Instance(type, value), node.isFinal)
+	}
+
+	fun runObject(objectNode: Node.Object, context: BlockContext): Node.Object {
+
+		val objectContext = context.copy(holder = objectNode, variables = mutableMapOf())
+
+		objects[objectNode.name] = ObjectInstance(
+			objectNode.name,
+			objectNode.type,
+			objectNode.constants.mapValues { runVariable(it.value, objectContext) },
+			objectNode.variables.mapValues { runVariable(it.value, objectContext) },
+			objectNode.functions,
+		)
+
+		return objectNode
 	}
 
 	// TODO: Take in a stack or something
@@ -362,7 +428,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 										"Variable ${variable.name}: ${variable.instance.type} cannot be assigned to a value of type $valueType"
 									}
 
-									check(variable.isMutable) {
+									check(!variable.isFinal) {
 										"Variable ${variable.name} is not mutable"
 									}
 
@@ -439,7 +505,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 							stack.push(Primitive.Boolean(pop2 > pop1))
 						}
-
 
 						CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
 
@@ -525,6 +590,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						}
 
 						CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()
+						CrescentToken.Operator.NOT_CONTAINS -> TODO()
 					}
 				}
 
@@ -548,7 +614,6 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		checkEquals(1, stack.size)
 
 		return runNode(stack.pop(), context)
-		//return CrescentAST.Node.Type.Unit
 	}
 
 	fun runFunctionCall(node: Node.IdentifierCall, context: BlockContext): Node {
@@ -597,7 +662,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 				if (node.arguments.isEmpty()) {
 					println()
-				} else {
+				}
+				else {
 					println(runNode(node.arguments[0], context).asString())
 				}
 			}
@@ -622,23 +688,51 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			else -> {
 
-				val functionFile = checkNotNull(files.find { node.identifier in it.functions }) {
-					"Unknown function: ${node.identifier}(${node.arguments.map { runNode(it, context) }})"
-				}
-
-				val function = functionFile.functions.getValue(node.identifier)
+				val struct = mainFile.structs[node.identifier]
 				val argumentValues = node.arguments.map { runNode(it, context) }
 
-				function.params.forEachIndexed { index, parameter ->
-					check(parameter is Node.Parameter.Basic) {
-						"Crescent doesn't support parameters with default values yet."
-					}
-					check(parameter.type == Type.any || parameter.type == findType(argumentValues[index])) {
-						"Parameter ${parameter.name} had an argument of type ${findType(argumentValues[index])}, expected ${parameter.type}"
-					}
-				}
+				if (struct != null) {
 
-				return runFunction(functionFile, functionFile, function, argumentValues)
+					val parameters = mutableMapOf<String, Variable>()
+
+					struct.variables.forEachIndexed { index, variable ->
+
+						val argument = argumentValues[index]
+
+						check(variable.type == Type.any || variable.type == findType(argument)) {
+							"Variable ${variable.name} had an argument of type ${findType(argumentValues[index])}, expected ${variable.type}"
+						}
+
+						parameters[variable.name] = Variable(variable.name, Instance(findType(argument), argument), variable.isFinal)
+					}
+
+					StructInstance(struct.name, parameters)
+				}
+				else {
+
+					val function = when (val holder = context.holder) {
+						is Node.Object -> holder.functions[node.identifier]
+						is Node.File -> holder.functions[node.identifier]
+						else -> files.firstNotNullOfOrNull { it.functions[node.identifier] }
+					}
+
+					checkNotNull(function) {
+						"Unknown function: ${node.identifier}(${node.arguments.map { runNode(it, context) }})"
+					}
+
+					//val function = functionFile.functions.getValue(node.identifier)
+
+					function.params.forEachIndexed { index, parameter ->
+						check(parameter is Node.Parameter.Basic) {
+							"Crescent doesn't support parameters with default values yet."
+						}
+						check(parameter.type == Type.any || parameter.type == findType(argumentValues[index])) {
+							"Parameter ${parameter.name} had an argument of type ${findType(argumentValues[index])}, expected ${parameter.type}"
+						}
+					}
+
+					return runFunction(function, argumentValues, context)
+				}
 			}
 
 		}
@@ -692,6 +786,15 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		is Type.Basic -> value
 		is Node.Array -> Type.Array(Type.any) // TODO: Do better
 
+		is Node.IdentifierCall -> {
+			if (value.identifier in this.mainFile.structs) {
+				Type.Basic(value.identifier)
+			}
+			else {
+				error("Unexpected value: ${value::class}")
+			}
+		}
+
 		else -> error("Unexpected value: ${value::class}")
 	}
 
@@ -740,8 +843,28 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 	data class Instance(
 		val type: Type,
-		var value: Node
+		var value: Node,
 	)
+
+	data class StructInstance(
+		val name: String,
+		val variables: Map<String, Variable>,
+	)
+
+	data class ObjectInstance(
+		val name: String,
+		val type: Type,
+		val constants: Map<String, Variable>,
+		val variables: Map<String, Variable>,
+		val functions: Map<String, Node.Function>,
+	)
+
+	data class Variable(
+		val name: String,
+		var instance: Instance,
+		val isFinal: Boolean,
+	)
+
 
 	/**
 	 * @property variables Name -> Variable
@@ -750,17 +873,9 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	data class BlockContext(
 		val file: Node.File,
 		val holder: Node,
-		val parameters: MutableMap<String, Node>,
+		val parameters: MutableMap<String, Variable>,
 		//val variables: MutableMap<String, Variable(Node.Variable, )> = mutableMapOf(),
 		val variables: MutableMap<String, Variable> = mutableMapOf(),
-	) {
-
-		data class Variable(
-			val name: String,
-			var instance: Instance,
-			val isMutable: Boolean,
-		)
-
-	}
+	)
 
 }

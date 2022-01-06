@@ -270,9 +270,9 @@ object CrescentParser {
 
 		val name = (tokenIterator.next() as CrescentToken.Key).string
 
-		val objectVariables = mutableListOf<CrescentAST.Node.Variable.Basic>()
-		val objectFunctions = mutableListOf<CrescentAST.Node.Function>()
-		val objectConstants = mutableListOf<CrescentAST.Node.Variable.Constant>()
+		val objectVariables = mutableMapOf<String, CrescentAST.Node.Variable.Basic>()
+		val objectFunctions = mutableMapOf<String, CrescentAST.Node.Function>()
+		val objectConstants = mutableMapOf<String, CrescentAST.Node.Variable.Constant>()
 
 		var innerVisibility = CrescentToken.Visibility.PUBLIC
 		val innerModifiers = mutableListOf<CrescentToken.Modifier>()
@@ -291,15 +291,21 @@ object CrescentParser {
 				}
 
 				CrescentToken.Variable.VAL -> {
-					objectVariables += readVariable(tokenIterator, innerVisibility, isFinal = true)
+					readVariable(tokenIterator, innerVisibility, isFinal = true).also {
+						objectVariables[it.name] = it
+					}
 				}
 
 				CrescentToken.Variable.CONST -> {
-					objectConstants += readConstant(tokenIterator, innerVisibility)
+					readConstant(tokenIterator, innerVisibility).also {
+						objectConstants[it.name] = it
+					}
 				}
 
 				CrescentToken.Statement.FUN -> {
-					objectFunctions += readFunction(tokenIterator, innerVisibility, innerModifiers)
+					readFunction(tokenIterator, innerVisibility, innerModifiers).also {
+						objectFunctions[it.name] = it
+					}
 				}
 
 				is CrescentToken.Visibility -> {
@@ -539,7 +545,7 @@ object CrescentParser {
 			}
 
 
-		return CrescentAST.Node.Variable.Constant(name, visibility, type, expression)
+		return CrescentAST.Node.Variable.Constant(name, type, expression, visibility)
 	}
 
 	fun readVariable(
@@ -566,7 +572,7 @@ object CrescentParser {
 				CrescentAST.Node.Expression(emptyList())
 			}
 
-		return CrescentAST.Node.Variable.Basic(name, isFinal, visibility, type, expression)
+		return CrescentAST.Node.Variable.Basic(name, type, expression, isFinal, visibility)
 	}
 
 	fun readVariables(
@@ -605,7 +611,7 @@ object CrescentParser {
 			}
 
 		return names.map { name ->
-			CrescentAST.Node.Variable.Basic(name, isFinal, visibility, type, expression)
+			CrescentAST.Node.Variable.Basic(name, type, expression, isFinal, visibility)
 		}
 	}
 

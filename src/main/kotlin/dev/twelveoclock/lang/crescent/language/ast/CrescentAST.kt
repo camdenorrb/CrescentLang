@@ -123,9 +123,9 @@ class CrescentAST {
 		// TODO: Force variables to be val not var
 		data class Object(
 			val name: String,
-			val variables: List<Variable.Basic>,
-			val constants: List<Variable.Constant>,
-			val functions: List<Function>,
+			val variables: Map<String, Variable.Basic>,
+			val constants: Map<String, Variable.Constant>,
+			val functions: Map<String, Function>,
 		) : Node, Typed {
 
 			override val type = Type.Basic(name)
@@ -178,12 +178,19 @@ class CrescentAST {
 
 		interface Variable : Node, Typed {
 
+			val name: String
+
+			val value: Node
+
+			val isFinal: Boolean
+
+
 			data class Basic(
-				val name: String,
-				val isFinal: Boolean,
-				val visibility: CrescentToken.Visibility,
+				override val name: String,
 				override val type: Type,
-				val value: Node,
+				override val value: Node,
+				override val isFinal: Boolean,
+				val visibility: CrescentToken.Visibility,
 			) : Variable {
 
 				override fun toString(): String {
@@ -193,22 +200,32 @@ class CrescentAST {
 			}
 
 			data class Constant(
-				val name: String,
-				val visibility: CrescentToken.Visibility,
+				override val name: String,
 				override val type: Type,
-				val value: Node,
+				override val value: Node,
+				val visibility: CrescentToken.Visibility,
 			) : Variable {
+
+				override val isFinal = true
 
 				override fun toString(): String {
 					return "const $name: ${type::class.simpleName} = $value"
 				}
+
 			}
 
 			data class Local(
-				val name: String,
+				override val name: String,
 				override val type: Type,
-				val value: Node
-			) : Variable
+				override val value: Node,
+				override val isFinal: Boolean,
+			) : Variable {
+
+				override fun toString(): String {
+					return "${if (isFinal) "val" else "var"} $name: $type = $value"
+				}
+
+			}
 
 		}
 

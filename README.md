@@ -23,6 +23,7 @@
 - [x] While loops
 - [x] String interpolation
 - [x] For loops
+- [x] Object
 - [ ] Structs
 - [ ] Impl
 - [ ] Traits
@@ -37,6 +38,7 @@
 - [x] Variables
 - [x] While loops
 - [ ] For loops
+- [ ] Object
 - [ ] Structs
 - [ ] Impl
 - [ ] Traits
