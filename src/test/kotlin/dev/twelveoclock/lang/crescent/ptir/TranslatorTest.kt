@@ -9,11 +9,11 @@ import java.nio.file.Paths
 import kotlin.io.path.Path
 
 class TranslatorTest {
-	/*@Test
+	@Test
 	fun helloWorld() {
-		val file = CrescentParser.invoke(Path("Test", "example.crescent"), CrescentLexer.invoke(TestCode.helloWorlds))
+		val file = CrescentParser.invoke(Path("Test", "example.crescent").toAbsolutePath(), CrescentLexer.invoke(TestCode.helloWorlds))
 		CresentToPTIR.resetEnv()
-		val code = CresentToPTIR.translate(Paths.get("Test"), file)
-		println(code)
-	}*/
+		val code = CresentToPTIR.translate(Paths.get("Test").toAbsolutePath(), file)
+		println(code.joinToString("\n") { it.asCode().toString() })
+	}
 }
