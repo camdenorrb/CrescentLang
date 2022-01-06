@@ -40,7 +40,7 @@ object CresentToPTIR {
 				check(!environmentMethods.containsKey(name)) {
 					"Struct $name already exists in environment!"
 				}
-				val types = mutableListOf<PTIR.Type>()
+				val types = mutableListOf<PTIR.FullType>()
 				u.variables.forEach { type ->
 					types.add(resolveType(type.type))
 				}
@@ -75,12 +75,12 @@ object CresentToPTIR {
 		return result
 	}
 
-	private fun resolveType(type: CrescentAST.Node.Type): PTIR.Type {
+	private fun resolveType(type: CrescentAST.Node.Type): PTIR.FullType {
 		return when(type) {
 			is CrescentAST.Node.Type.Basic -> {
 				TODO(type.name)
 			}
-			is CrescentAST.Node.Type.Array -> PTIR.Type.ARRAY
+			is CrescentAST.Node.Type.Array -> PTIR.FullType.DEFAULT //default is an array!
 			else -> error("Unsupported type: $type")
 		}
 	}
