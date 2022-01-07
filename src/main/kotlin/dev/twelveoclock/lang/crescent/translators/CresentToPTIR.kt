@@ -1,8 +1,6 @@
 package dev.twelveoclock.lang.crescent.translators
 
 import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
-import dev.twelveoclock.lang.crescent.language.token.CrescentToken
-import dev.twelveoclock.lang.crescent.translators.CresentToPTIR.resolveToPTIR
 import tech.poder.ir.api.CodeFile
 import tech.poder.ir.api.MethodBuilder
 import tech.poder.ir.api.Struct
@@ -95,7 +93,7 @@ object CresentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.newLocalVar(): Variable {
+	private fun MethodBuilder.cachedLocalVar(): Variable {
 		return if (unusedLocals.isNotEmpty()) {
 			unusedLocals.removeLast()
 		} else {
@@ -103,36 +101,85 @@ object CresentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, base: CrescentAST.Node.Function, result: Variable? = null) {
+	private fun MethodBuilder.getResult(node: CrescentAST.Node, base: CrescentAST.Node.Function): Any {
+		val dataVar = cachedLocalVar()
+		val data = recursiveFunctionResolve(node, base, dataVar)
+		return if (data == null) {
+			dataVar
+		} else {
+			unusedLocals.add(dataVar)
+			data
+		}
+	}
+
+	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, base: CrescentAST.Node.Function, result: Variable? = null): Any? {
 		when (node) {
+			is CrescentAST.Node.GetCall -> {
+				when (node.identifier) {
+					"args" -> {
+						val res = getResult(node.arguments[0], base)
+						getArrayVar(Variable.ARGS, res, result!!)
+						if (res is Variable) {
+							unusedLocals.add(res)
+						}
+					}
+					else -> println("TODO(NodeGet): ${node.identifier}")
+				}
+			}
 			is CrescentAST.Node.IdentifierCall -> {
 				when (node.identifier) {
 					"print", "println" -> {
-						val args = mutableListOf<Variable>()
+						val args = mutableListOf<Any>()
 						node.arguments.forEach {
-							val arg = newLocalVar()
-							recursiveFunctionResolve(it, base, arg)
-							args.add(arg)
+							args.add(getResult(it, base))
 						}
-						val first = args.removeFirst()
-						args.forEach {
-							add(first, first, it)
+						var arg = if (args.size > 1) {
+							val res = cachedLocalVar()
+							args.forEach {
+								add(res, res, it)
+							}
+							args.forEach {
+								if (it is Variable) {
+									unusedLocals.add(it)
+								}
+							}
+							args.clear()
+							res
+						} else {
+							args[0]
 						}
 						if (node.identifier.endsWith("ln")) {
-							add(first, first, "\n")
+							if (arg is Variable) {
+								add(arg, arg, "\n")
+							} else {
+								when (arg) {
+									is String -> arg += "\n"
+									else -> {
+										println("TODO(ArgResolve): ${arg::class.java.name}")
+										val res = cachedLocalVar()
+										add(res, arg, "\n")
+										arg = res
+									}
+								}
+							}
 						}
-						invoke(PTIR.STDCall.PRINT, null, first)
-						unusedLocals.add(first)
-						unusedLocals.addAll(args)
+						invoke(PTIR.STDCall.PRINT, null, arg)
+						if (arg is Variable) {
+							unusedLocals.add(arg)
+						}
 					}
 					else -> println("TODO(NodeIdentifier): ${node.identifier}")
 				}
 			}
+			is CrescentAST.Node.Primitive.Number.I8 -> {
+				return node.data
+			}
 			is CrescentAST.Node.Primitive.String -> {
-				setVar(result!!, node.data)
+				return node.data
 			}
 			else -> println("TODO(Node): ${node::class.simpleName}")
 		}
+		return null
 	}
 
 	private fun resolveType(type: CrescentAST.Node.Type): PTIR.FullType {

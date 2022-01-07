@@ -18,4 +18,13 @@ class TranslatorTest {
 		println(code.joinToString("\n") { it.asCode().toString() })
 		VirtualMachine.exec(code[0].asCode(), 1u)
 	}
+
+	@Test
+	fun helloWorldWithArgs() {
+		val file = CrescentParser.invoke(Path("Test", "example.crescent").toAbsolutePath(), CrescentLexer.invoke(TestCode.argsHelloWorld))
+		CresentToPTIR.resetEnv()
+		val code = CresentToPTIR.translate(Paths.get("Test").toAbsolutePath(), file)
+		println(code.joinToString("\n") { it.asCode().toString() })
+		VirtualMachine.exec(code[0].asCode(), 1u, "Hello World!")
+	}
 }
