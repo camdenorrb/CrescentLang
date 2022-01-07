@@ -15,6 +15,7 @@ object CresentToPTIR {
 	private val environmentFields = mutableMapOf<String, Variable>()
 	private val environmentMethods = mutableMapOf<String, UInt>()
 	private val environmentFiles = mutableMapOf<String, CodeFile>()
+	private val unusedLocals = mutableListOf<Variable>()
 
 	fun resetEnv() {
 		environmentFiles.clear()
@@ -94,8 +95,44 @@ object CresentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, base: CrescentAST.Node.Function) {
+	private fun MethodBuilder.newLocalVar(): Variable {
+		return if (unusedLocals.isNotEmpty()) {
+			unusedLocals.removeLast()
+		} else {
+			newLocal()
+		}
+	}
 
+	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, base: CrescentAST.Node.Function, result: Variable? = null) {
+		when (node) {
+			is CrescentAST.Node.IdentifierCall -> {
+				when (node.identifier) {
+					"print", "println" -> {
+						val args = mutableListOf<Variable>()
+						node.arguments.forEach {
+							val arg = newLocalVar()
+							recursiveFunctionResolve(it, base, arg)
+							args.add(arg)
+						}
+						val first = args.removeFirst()
+						args.forEach {
+							add(first, first, it)
+						}
+						if (node.identifier.endsWith("ln")) {
+							add(first, first, "\n")
+						}
+						invoke(PTIR.STDCall.PRINT, null, first)
+						unusedLocals.add(first)
+						unusedLocals.addAll(args)
+					}
+					else -> println("TODO(NodeIdentifier): ${node.identifier}")
+				}
+			}
+			is CrescentAST.Node.Primitive.String -> {
+				setVar(result!!, node.data)
+			}
+			else -> println("TODO(Node): ${node::class.simpleName}")
+		}
 	}
 
 	private fun resolveType(type: CrescentAST.Node.Type): PTIR.FullType {
