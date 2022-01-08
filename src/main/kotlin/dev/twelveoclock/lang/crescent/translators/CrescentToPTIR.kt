@@ -8,6 +8,7 @@ import tech.poder.ir.api.Struct
 import tech.poder.ir.api.Variable
 import tech.poder.ptir.PTIR
 import java.nio.file.Path
+import java.util.*
 
 class CrescentToPTIR {
 	private val environmentStructs = mutableMapOf<String, Struct>()
@@ -76,7 +77,7 @@ class CrescentToPTIR {
 			val file = environmentFiles[name]!!
 			node.functions.forEach { (_, func) ->
 				unusedLocals.clear()
-				func.resolveToPTIR(file)
+				func.resolveToPTIR(file, name)
 			}
 			result.add(file)
 		}
@@ -86,7 +87,7 @@ class CrescentToPTIR {
 		return result
 	}
 
-	private fun CrescentAST.Node.Function.resolveToPTIR(file: CodeFile) {
+	private fun CrescentAST.Node.Function.resolveToPTIR(file: CodeFile, currentFile: String) {
 		val methodId = environmentMethods[file.name + "F" + name]!!
 		file.fromMethodStub(methodId) {
 			innerCode.nodes.forEach { node ->
@@ -94,7 +95,7 @@ class CrescentToPTIR {
 				params.forEachIndexed { index, param ->
 					map[param.name] = Param(index.toUInt())
 				}
-				recursiveFunctionResolve(node, map)
+				recursiveFunctionResolve(node, currentFile, map)
 			}
 		}
 	}
@@ -107,9 +108,9 @@ class CrescentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.getResult(node: CrescentAST.Node, identifiers: Map<String, Any>): Any {
+	private fun MethodBuilder.getResult(node: CrescentAST.Node, currentFile: String, identifiers: Map<String, Any>): Any {
 		val dataVar = cachedLocalVar()
-		val data = recursiveFunctionResolve(node, identifiers, dataVar)
+		val data = recursiveFunctionResolve(node, currentFile, identifiers, dataVar)
 		return if (data == null || (data is Variable && data == dataVar)) {
 			dataVar
 		} else {
@@ -134,7 +135,7 @@ class CrescentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, identifiers: Map<String, Any>, result: Variable? = null): Any? {
+	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, currentFile: String, identifiers: Map<String, Any>, result: Variable? = null): Any? {
 		when (node) {
 			is CrescentAST.Node.GetCall -> {
 				val inQuestion = resolveIdentifier(node.identifier, identifiers, result)
@@ -144,12 +145,12 @@ class CrescentToPTIR {
 				return inQuestion
 			}
 			is CrescentAST.Node.IdentifierCall -> {
+				val args = mutableListOf<Any>()
+				node.arguments.forEach {
+					args.add(getResult(it, currentFile, identifiers))
+				}
 				when (node.identifier) {
 					"print", "println" -> {
-						val args = mutableListOf<Any>()
-						node.arguments.forEach {
-							args.add(getResult(it, identifiers))
-						}
 						var arg = if (args.size > 1) {
 							val res = cachedLocalVar()
 							args.forEach {
@@ -185,14 +186,17 @@ class CrescentToPTIR {
 							unusedLocals.add(arg)
 						}
 					}
-					else -> println("TODO(NodeIdentifier): ${node.identifier}")
+					else -> {
+						val function = environmentMethods["${currentFile}F${node.identifier}"]!! //TODO resolve multi file functions!
+						invoke(environmentFiles[currentFile]!!, function, result, *args.toTypedArray())
+					}
 				}
 			}
 			is CrescentAST.Node.Expression -> {
-				return resolveExpression(node, identifiers, result)
+				return resolveExpression(node, currentFile, identifiers)
 			}
 			is CrescentAST.Node.Return -> {
-				return_(getResult(node.expression, identifiers))
+				return_(getResult(node.expression, currentFile, identifiers))
 			}
 			is CrescentAST.Node.Primitive.Number.I8 -> {
 				return node.data
@@ -235,14 +239,76 @@ class CrescentToPTIR {
 		return null
 	}
 
-	private fun MethodBuilder.resolveExpression(expression: CrescentAST.Node.Expression, identifiers: Map<String, Any>, result: Variable?): Any? {
+	private fun MethodBuilder.resolveExpression(expression: CrescentAST.Node.Expression, currentFile: String, identifiers: Map<String, Any>): Any? {
+		val stack = Stack<Any>() //need to de-stack the data since PTIR is Linear!
 		expression.nodes.forEachIndexed { index, node ->
 			when (node) {
-				is CrescentToken -> {
-					TODO("Node: ${CrescentToken::class.java.name}")
+				is CrescentToken.Operator -> {
+					when (node) {
+						CrescentToken.Operator.NOT -> TODO()
+						CrescentToken.Operator.ADD -> {
+							val result = cachedLocalVar()
+							add(result, stack.pop(), stack.pop())
+							stack.push(result)
+						}
+						CrescentToken.Operator.SUB -> {
+							val result = cachedLocalVar()
+							if (stack.size == 1) {
+								multiply(result, stack.pop(), -1)
+							} else {
+								subtract(result, stack.pop(), stack.pop())
+							}
+							stack.push(result)
+						}
+						CrescentToken.Operator.MUL -> TODO()
+						CrescentToken.Operator.DIV -> TODO()
+						CrescentToken.Operator.POW -> TODO()
+						CrescentToken.Operator.REM -> TODO()
+						CrescentToken.Operator.ASSIGN -> TODO()
+						CrescentToken.Operator.ADD_ASSIGN -> TODO()
+						CrescentToken.Operator.SUB_ASSIGN -> TODO()
+						CrescentToken.Operator.MUL_ASSIGN -> TODO()
+						CrescentToken.Operator.DIV_ASSIGN -> TODO()
+						CrescentToken.Operator.REM_ASSIGN -> TODO()
+						CrescentToken.Operator.POW_ASSIGN -> TODO()
+						CrescentToken.Operator.OR_COMPARE -> TODO()
+						CrescentToken.Operator.AND_COMPARE -> TODO()
+						CrescentToken.Operator.EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.LESSER_COMPARE -> TODO()
+						CrescentToken.Operator.GREATER_COMPARE -> TODO()
+						CrescentToken.Operator.LESSER_EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.GREATER_EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.BIT_SHIFT_RIGHT -> TODO()
+						CrescentToken.Operator.BIT_SHIFT_LEFT -> TODO()
+						CrescentToken.Operator.UNSIGNED_BIT_SHIFT_RIGHT -> TODO()
+						CrescentToken.Operator.BIT_OR -> TODO()
+						CrescentToken.Operator.BIT_XOR -> TODO()
+						CrescentToken.Operator.BIT_AND -> TODO()
+						CrescentToken.Operator.EQUALS_REFERENCE_COMPARE -> TODO()
+						CrescentToken.Operator.NOT_EQUALS_COMPARE -> TODO()
+						CrescentToken.Operator.NOT_EQUALS_REFERENCE_COMPARE -> TODO()
+						CrescentToken.Operator.CONTAINS -> TODO()
+						CrescentToken.Operator.NOT_CONTAINS -> TODO()
+						CrescentToken.Operator.RANGE_TO -> TODO()
+						CrescentToken.Operator.TYPE_PREFIX -> TODO()
+						CrescentToken.Operator.RETURN -> TODO()
+						CrescentToken.Operator.RESULT -> TODO()
+						CrescentToken.Operator.COMMA -> TODO()
+						CrescentToken.Operator.DOT -> TODO()
+						CrescentToken.Operator.AS -> TODO()
+						CrescentToken.Operator.IMPORT_SEPARATOR -> TODO()
+						CrescentToken.Operator.INSTANCE_OF -> TODO()
+						CrescentToken.Operator.NOT_INSTANCE_OF -> TODO()
+					}
 				}
-				else -> TODO("Node: ${node::class.java.name}")
+				else -> stack.push(getResult(node, currentFile, identifiers))
 			}
+		}
+		check(stack.size < 2) {
+			"Too many items in stack!"
+		}
+		if (stack.isNotEmpty()) {
+			return stack.pop()
 		}
 		return null
 	}
