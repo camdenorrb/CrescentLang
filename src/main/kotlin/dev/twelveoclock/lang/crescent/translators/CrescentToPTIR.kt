@@ -1,6 +1,7 @@
 package dev.twelveoclock.lang.crescent.translators
 
 import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
+import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 import tech.poder.ir.api.CodeFile
 import tech.poder.ir.api.MethodBuilder
 import tech.poder.ir.api.Struct
@@ -8,7 +9,7 @@ import tech.poder.ir.api.Variable
 import tech.poder.ptir.PTIR
 import java.nio.file.Path
 
-object CresentToPTIR {
+class CrescentToPTIR {
 	private val environmentStructs = mutableMapOf<String, Struct>()
 	private val environmentFields = mutableMapOf<String, Variable>()
 	private val environmentMethods = mutableMapOf<String, UInt>()
@@ -88,7 +89,7 @@ object CresentToPTIR {
 		val methodId = environmentMethods[file.name + "F" + name]!!
 		file.fromMethodStub(methodId) {
 			innerCode.nodes.forEach {
-				recursiveFunctionResolve(it, this@resolveToPTIR)
+				recursiveFunctionResolve(it)
 			}
 		}
 	}
@@ -101,9 +102,9 @@ object CresentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.getResult(node: CrescentAST.Node, base: CrescentAST.Node.Function): Any {
+	private fun MethodBuilder.getResult(node: CrescentAST.Node): Any {
 		val dataVar = cachedLocalVar()
-		val data = recursiveFunctionResolve(node, base, dataVar)
+		val data = recursiveFunctionResolve(node, dataVar)
 		return if (data == null) {
 			dataVar
 		} else {
@@ -112,12 +113,12 @@ object CresentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, base: CrescentAST.Node.Function, result: Variable? = null): Any? {
+	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, result: Variable? = null): Any? {
 		when (node) {
 			is CrescentAST.Node.GetCall -> {
 				when (node.identifier) {
 					"args" -> {
-						val res = getResult(node.arguments[0], base)
+						val res = getResult(node.arguments[0])
 						getArrayVar(Variable.ARGS, res, result!!)
 						if (res is Variable) {
 							unusedLocals.add(res)
@@ -131,7 +132,7 @@ object CresentToPTIR {
 					"print", "println" -> {
 						val args = mutableListOf<Any>()
 						node.arguments.forEach {
-							args.add(getResult(it, base))
+							args.add(getResult(it))
 						}
 						var arg = if (args.size > 1) {
 							val res = cachedLocalVar()
@@ -171,13 +172,61 @@ object CresentToPTIR {
 					else -> println("TODO(NodeIdentifier): ${node.identifier}")
 				}
 			}
+			is CrescentAST.Node.Expression -> {
+				return resolveExpression(node, result)
+			}
+			is CrescentAST.Node.Return -> {
+				return_(getResult(node.expression))
+			}
 			is CrescentAST.Node.Primitive.Number.I8 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.I16 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.I32 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.I64 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.F32 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.F64 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.U8 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.U16 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.U32 -> {
+				return node.data
+			}
+			is CrescentAST.Node.Primitive.Number.U64 -> {
 				return node.data
 			}
 			is CrescentAST.Node.Primitive.String -> {
 				return node.data
 			}
+			is CrescentAST.Node.Identifier -> {
+				println("random node: " + node.name)
+			}
 			else -> println("TODO(Node): ${node::class.simpleName}")
+		}
+		return null
+	}
+
+	private fun MethodBuilder.resolveExpression(expression: CrescentAST.Node.Expression, result: Variable?): Any? {
+		expression.nodes.forEachIndexed { index, node ->
+			when(node) {
+				is CrescentToken -> {
+
+				}
+				else -> TODO("Node: ${node::class.java.name}")
+			}
 		}
 		return null
 	}
