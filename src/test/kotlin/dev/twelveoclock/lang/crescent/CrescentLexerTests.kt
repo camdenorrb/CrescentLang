@@ -37,6 +37,11 @@ internal class CrescentLexerTests {
     }
 
     @Test
+    fun funThing() {
+
+    }
+
+    @Test
     fun ifStatement() {
 
         val tokens = CrescentLexer.invoke(TestCode.ifStatement)

@@ -70,7 +70,7 @@ internal object TestCode {
 				funThing5(-5)
 				println(funThing6())
 				println(funThing7())
-				println("Cats")
+				println(funThing8("Cats"))
 			}
 		"""
 
@@ -133,13 +133,29 @@ internal object TestCode {
 
 	const val ifStatement =
 		"""
-            fun main(args: [String]) {
-                if (args[0] == "true") {
+			fun test1(args: [String]) {
+				 if (args[0] == "true") {
                     println("Meow")
                 }
                 else {
                     println("Hiss")
                 }
+			}
+			
+			fun test2(args: [String]) -> String {
+				if (args[0] == "true") {
+                    -> "Meow"
+                }
+                else {
+                    -> "Hiss"
+                }
+				
+				println("This shouldn't be printed")
+			}
+			
+            fun main(args: [String]) {
+               test1(args)
+			   test2(args)
             }
         """
 
