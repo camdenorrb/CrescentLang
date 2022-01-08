@@ -166,8 +166,9 @@ internal object Bench {
 			override fun toString(): String {
 				return (
 					"""
-                |$name - $subName - $state Average: ${averageNS}ns/op
-                """.trimMargin())
+                        |$name - $subName - $state Average: ${averageNS}ns/op
+                    """.trimMargin()
+				)
 			}
 
 		}
