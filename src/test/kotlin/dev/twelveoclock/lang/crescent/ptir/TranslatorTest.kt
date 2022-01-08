@@ -28,12 +28,21 @@ class TranslatorTest {
 		VirtualMachine.exec(code[0].asCode(), 1u, listOf("Hello World!"))
 	}
 
-	@Test
+	/*@Test
 	fun funThing() {
 		val file = CrescentParser.invoke(Path("Test", "example.crescent").toAbsolutePath(), CrescentLexer.invoke(TestCode.funThing))
 		val trans = CrescentToPTIR()
 		val code = trans.translate(Paths.get("Test").toAbsolutePath(), file)
 		println(code.joinToString("\n") { it.asCode().toString() })
 		VirtualMachine.exec(code[0].asCode(), 1u)
-	}
+	}*/
+
+	/*@Test
+	fun ifStatement() {
+		val file = CrescentParser.invoke(Path("Test", "example.crescent").toAbsolutePath(), CrescentLexer.invoke(TestCode.ifStatement))
+		val trans = CrescentToPTIR()
+		val code = trans.translate(Paths.get("Test").toAbsolutePath(), file)
+		println(code.joinToString("\n") { it.asCode().toString() })
+		VirtualMachine.exec(code[0].asCode(), 1u)
+	}*/
 }
