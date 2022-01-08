@@ -58,6 +58,10 @@ internal object TestCode {
 				-> "Meow"
 			}
 			
+			fun funThing8(input: Any) {
+				println(input)
+			}
+			
 			fun main {
 				funThing1()
 				funThing2("Meow")
@@ -66,6 +70,7 @@ internal object TestCode {
 				funThing5(-5)
 				println(funThing6())
 				println(funThing7())
+				println("Cats")
 			}
 		"""
 
@@ -289,6 +294,7 @@ internal object TestCode {
 			}
 			
 		"""
+
 	// TODO: Add traits and inheriting  impl Example : Cat
 	const val impl =
 		"""
