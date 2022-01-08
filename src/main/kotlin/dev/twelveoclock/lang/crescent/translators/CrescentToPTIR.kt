@@ -248,7 +248,9 @@ class CrescentToPTIR {
 						CrescentToken.Operator.NOT -> TODO()
 						CrescentToken.Operator.ADD -> {
 							val result = cachedLocalVar()
-							add(result, stack.pop(), stack.pop())
+							val b = stack.pop()
+							val a = stack.pop()
+							add(result, a, b)
 							stack.push(result)
 						}
 						CrescentToken.Operator.SUB -> {
@@ -256,7 +258,9 @@ class CrescentToPTIR {
 							if (stack.size == 1) {
 								multiply(result, stack.pop(), -1)
 							} else {
-								subtract(result, stack.pop(), stack.pop())
+								val b = stack.pop()
+								val a = stack.pop()
+								subtract(result, a, b)
 							}
 							stack.push(result)
 						}
