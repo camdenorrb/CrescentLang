@@ -22,7 +22,21 @@ class CrescentToPTIR {
 		environmentMethods.clear()
 	}
 
+	private fun addUnitDef() {
+		val file = CodeFile("Unit")
+		environmentFiles["Unit"] = file
+		val global = Variable.newGlobal()
+		environmentFields["Unit"] = global
+		file.fromMethodStub(0u) {
+			setVar(global, "Unit")
+		}
+
+	}
+
 	fun translate(projectDir: Path, vararg crescent: CrescentAST.Node.File): List<CodeFile> {
+		if (environmentFiles.isEmpty()) {
+			addUnitDef()
+		}
 		val exec = mutableMapOf<String, CrescentAST.Node.File>()
 		crescent.forEach { nodeFile ->
 			val file = CodeFile(projectDir.parent.relativize(nodeFile.path).toString())
@@ -90,8 +104,8 @@ class CrescentToPTIR {
 	private fun CrescentAST.Node.Function.resolveToPTIR(file: CodeFile, currentFile: String) {
 		val methodId = environmentMethods[file.name + "F" + name]!!
 		file.fromMethodStub(methodId) {
+			val map = mutableMapOf<String, Any>()
 			innerCode.nodes.forEach { node ->
-				val map = mutableMapOf<String, Any>()
 				params.forEachIndexed { index, param ->
 					map[param.name] = Param(index.toUInt())
 				}
@@ -108,7 +122,7 @@ class CrescentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.getResult(node: CrescentAST.Node, currentFile: String, identifiers: Map<String, Any>): Any {
+	private fun MethodBuilder.getResult(node: CrescentAST.Node, currentFile: String, identifiers: MutableMap<String, Any>): Any {
 		val dataVar = cachedLocalVar()
 		val data = recursiveFunctionResolve(node, currentFile, identifiers, dataVar)
 		return if (data == null || (data is Variable && data == dataVar)) {
@@ -119,7 +133,14 @@ class CrescentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.resolveIdentifier(name: String, identifiers: Map<String, Any>, result: Variable?): Variable {
+	private fun MethodBuilder.resolveIdentifier(name: String, identifiers: MutableMap<String, Any>, result: Variable?): Variable {
+		if (!identifiers.containsKey(name)) {
+			if (result != null) {
+				identifiers[name] = result
+			} else {
+				identifiers[name] = cachedLocalVar()
+			}
+		}
 		return when (val type = identifiers[name]!!) {
 			is Param -> {
 				val identity = result ?: cachedLocalVar()
@@ -135,7 +156,7 @@ class CrescentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, currentFile: String, identifiers: Map<String, Any>, result: Variable? = null): Any? {
+	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, currentFile: String, identifiers: MutableMap<String, Any>, result: Variable? = null): Any? {
 		when (node) {
 			is CrescentAST.Node.GetCall -> {
 				val inQuestion = resolveIdentifier(node.identifier, identifiers, result)
@@ -231,17 +252,33 @@ class CrescentToPTIR {
 			is CrescentAST.Node.Primitive.String -> {
 				return node.data
 			}
+			is CrescentAST.Node.Primitive.Char -> {
+				return node.data.toString()
+			}
+			is CrescentAST.Node.Array -> {
+				val res = result ?: cachedLocalVar()
+				newArray(res, node.values.size.toUInt())
+				node.values.forEachIndexed { index, node ->
+					setArrayVar(res, index, getResult(node, currentFile, identifiers))
+				}
+				return res
+			}
 			is CrescentAST.Node.Identifier -> {
 				return resolveIdentifier(node.name, identifiers, result)
 			}
-			else -> println("TODO(Node): ${node::class.simpleName}")
+			is CrescentAST.Node.Variable.Basic -> {
+				val res = resolveIdentifier(node.name, identifiers, result)
+				setVar(res, getResult(node.value, currentFile, identifiers))
+				return res
+			}
+			else -> println("TODO(Node): ${node::class.java.name}")
 		}
 		return null
 	}
 
-	private fun MethodBuilder.resolveExpression(expression: CrescentAST.Node.Expression, currentFile: String, identifiers: Map<String, Any>): Any? {
+	private fun MethodBuilder.resolveExpression(expression: CrescentAST.Node.Expression, currentFile: String, identifiers: MutableMap<String, Any>): Any? {
 		val stack = Stack<Any>() //need to de-stack the data since PTIR is Linear!
-		expression.nodes.forEachIndexed { index, node ->
+		expression.nodes.forEach { node ->
 			when (node) {
 				is CrescentToken.Operator -> {
 					when (node) {
@@ -268,8 +305,16 @@ class CrescentToPTIR {
 						CrescentToken.Operator.DIV -> TODO()
 						CrescentToken.Operator.POW -> TODO()
 						CrescentToken.Operator.REM -> TODO()
-						CrescentToken.Operator.ASSIGN -> TODO()
-						CrescentToken.Operator.ADD_ASSIGN -> TODO()
+						CrescentToken.Operator.ASSIGN -> {
+							val b = stack.pop()
+							val a = stack.pop() as Variable
+							setVar(a, b)
+						}
+						CrescentToken.Operator.ADD_ASSIGN -> {
+							val b = stack.pop()
+							val a = stack.pop() as Variable
+							add(a, a, b)
+						}
 						CrescentToken.Operator.SUB_ASSIGN -> TODO()
 						CrescentToken.Operator.MUL_ASSIGN -> TODO()
 						CrescentToken.Operator.DIV_ASSIGN -> TODO()
