@@ -155,7 +155,7 @@ internal object TestCode {
 			
             fun main(args: [String]) {
                test1(args)
-			   test2(args)
+			   println(test2(args))
             }
         """
 
