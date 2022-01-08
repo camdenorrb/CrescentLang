@@ -75,6 +75,7 @@ class CrescentToPTIR {
 		exec.forEach { (name, node) ->
 			val file = environmentFiles[name]!!
 			node.functions.forEach { (_, func) ->
+				unusedLocals.clear()
 				func.resolveToPTIR(file)
 			}
 			result.add(file)
@@ -88,8 +89,12 @@ class CrescentToPTIR {
 	private fun CrescentAST.Node.Function.resolveToPTIR(file: CodeFile) {
 		val methodId = environmentMethods[file.name + "F" + name]!!
 		file.fromMethodStub(methodId) {
-			innerCode.nodes.forEach {
-				recursiveFunctionResolve(it)
+			innerCode.nodes.forEach { node ->
+				val map = mutableMapOf<String, Any>()
+				params.forEachIndexed { index, param ->
+					map[param.name] = Param(index.toUInt())
+				}
+				recursiveFunctionResolve(node, map)
 			}
 		}
 	}
@@ -102,10 +107,10 @@ class CrescentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.getResult(node: CrescentAST.Node): Any {
+	private fun MethodBuilder.getResult(node: CrescentAST.Node, identifiers: Map<String, Any>): Any {
 		val dataVar = cachedLocalVar()
-		val data = recursiveFunctionResolve(node, dataVar)
-		return if (data == null) {
+		val data = recursiveFunctionResolve(node, identifiers, dataVar)
+		return if (data == null || (data is Variable && data == dataVar)) {
 			dataVar
 		} else {
 			unusedLocals.add(dataVar)
@@ -113,26 +118,37 @@ class CrescentToPTIR {
 		}
 	}
 
-	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, result: Variable? = null): Any? {
+	private fun MethodBuilder.resolveIdentifier(name: String, identifiers: Map<String, Any>, result: Variable?): Variable {
+		return when (val type = identifiers[name]!!) {
+			is Param -> {
+				val identity = result ?: cachedLocalVar()
+				getArrayVar(Variable.ARGS, type.index, identity)
+				identity
+			}
+			is Variable -> {
+				type
+			}
+			else -> {
+				throw IllegalStateException("Unknown type ${type::class.java}")
+			}
+		}
+	}
+
+	private fun MethodBuilder.recursiveFunctionResolve(node: CrescentAST.Node, identifiers: Map<String, Any>, result: Variable? = null): Any? {
 		when (node) {
 			is CrescentAST.Node.GetCall -> {
-				when (node.identifier) {
-					"args" -> {
-						val res = getResult(node.arguments[0])
-						getArrayVar(Variable.ARGS, res, result!!)
-						if (res is Variable) {
-							unusedLocals.add(res)
-						}
-					}
-					else -> println("TODO(NodeGet): ${node.identifier}")
+				val inQuestion = resolveIdentifier(node.identifier, identifiers, result)
+				if (node.arguments.isNotEmpty()) {
+					getArrayVar(inQuestion, (node.arguments[0] as CrescentAST.Node.Primitive.Number).toI32().data, inQuestion)
 				}
+				return inQuestion
 			}
 			is CrescentAST.Node.IdentifierCall -> {
 				when (node.identifier) {
 					"print", "println" -> {
 						val args = mutableListOf<Any>()
 						node.arguments.forEach {
-							args.add(getResult(it))
+							args.add(getResult(it, identifiers))
 						}
 						var arg = if (args.size > 1) {
 							val res = cachedLocalVar()
@@ -173,10 +189,10 @@ class CrescentToPTIR {
 				}
 			}
 			is CrescentAST.Node.Expression -> {
-				return resolveExpression(node, result)
+				return resolveExpression(node, identifiers, result)
 			}
 			is CrescentAST.Node.Return -> {
-				return_(getResult(node.expression))
+				return_(getResult(node.expression, identifiers))
 			}
 			is CrescentAST.Node.Primitive.Number.I8 -> {
 				return node.data
@@ -212,18 +228,18 @@ class CrescentToPTIR {
 				return node.data
 			}
 			is CrescentAST.Node.Identifier -> {
-				println("random node: " + node.name)
+				return resolveIdentifier(node.name, identifiers, result)
 			}
 			else -> println("TODO(Node): ${node::class.simpleName}")
 		}
 		return null
 	}
 
-	private fun MethodBuilder.resolveExpression(expression: CrescentAST.Node.Expression, result: Variable?): Any? {
+	private fun MethodBuilder.resolveExpression(expression: CrescentAST.Node.Expression, identifiers: Map<String, Any>, result: Variable?): Any? {
 		expression.nodes.forEachIndexed { index, node ->
-			when(node) {
+			when (node) {
 				is CrescentToken -> {
-
+					TODO("Node: ${CrescentToken::class.java.name}")
 				}
 				else -> TODO("Node: ${node::class.java.name}")
 			}
@@ -232,7 +248,7 @@ class CrescentToPTIR {
 	}
 
 	private fun resolveType(type: CrescentAST.Node.Type): PTIR.FullType {
-		return when(type) {
+		return when (type) {
 			is CrescentAST.Node.Type.Basic -> {
 				TODO(type.name)
 			}

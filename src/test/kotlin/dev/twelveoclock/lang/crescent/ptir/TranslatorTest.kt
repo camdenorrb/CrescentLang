@@ -25,7 +25,7 @@ class TranslatorTest {
 		val trans = CrescentToPTIR()
 		val code = trans.translate(Paths.get("Test").toAbsolutePath(), file)
 		println(code.joinToString("\n") { it.asCode().toString() })
-		VirtualMachine.exec(code[0].asCode(), 1u, "Hello World!")
+		VirtualMachine.exec(code[0].asCode(), 1u, listOf("Hello World!"))
 	}
 
 	/*@Test
