@@ -43,7 +43,13 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 		// TODO: Account for default params
 		checkEquals(function.params.size, args.size)
 
-		val functionContext = context.copy()
+		// Need to manually copy since .copy uses the same map instance, .toMutableMap() clones properly
+		val functionContext = BlockContext(
+			context.file,
+			context.holder,
+			context.parameters.toMutableMap(),
+			context.variables.toMutableMap()
+		)
 
 		function.params.forEachIndexed { index, parameter ->
 
@@ -53,21 +59,24 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				"Parameter type doesn't match argument: $parameterType != ${findType(args[index])}"
 			}
 
-			functionContext.parameters[parameter.name] = Variable(parameter.name, Instance(findType(arg), arg), false)
+			functionContext.parameters[parameter.name] = Variable(parameter.name, Instance(findType(arg), arg), true)
 		}
 
-		return runBlock(function.innerCode, functionContext)
+		return when (val result = runBlock(function.innerCode, functionContext)) {
+			is Node.Return -> runNode(result.expression, functionContext)
+			else -> result
+		}
 	}
 
 	// TODO: Have a return value
 	fun runBlock(block: Node.Statement.Block, context: BlockContext): Node {
 
 		block.nodes.forEachIndexed { index, node ->
-			// If is last node in the block
-			if (index + 1 == block.nodes.size || node is Node.Return) {
-				return runNode(node, context)
-			} else {
-				runNode(node, context)
+
+			val result = runNode(node, context)
+
+			if (index + 1 == block.nodes.size || result is Node.Return) {
+				return result
 			}
 		}
 
@@ -108,13 +117,13 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 
 			is Node.Return -> {
-				return runNode(node.expression, context)
+				return node
 			}
 
 			// TODO: Account for operator overloading
 			is Node.GetCall -> {
 
-				val arrayNode = (context.parameters[node.identifier]
+				val arrayNode = (context.parameters[node.identifier]?.instance?.value
 					?: context.variables.getValue(node.identifier).instance.value) as Node.Array
 
 				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
@@ -142,13 +151,18 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			}
 
 			is Node.Statement.If -> {
-				return if ((runNode(node.predicate, context) as Primitive.Boolean).data) {
-					runBlock(node.block, context)
-				} else {
-					node.elseBlock?.let {
-						runBlock(it, context)
+
+				val result =
+					if ((runNode(node.predicate, context) as Primitive.Boolean).data) {
+						runBlock(node.block, context)
 					}
-				} ?: Type.unit
+					else {
+						node.elseBlock?.let {
+							runBlock(it, context)
+						}
+					} ?: Type.unit
+
+				return result
 			}
 
 			is Node.Statement.While -> {
@@ -264,7 +278,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			is Node.Variable.Basic,
 			is Node.Variable.Local -> {
-				runVariable(node as Node.Variable, context)
+				val variable = runVariable(node as Node.Variable, context)
+				context.variables[variable.name] = variable
 			}
 
 			else -> error("Unexpected node: $node")
@@ -412,8 +427,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 								is Node.GetCall -> {
 									checkEquals(1, pop2.arguments.size)
 									val index = (pop2.arguments.first() as Primitive.Number).toI32().data
-									(context.variables.getValue(pop2.identifier).instance.value as Node.Array).values[index] =
-										value
+									(context.variables.getValue(pop2.identifier).instance.value as Node.Array).values[index] = value
 								}
 
 								is Node.Identifier -> {
@@ -622,14 +636,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			"sqrt" -> {
 				checkEquals(1, node.arguments.size)
-				return Primitive.Number.F64(
-					sqrt(
-						(runNode(
-							node.arguments[0],
-							context
-						) as Primitive.Number).toF64().data
-					)
-				)
+				return Primitive.Number.F64(sqrt((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
 			}
 
 			"sin" -> {
@@ -639,14 +646,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 			"round" -> {
 				checkEquals(1, node.arguments.size)
-				return Primitive.Number.F64(
-					round(
-						(runNode(
-							node.arguments[0],
-							context
-						) as Primitive.Number).toF64().data
-					)
-				)
+				return Primitive.Number.F64(round((runNode(node.arguments[0], context) as Primitive.Number).toF64().data))
 			}
 
 			"print" -> {
@@ -726,7 +726,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 						check(parameter is Node.Parameter.Basic) {
 							"Crescent doesn't support parameters with default values yet."
 						}
-						check(parameter.type == Type.any || parameter.type == findType(argumentValues[index])) {
+						checkIsSameType(parameter.type, argumentValues[index]) {
 							"Parameter ${parameter.name} had an argument of type ${findType(argumentValues[index])}, expected ${parameter.type}"
 						}
 					}
@@ -791,7 +791,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				Type.Basic(value.identifier)
 			}
 			else {
-				error("Unexpected value: ${value::class}")
+				// TODO: Resolve the function return type
+				Type.any
 			}
 		}
 

@@ -134,8 +134,8 @@ internal object TestCode {
 	const val ifStatement =
 		"""
 			fun test1(args: [String]) {
-				 if (args[0] == "true") {
-                    println("Meow")
+				if (args[0] == "true") {
+					println("Meow")
                 }
                 else {
                     println("Hiss")
@@ -483,13 +483,14 @@ internal object TestCode {
 				if (n >= 0){
 				
 					triangle(n-1, k+1);
-			
+					
 					var x: I32 = 0;
 					var y: I32 = 0;
 					while (x < k){
 						print(" ")
 						x = x + 1
 					}
+					
 					while (y < n){
 						print("* ")
 						y = y + 1

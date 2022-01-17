@@ -67,9 +67,11 @@ internal class CrescentVMTests {
 
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.argsHelloWorld))
 
+		println(file.mainFunction!!.innerCode.nodes)
+
 		assertEquals(
 			"Hello World\n",
-			collectSystemOut {
+			collectSystemOut(true) {
 				CrescentVM(listOf(file), file).invoke(listOf("Hello World"))
 			}
 		)
@@ -90,6 +92,8 @@ internal class CrescentVMTests {
 				-5
 				Meow
 				Meow
+				Cats
+				Basic(Unit)
 				
 			""".trimIndent(),
 			collectSystemOut(true) {
@@ -104,14 +108,22 @@ internal class CrescentVMTests {
 		val file = CrescentParser.invoke(Path("example.crescent"), CrescentLexer.invoke(TestCode.ifStatement))
 
 		assertEquals(
-			"Meow\n",
-			collectSystemOut {
+			"""
+				Meow
+				Meow
+			
+			""".trimIndent(),
+			collectSystemOut(true) {
 				CrescentVM(listOf(file), file).invoke(listOf("true"))
 			}
 		)
 
 		assertEquals(
-			"Hiss\n",
+			"""
+				Hiss
+				Hiss
+				
+			""".trimIndent(),
 			collectSystemOut {
 				CrescentVM(listOf(file), file).invoke(listOf("false"))
 			}
@@ -129,7 +141,7 @@ internal class CrescentVMTests {
 				Meow
 				
 			""".trimIndent(),
-			collectSystemOut {
+			collectSystemOut(true) {
 				fakeUserInput("true") {
 					CrescentVM(listOf(file), file).invoke()
 				}
@@ -213,6 +225,8 @@ internal class CrescentVMTests {
 
 		assertEquals(
 			""" 
+				Mew
+				Meow
 				Mew
 				Meow
 				

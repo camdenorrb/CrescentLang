@@ -48,7 +48,8 @@ internal class CrescentLexerTests {
 
         assertContentEquals(
             listOf(
-                FUN, Key("main"), Parenthesis.OPEN, Key("args"), TYPE_PREFIX, SquareBracket.OPEN, Key("String"), SquareBracket.CLOSE, Parenthesis.CLOSE, Bracket.OPEN,
+
+                FUN, Key("test1"), Parenthesis.OPEN, Key("args"), TYPE_PREFIX, SquareBracket.OPEN, Key("String"), SquareBracket.CLOSE, Parenthesis.CLOSE, Bracket.OPEN,
                 IF, Parenthesis.OPEN, Key("args"), SquareBracket.OPEN, Data.Number(0.toByte()), SquareBracket.CLOSE, EQUALS_COMPARE, Data.String("true"), Parenthesis.CLOSE, Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Data.String("Meow"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
@@ -56,6 +57,21 @@ internal class CrescentLexerTests {
                 Key("println"), Parenthesis.OPEN, Data.String("Hiss"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
                 Bracket.CLOSE,
+
+                FUN, Key("test2"), Parenthesis.OPEN, Key("args"), TYPE_PREFIX, SquareBracket.OPEN, Key("String"), SquareBracket.CLOSE, Parenthesis.CLOSE, RETURN, Key("String"), Bracket.OPEN,
+                IF, Parenthesis.OPEN, Key("args"), SquareBracket.OPEN, Data.Number(0.toByte()), SquareBracket.CLOSE, EQUALS_COMPARE, Data.String("true"), Parenthesis.CLOSE, Bracket.OPEN,
+                RETURN, Data.String("Meow"),
+                Bracket.CLOSE,
+                ELSE, Bracket.OPEN,
+                RETURN, Data.String("Hiss"),
+                Bracket.CLOSE,
+                Key("println"), Parenthesis.OPEN, Data.String("This shouldn't be printed"), Parenthesis.CLOSE,
+                Bracket.CLOSE,
+
+                FUN, Key("main"), Parenthesis.OPEN, Key("args"), TYPE_PREFIX, SquareBracket.OPEN, Key("String"), SquareBracket.CLOSE, Parenthesis.CLOSE, Bracket.OPEN,
+                Key("test1"), Parenthesis.OPEN, Key("args"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("test2"), Parenthesis.OPEN, Key("args"), Parenthesis.CLOSE, Parenthesis.CLOSE,
+                Bracket.CLOSE
             ),
             tokens
         )
@@ -205,7 +221,7 @@ internal class CrescentLexerTests {
 
                 OBJECT, Key("Constants"), Bracket.OPEN,
                 CONST, Key("thing2"), ASSIGN, Data.String("Meow"),
-                FUN, Key("printThing"), Parenthesis.OPEN, Parenthesis.CLOSE, Bracket.OPEN,
+                FUN, Key("printThings"), Parenthesis.OPEN, Parenthesis.CLOSE, Bracket.OPEN,
                 Key("println"), Parenthesis.OPEN, Key("thing1"), Parenthesis.CLOSE,
                 Key("println"), Parenthesis.OPEN, Key("thing2"), Parenthesis.CLOSE,
                 Bracket.CLOSE,
@@ -213,6 +229,8 @@ internal class CrescentLexerTests {
 
                 FUN, Key("main"), Bracket.OPEN,
                 Key("Constants"), DOT, Key("printThings"), Parenthesis.OPEN, Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("thing1"), Parenthesis.CLOSE,
+                Key("println"), Parenthesis.OPEN, Key("Constants"), DOT, Key("thing2"), Parenthesis.CLOSE,
                 Bracket.CLOSE
             ),
             tokens
@@ -228,7 +246,7 @@ internal class CrescentLexerTests {
             listOf(
 
                 STRUCT, Key("Example"), Parenthesis.OPEN,
-                VAL, Key("aNumber"), TYPE_PREFIX, Key("Int"), Data.Comment("New lines makes commas redundant"),
+                VAL, Key("aNumber"), TYPE_PREFIX, Key("I32"), Data.Comment("New lines makes commas redundant"),
                 VAL, Key("aValue1"), Key("aValue2"), ASSIGN, Data.String(""), Data.Comment("Multi declaration of same type, can all be set to one or multiple default values"),
                 Parenthesis.CLOSE,
 
@@ -243,10 +261,10 @@ internal class CrescentLexerTests {
 
                 Data.Comment("Can't use self in static syntax"),
                 IMPL, Modifier.STATIC, Key("Example"), Bracket.OPEN,
-                FUN, Key("add"), Parenthesis.OPEN, Key("value1"), Key("value2"), TYPE_PREFIX, Key("Int"), Parenthesis.CLOSE, RETURN, Key("Int"), Bracket.OPEN,
+                FUN, Key("add"), Parenthesis.OPEN, Key("value1"), Key("value2"), TYPE_PREFIX, Key("I32"), Parenthesis.CLOSE, RETURN, Key("I32"), Bracket.OPEN,
                 RETURN, Key("value1"), ADD, Key("value2"),
                 Bracket.CLOSE,
-                FUN, Key("sub"), Parenthesis.OPEN, Key("value1"), Key("value2"), TYPE_PREFIX, Key("Int"), Parenthesis.CLOSE, RETURN, Key("Int"), Bracket.OPEN,
+                FUN, Key("sub"), Parenthesis.OPEN, Key("value1"), Key("value2"), TYPE_PREFIX, Key("I32"), Parenthesis.CLOSE, RETURN, Key("I32"), Bracket.OPEN,
                 RETURN, Key("value1"), SUB, Key("value2"),
                 Bracket.CLOSE,
                 Bracket.CLOSE,
