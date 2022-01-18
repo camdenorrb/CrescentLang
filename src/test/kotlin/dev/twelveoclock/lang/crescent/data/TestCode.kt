@@ -297,7 +297,7 @@ internal object TestCode {
 		"""
 			
 	        struct Example(
-                val aNumber: I32          # New lines makes commas redundant
+                val aNumber: I8          # New lines makes commas redundant
                 val aValue1 aValue2 = ""  # Multi declaration of same type, can all be set to one or multiple default values
             )
 			

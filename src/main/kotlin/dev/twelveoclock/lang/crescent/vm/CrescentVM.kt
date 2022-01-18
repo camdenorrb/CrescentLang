@@ -1,6 +1,7 @@
 package dev.twelveoclock.lang.crescent.vm
 
 import dev.twelveoclock.lang.crescent.iterator.PeekingNodeIterator
+import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
 import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node
 import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node.Primitive
 import dev.twelveoclock.lang.crescent.language.ast.CrescentAST.Node.Type
@@ -17,7 +18,7 @@ import kotlin.math.sqrt
 class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 	// Object name -> Object
-	val objects = mutableMapOf<String, ObjectInstance>()
+	val objects = mutableMapOf<String, Instance.Object>()
 
 
 	fun invoke(args: List<String> = emptyList()) {
@@ -59,7 +60,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				"Parameter type doesn't match argument: $parameterType != ${findType(args[index])}"
 			}
 
-			functionContext.parameters[parameter.name] = Variable(parameter.name, Instance(findType(arg), arg), true)
+			functionContext.parameters[parameter.name] = Variable(parameter.name, Instance.Node(findType(arg), arg), true)
 		}
 
 		return when (val result = runBlock(function.innerCode, functionContext)) {
@@ -104,8 +105,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 				}
 
 				return holderVariable
-					?: context.parameters[node.name]?.instance?.value
-					?: context.variables[node.name]?.instance?.value
+					?: (context.parameters[node.name]?.instance as? Instance.Node)?.value
+					?: (context.variables[node.name]?.instance as? Instance.Node)?.value
 					?: context.file.constants[node.name]?.value
 					?: context.file.objects[node.name]?.let { runObject(it, context) }
 					?: node
@@ -123,8 +124,8 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			// TODO: Account for operator overloading
 			is Node.GetCall -> {
 
-				val arrayNode = (context.parameters[node.identifier]?.instance?.value
-					?: context.variables.getValue(node.identifier).instance.value) as Node.Array
+				val arrayNode = ((context.parameters[node.identifier]?.instance
+					?: context.variables.getValue(node.identifier).instance) as Instance.Node).value as Node.Array
 
 				return arrayNode.values[(runNode(node.arguments[0], context) as Primitive.Number).toI32().data]
 			}
@@ -190,7 +191,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					val counter = Variable(
 						identifier.name,
 						Primitive.Number.I32(ranges.getOrNull(index)?.first ?: ranges[0].first).let {
-							Instance(Primitive.Number.I32.type, it)
+							Instance.Node(Primitive.Number.I32.type, it)
 						},
 						isFinal = true
 					)
@@ -209,7 +210,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 					// Go through last range
 					range.forEach {
-						count.instance.value = Primitive.Number.I32(it)
+						(count.instance as Instance.Node).value = Primitive.Number.I32(it)
 						runBlock(node.block, forContext)
 					}
 
@@ -217,12 +218,11 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 					var tmpIndex = ranges.size - 2
 
 					while (tmpIndex > -1) {
-						if ((counters[tmpIndex].instance.value as Primitive.Number.I32).data >= ranges[tmpIndex].last) {
-							counters[tmpIndex].instance.value = Primitive.Number.I32(ranges[tmpIndex].first)
+						if (((counters[tmpIndex].instance as Instance.Node).value as Primitive.Number.I32).data >= ranges[tmpIndex].last) {
+							(counters[tmpIndex].instance as Instance.Node).value = Primitive.Number.I32(ranges[tmpIndex].first)
 							tmpIndex--
 						} else {
-							counters[tmpIndex].instance.value =
-								Primitive.Number.I32((counters[tmpIndex].instance.value as Primitive.Number.I32).data + 1)
+							(counters[tmpIndex].instance as Instance.Node).value = Primitive.Number.I32(((counters[tmpIndex].instance as Instance.Node).value as Primitive.Number.I32).data + 1)
 							break
 						}
 					}
@@ -329,14 +329,14 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 			else -> error("Not a recognized variable node: $node")
 		}
 
-		return Variable(node.name, Instance(type, value), node.isFinal)
+		return Variable(node.name, Instance.Node(type, value), node.isFinal)
 	}
 
 	fun runObject(objectNode: Node.Object, context: BlockContext): Node.Object {
 
 		val objectContext = context.copy(holder = objectNode, variables = mutableMapOf())
 
-		objects[objectNode.name] = ObjectInstance(
+		objects[objectNode.name] = Instance.Object(
 			objectNode.name,
 			objectNode.type,
 			objectNode.constants.mapValues { runVariable(it.value, objectContext) },
@@ -427,7 +427,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 								is Node.GetCall -> {
 									checkEquals(1, pop2.arguments.size)
 									val index = (pop2.arguments.first() as Primitive.Number).toI32().data
-									(context.variables.getValue(pop2.identifier).instance.value as Node.Array).values[index] = value
+									((context.variables.getValue(pop2.identifier).instance as Instance.Node).value as Node.Array).values[index] = value
 								}
 
 								is Node.Identifier -> {
@@ -446,7 +446,7 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 										"Variable ${variable.name} is not mutable"
 									}
 
-									variable.instance = Instance(valueType, value)
+									variable.instance = Instance.Node(valueType, value)
 								}
 							}
 
@@ -699,14 +699,15 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 
 						val argument = argumentValues[index]
 
-						check(variable.type == Type.any || variable.type == findType(argument)) {
+						checkIsSameType(variable.type, argument) {
 							"Variable ${variable.name} had an argument of type ${findType(argumentValues[index])}, expected ${variable.type}"
 						}
 
-						parameters[variable.name] = Variable(variable.name, Instance(findType(argument), argument), variable.isFinal)
+						parameters[variable.name] = Variable(variable.name, Instance.Node(findType(argument), argument), variable.isFinal)
 					}
 
-					StructInstance(struct.name, parameters)
+					// TODO: Instance sealed class and store it
+					Instance.Struct(struct.name, parameters)
 				}
 				else {
 
@@ -842,23 +843,33 @@ class CrescentVM(val files: List<Node.File>, val mainFile: Node.File) {
 	}
 
 
-	data class Instance(
-		val type: Type,
-		var value: Node,
-	)
+	sealed class Instance {
 
-	data class StructInstance(
-		val name: String,
-		val variables: Map<String, Variable>,
-	)
+		abstract val type: Type
 
-	data class ObjectInstance(
-		val name: String,
-		val type: Type,
-		val constants: Map<String, Variable>,
-		val variables: Map<String, Variable>,
-		val functions: Map<String, Node.Function>,
-	)
+		data class Node(
+			override val type: Type,
+			var value: CrescentAST.Node,
+		) : Instance()
+
+		data class Struct(
+			val name: String,
+			val variables: Map<String, Variable>,
+		) : Instance() {
+
+			override val type = Type.Basic(name)
+
+		}
+
+		data class Object(
+			val name: String,
+			override val type: Type,
+			val constants: Map<String, Variable>,
+			val variables: Map<String, Variable>,
+			val functions: Map<String, CrescentAST.Node.Function>,
+		) : Instance()
+
+	}
 
 	data class Variable(
 		val name: String,
