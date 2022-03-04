@@ -2,7 +2,7 @@
     <img src="https://github.com/camdenorrb/CrescentVM/raw/master/CrescentIcon.png" alt="Crescent Icon" width="100px" height="100px">
 </p>
 
-# CrescentLang
+# CrescentLang Meow
 
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Build Status](https://drone.12oclock.dev/api/badges/camdenorrb/CrescentLang/status.svg)](https://drone.12oclock.dev/camdenorrb/CrescentLang)
