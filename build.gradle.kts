@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     idea
     application
-    kotlin("jvm") version "1.6.10"
+    kotlin("jvm") version "1.7.0-RC"
 }
 
 group = "dev.twelveoclock.lang"
@@ -18,9 +18,9 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(kotlin("reflect"))
 
-    implementation("org.capnproto:runtime:0.1.11")
-    implementation("com.guardsquare:proguard-core:8.0.3")
-    implementation("tech.poder.ir:PoderTechIR:+")
+    implementation("org.capnproto:runtime:0.1.13")
+    implementation("com.guardsquare:proguard-core:9.0.0")
+    //implementation("tech.poder.ir:PoderTechIR:+")
     testImplementation(kotlin("test-junit5"))
 }
 
@@ -36,8 +36,8 @@ tasks {
     val javaVersion = JavaVersion.VERSION_17.toString()
 
     withType<KotlinCompile> {
-        sourceCompatibility = javaVersion
-        targetCompatibility = javaVersion
+        //sourceCompatibility = javaVersion
+        //targetCompatibility = javaVersion
         kotlinOptions.jvmTarget = javaVersion
         //kotlinOptions.languageVersion = "1.6"
         //kotlinOptions.apiVersion = "1.6"

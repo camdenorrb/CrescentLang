@@ -1,5 +1,6 @@
 package dev.twelveoclock.lang.crescent.translators
 
+/*
 import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
 import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 import tech.poder.ir.api.CodeFile
@@ -372,3 +373,4 @@ class CrescentToPTIR {
 		}
 	}
 }
+*/

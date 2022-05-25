@@ -1,0 +1,1 @@
+[] Use same memory for structs if they contain the same values, only use different memory if changed

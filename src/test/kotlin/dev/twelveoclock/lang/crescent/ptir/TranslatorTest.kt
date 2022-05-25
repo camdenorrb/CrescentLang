@@ -1,5 +1,5 @@
 package dev.twelveoclock.lang.crescent.ptir
-
+/*
 import dev.twelveoclock.lang.crescent.data.TestCode
 import dev.twelveoclock.lang.crescent.lexers.CrescentLexer
 import dev.twelveoclock.lang.crescent.parsers.CrescentParser
@@ -10,6 +10,7 @@ import java.nio.file.Paths
 import kotlin.io.path.Path
 
 class TranslatorTest {
+
 	@Test
 	fun helloWorld() {
 		val file = CrescentParser.invoke(Path("Test", "example.crescent").toAbsolutePath(), CrescentLexer.invoke(TestCode.helloWorlds))
@@ -45,4 +46,4 @@ class TranslatorTest {
 		println(code.joinToString("\n") { it.asCode().toString() })
 		VirtualMachine.exec(code[0].asCode(), 1u)
 	}*/
-}
+}*/

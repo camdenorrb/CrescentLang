@@ -13,6 +13,7 @@ object Main {
 	// TODO: Replace all checkEquals in project with check and a custom message
 	@JvmStatic
 	fun main(args: Array<String>) {
+
 		for (x in 0..9) {
 			for (y in 0..9) {
 				for (z in 0..9) {
