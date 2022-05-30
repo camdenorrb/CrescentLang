@@ -8,6 +8,7 @@ interface Node
 // This should not be a parameter, it can be figured out by the compiler
 interface Scope
 
+interface Statement
 
 @Target(AnnotationTarget.FIELD)
 annotation class Parse(
@@ -17,6 +18,10 @@ annotation class Parse(
 
 	// Suffix tokens that should be skipped and expected
 	val expectSuffix: kotlin.Array<KClass<out CrescentToken>> = [],
+
+	// TODO: See if you can get rid of the below to via inner classes
+	//       Example Class { Function {} }, Object { Function {} }
+	//       Hence scope specific details is defined via inner class
 
 	// Used to annotate fields that are only set in certain scopes
 	val forScope: kotlin.Array<KClass<out Scope>> = [],
@@ -31,7 +36,7 @@ annotation class Parse(
 @JvmInline
 value class Block(
 	val nodes: List<Node>,
-) {
+) : Node {
 
 	override fun toString(): String {
 		return "{ ${nodes.joinToString()} }"

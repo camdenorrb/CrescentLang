@@ -6,59 +6,56 @@ package dev.twelveoclock.lang.crescent.language.token
 // TODO: Error keyword
 // TODO: Maybe remove majority of these and let the parser determine it, EX: Import, while
 // TODO: Store line numbers, start/end char positions
-interface CrescentToken {
+object CrescentToken {
 
-	// Used only by the token iterator
-	object Empty : CrescentToken
-
-	@JvmInline
-	value class Identifier(
-		val string: String
-	) : CrescentToken {
-
-		override fun toString(): String {
-			return string
-		}
-
+	enum class Variable : Token {
+		VAL,
+		VAR,
+		CONST,
 	}
 
-	interface Primitive : CrescentToken {
-
-		@JvmInline
-		value class Number(
-			val number: kotlin.Number
-		) : Primitive {
-
-			override fun toString(): kotlin.String {
-				return "Number(${number} ${number::class.simpleName})"
-			}
-
-		}
-
-		// TODO: Take in expressions
-		@JvmInline
-		value class String(
-			val kotlinString: kotlin.String
-		) : Primitive
-
-		@JvmInline
-		value class Boolean(
-			val kotlinBoolean: kotlin.Boolean
-		) : Primitive
-
-		@JvmInline
-		value class Char(
-			val kotlinChar: kotlin.Char
-		) : Primitive
-
+	enum class Type : Token {
+		STRUCT,
+		IMPL,
+		TRAIT,
+		OBJECT,
+		ENUM,
+		SEALED,
 	}
 
-	@JvmInline
-	value class Comment(
-		val string: kotlin.String
-	) : CrescentToken
+	enum class Statement : Token {
+		IMPORT,
+		WHILE,
+		WHEN,
+		FOR,
+		IF,
+		FUN,
+		ELSE,
+	}
 
-	enum class Parenthesis : CrescentToken {
+	enum class Visibility : Token {
+		PRIVATE,
+		INTERNAL,
+		PUBLIC,
+	}
+
+	enum class Modifier : Token {
+		ASYNC,
+		OVERRIDE,
+		OPERATOR,
+		INLINE,
+		STATIC,
+		INFIX,
+	}
+
+
+	enum class Keyword(val literal: String) : Token {
+		SELF("self"),
+		BREAK("break"),
+		CONTINUE("continue"),
+	}
+
+	enum class Parenthesis : Token {
 
 		OPEN,
 		CLOSE,
@@ -69,7 +66,7 @@ interface CrescentToken {
 		}
 	}
 
-	enum class Bracket : CrescentToken {
+	enum class Bracket : Token {
 
 		OPEN,
 		CLOSE,
@@ -80,7 +77,7 @@ interface CrescentToken {
 		}
 	}
 
-	enum class SquareBracket : CrescentToken {
+	enum class SquareBracket : Token {
 
 		OPEN,
 		CLOSE,
@@ -91,55 +88,8 @@ interface CrescentToken {
 		}
 	}
 
-	enum class Variable : CrescentToken {
-		VAL,
-		VAR,
-		CONST,
-	}
-
-	enum class Type : CrescentToken {
-		STRUCT,
-		IMPL,
-		TRAIT,
-		OBJECT,
-		ENUM,
-		SEALED,
-	}
-
-	enum class Statement : CrescentToken {
-		IMPORT,
-		WHILE,
-		WHEN,
-		FOR,
-		IF,
-		FUN,
-		ELSE,
-	}
-
-	enum class Visibility : CrescentToken {
-		PRIVATE,
-		INTERNAL,
-		PUBLIC,
-	}
-
-	enum class Modifier : CrescentToken {
-		ASYNC,
-		OVERRIDE,
-		OPERATOR,
-		INLINE,
-		STATIC,
-		INFIX,
-	}
-
-
-	enum class Keyword(val literal: String) : CrescentToken {
-		SELF("self"),
-		BREAK("break"),
-		CONTINUE("continue"),
-	}
-
 	// TODO: Precedence
-	enum class Operator(val literal: String) : CrescentToken {
+	enum class Operator(val literal: String) : Token.Operator {
 		//NEW_LINE("\n"),
 		NOT("!"),
 		ADD("+"),
@@ -185,33 +135,5 @@ interface CrescentToken {
 		//NOT_INSTANCE_OF("!is"),
 	}
 
-	/*
-	enum class Primitive : CrescentToken {
-
-		I8,
-		I16,
-		I32,
-		I64,
-
-		U8,
-		U16,
-		U32,
-		U64,
-
-		F32,
-		F64,
-
-		// Other types built into the language
-		//Array,
-		//List,
-		//Map,
-		//Tensor,
-		//Char,
-		//Text,
-		//Fun,
-		//Time,
-		//Struct
-	}
-	*/
 
 }

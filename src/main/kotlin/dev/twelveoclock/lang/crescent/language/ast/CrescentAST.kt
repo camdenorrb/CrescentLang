@@ -9,7 +9,7 @@ import java.nio.file.Path
 
 // TODO: Store line numbers and start/end char positions
 // TODO: Make Variable a sealed class, Basic, Constant, Local
-class CrescentAST {
+object CrescentAST {
 
 	// TODO: Make a better toString
 	data class File(
@@ -30,8 +30,9 @@ class CrescentAST {
 
 	data class GetCall(
 		val identifier: String,
-		val arguments: List<CommonAST.Node>,
-	) : CommonAST.Node {
+		val arguments: List<Node>,
+		var callee: Node? = null, // Used for dot chains
+	) : Node {
 
 		override fun toString(): String {
 			return "$identifier[${arguments.joinToString()}]"
@@ -42,7 +43,7 @@ class CrescentAST {
 	data class IdentifierCall(
 		val identifier: String,
 		val arguments: List<Node> = emptyList(),
-		var callee: Node? = null,
+		var callee: Node? = null, // Used for dot chains
 	) : Node {
 
 		override fun toString(): String {
@@ -132,7 +133,7 @@ class CrescentAST {
 		val visibility: CrescentToken.Visibility,
 		val params: List<Parameter>,
 		val returnType: Type,
-		val innerCode: Statement.Block,
+		val innerCode: Block,
 	) : Node, Scope
 
 	class Parameter(
@@ -141,69 +142,69 @@ class CrescentAST {
 		val defaultValue: Node?,
 	) : Node
 
-	interface Statement : Node {
 
-		data class When(
-			val argument: Node,
-			val predicateToBlock: List<Clause>,
-		) : Statement {
+	//region Statements
+
+	data class When(
+		val argument: Node,
+		val predicateToBlock: List<Clause>,
+	) : Node, Statement {
+
+		override fun toString(): String {
+			return "when (${argument}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
+		}
+
+		// ifExpression is null when it's else
+		data class Clause(val ifNode: Node?, val thenNode: Node) : Node, Statement {
 
 			override fun toString(): String {
-				return "when (${argument}) ${predicateToBlock.joinToString(prefix = "{ ", postfix = " }")}"
+				return "$ifNode $thenNode"
 			}
-
-			// ifExpression is null when it's else
-			data class Clause(val ifNode: Node?, val thenNode: Node) : Statement {
-
-				override fun toString(): String {
-					return "$ifNode $thenNode"
-				}
-
-			}
-
-			// .EnumName
-			@JvmInline
-			value class EnumShortHand(
-				val name: String,
-			) : Statement
-
-			@JvmInline
-			value class Else(
-				val thenBlock: Block,
-			) : Statement
 
 		}
 
-		// TODO: Add else if's, perhaps rename elseBlock to elseBlocks
-		data class If(
-			val predicate: Node,
-			val block: Block,
-			val elseNode: Node?,
-		) : Statement
+		// .EnumName
+		@JvmInline
+		value class EnumShortHand(
+			val name: String,
+		) : Node, Statement
 
-		data class While(
-			val predicate: Node,
-			val block: Block,
-		) : Statement
+		@JvmInline
+		value class Else(
+			val thenBlock: Block,
+		) : Node, Statement
 
-		data class For(
-			val identifiers: List<Identifier>,
-			val ranges: List<Range>,
-			val block: Block,
-		) : Statement
+	}
 
-		data class Range(
-			val start: Node,
-			val end: Node,
-		) : Statement {
+	// TODO: Add else if's, perhaps rename elseBlock to elseBlocks
+	data class If(
+		val predicate: Node,
+		val block: Block,
+		val elseNode: Node?,
+	) : Node, Statement
 
-			override fun toString(): String {
-				return "$start..$end"
-			}
+	data class While(
+		val predicate: Node,
+		val block: Block,
+	) : Node, Statement
 
+	data class For(
+		val identifiers: List<Identifier>,
+		val ranges: List<Range>,
+		val block: Block,
+	) : Node, Statement
+
+	data class Range(
+		val start: Node,
+		val end: Node,
+	) : Node, Statement {
+
+		override fun toString(): String {
+			return "$start..$end"
 		}
 
 	}
 
+	//endregion
 
 }
