@@ -5,12 +5,15 @@ import dev.twelveoclock.lang.crescent.language.token.CrescentToken
 import java.nio.file.Path
 
 // TODO: Maybe support comments
-// TODO: Shunting yard :C
 // TODO: Unwrap expressions of size 1, and make everything take in a node rather than an expression
 // Example: Variable("x", false, Visibility.PUBLIC, Type.Implicit, Expression(listOf(Number(1))))
-object CrescentParser {
+
+// TODO: This can be converted to a generic parser when done
+object Parser {
 
 	// TODO: Loop through all the AST and generate parsers lazily List<Lazy<Parser>>
+
+
 
 	class Expectations(
 		// Essentially a list of possible tokens at each step for it to be considered a match
@@ -18,7 +21,7 @@ object CrescentParser {
 	)
 
 	class Block(
-		val parsers: Map<Expectations, (List<CrescentToken>) -> >
+		val parsers: Map<Expectations, (List<CrescentToken>) ->
 	)
 
 	fun invoke(filePath: Path, tokens: List<CrescentToken>): CrescentAST.Node.File {

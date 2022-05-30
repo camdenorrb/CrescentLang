@@ -7,6 +7,7 @@ import java.util.*
 
 object ShuntingYard {
 
+	// TODO: Make this work on common ast alone
 	fun invoke(input: List<CrescentAST.Node>): List<CrescentAST.Node> {
 
 		// Queue -> Add/Remove

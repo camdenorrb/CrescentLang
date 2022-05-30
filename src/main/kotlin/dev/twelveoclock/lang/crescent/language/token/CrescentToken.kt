@@ -1,7 +1,5 @@
 package dev.twelveoclock.lang.crescent.language.token
 
-import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
-
 // TODO: Make a way to reconstruct the code through .toString
 // TODO: Add ++ and --
 // TODO: Add Operator keyword
@@ -11,10 +9,10 @@ import dev.twelveoclock.lang.crescent.language.ast.CrescentAST
 interface CrescentToken {
 
 	// Used only by the token iterator
-	object None : CrescentToken
+	object Empty : CrescentToken
 
 	@JvmInline
-	value class Key(
+	value class Identifier(
 		val string: String
 	) : CrescentToken {
 
@@ -24,40 +22,41 @@ interface CrescentToken {
 
 	}
 
-	interface Data : CrescentToken {
+	interface Primitive : CrescentToken {
 
 		@JvmInline
 		value class Number(
 			val number: kotlin.Number
-		) : Data {
+		) : Primitive {
 
 			override fun toString(): kotlin.String {
 				return "Number(${number} ${number::class.simpleName})"
 			}
+
 		}
 
 		// TODO: Take in expressions
 		@JvmInline
 		value class String(
 			val kotlinString: kotlin.String
-		) : Data
+		) : Primitive
 
 		@JvmInline
 		value class Boolean(
 			val kotlinBoolean: kotlin.Boolean
-		) : Data
+		) : Primitive
 
 		@JvmInline
 		value class Char(
 			val kotlinChar: kotlin.Char
-		) : Data
-
-		@JvmInline
-		value class Comment(
-			val string: kotlin.String
-		) : Data
+		) : Primitive
 
 	}
+
+	@JvmInline
+	value class Comment(
+		val string: kotlin.String
+	) : CrescentToken
 
 	enum class Parenthesis : CrescentToken {
 
@@ -133,14 +132,14 @@ interface CrescentToken {
 	}
 
 
-	enum class Keyword(val literal: String) : CrescentToken, CrescentAST.Node {
+	enum class Keyword(val literal: String) : CrescentToken {
 		SELF("self"),
 		BREAK("break"),
 		CONTINUE("continue"),
 	}
 
 	// TODO: Precedence
-	enum class Operator(val literal: String) : CrescentToken, CrescentAST.Node {
+	enum class Operator(val literal: String) : CrescentToken {
 		//NEW_LINE("\n"),
 		NOT("!"),
 		ADD("+"),
@@ -183,9 +182,10 @@ interface CrescentToken {
 		AS("as"),
 		IMPORT_SEPARATOR("::"),
 		INSTANCE_OF("is"),
-		NOT_INSTANCE_OF("!is"),
+		//NOT_INSTANCE_OF("!is"),
 	}
 
+	/*
 	enum class Primitive : CrescentToken {
 
 		I8,
@@ -212,5 +212,6 @@ interface CrescentToken {
 		//Time,
 		//Struct
 	}
+	*/
 
 }

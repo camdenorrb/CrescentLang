@@ -6,7 +6,8 @@ import dev.twelveoclock.lang.crescent.project.checkEquals
 import dev.twelveoclock.lang.crescent.project.extensions.minimize
 
 // TODO: Support negative numbers
-object CrescentLexer {
+// TODO: Make this generic
+object Lexer {
 
 	// TODO: Remake to act like how my filter works, finds all matches and eliminates as it continues to read
 	fun invoke(input: String): List<CrescentToken> {
@@ -228,7 +229,7 @@ object CrescentLexer {
 				"true" -> CrescentToken.Data.Boolean(true)
 				"false" -> CrescentToken.Data.Boolean(false)
 
-				else -> CrescentToken.Key(key)
+				else -> CrescentToken.Identifier(key)
 			}
 		}
 
