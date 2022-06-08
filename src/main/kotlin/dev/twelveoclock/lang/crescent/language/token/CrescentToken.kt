@@ -57,34 +57,34 @@ object CrescentToken {
 
 	enum class Parenthesis : Token {
 
-		OPEN,
-		CLOSE,
+		LEFT,
+		RIGHT,
 		;
 
 		override fun toString(): String {
-			return if (this == OPEN) "(" else ")"
+			return if (this == LEFT) "(" else ")"
+		}
+	}
+
+	enum class Brace : Token {
+
+		LEFT,
+		RIGHT,
+		;
+
+		override fun toString(): String {
+			return if (this == LEFT) "{" else "}"
 		}
 	}
 
 	enum class Bracket : Token {
 
-		OPEN,
-		CLOSE,
+		LEFT,
+		RIGHT,
 		;
 
 		override fun toString(): String {
-			return if (this == OPEN) "{" else "}"
-		}
-	}
-
-	enum class SquareBracket : Token {
-
-		OPEN,
-		CLOSE,
-		;
-
-		override fun toString(): String {
-			return if (this == OPEN) "[" else "]"
+			return if (this == LEFT) "[" else "]"
 		}
 	}
 

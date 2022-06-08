@@ -28,7 +28,8 @@ object CrescentAST {
 		val mainFunction: Function?,
 	) : Node, Scope
 
-	data class GetCall(
+
+	data class IdentifierGetCall(
 		val identifier: String,
 		val arguments: List<Node>,
 		var callee: Node? = null, // Used for dot chains
@@ -62,6 +63,10 @@ object CrescentAST {
 		}
 
 	}
+
+	data class Type(
+		val name: String,
+	) : Node
 
 	data class Import(
 		val path: String,

@@ -1,6 +1,6 @@
 package dev.twelveoclock.lang.crescent.language.ast
 
-import dev.twelveoclock.lang.crescent.language.token.CrescentToken
+import dev.twelveoclock.lang.crescent.language.token.Token
 import kotlin.reflect.KClass
 
 interface Node
@@ -10,24 +10,30 @@ interface Scope
 
 interface Statement
 
-@Target(AnnotationTarget.FIELD)
+
+annotation class KeywordType
+
+@Target(
+	AnnotationTarget.CLASS,
+	AnnotationTarget.FIELD
+)
 annotation class Parse(
 
 	// Prefix tokens that should be skipped and expected
-	val expectPrefix: kotlin.Array<KClass<out CrescentToken>> = [],
+	val expectPrefix: kotlin.Array<KClass<out Token>> = [],
 
 	// Suffix tokens that should be skipped and expected
-	val expectSuffix: kotlin.Array<KClass<out CrescentToken>> = [],
+	val expectSuffix: kotlin.Array<KClass<out Token>> = [],
 
 	// TODO: See if you can get rid of the below to via inner classes
 	//       Example Class { Function {} }, Object { Function {} }
 	//       Hence scope specific details is defined via inner class
 
 	// Used to annotate fields that are only set in certain scopes
-	val forScope: kotlin.Array<KClass<out Scope>> = [],
+	//val forScope: kotlin.Array<KClass<out Scope>> = [],
 
 	// Used to annotate fields that are only set in other scopes
-	val unlessScope: kotlin.Array<KClass<out Scope>> = [],
+	//val unlessScope: kotlin.Array<KClass<out Scope>> = [],
 
 )
 
